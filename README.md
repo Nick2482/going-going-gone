@@ -98,3 +98,4 @@ The bid steps live in two places that must match: `increment()` in `lib/format.j
 - Reserve prices and "Buy it now"
 - Seller ratings after each sale
 - Payments through Stripe
+Launched on Vercel.
