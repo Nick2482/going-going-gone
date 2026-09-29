@@ -6,7 +6,7 @@ export default function Privacy() {
   return (
     <div className="wrap prose">
       <h1 className="page-title">Privacy notice</h1>
-      <p className="notice">Starter draft. Add your name or business name as the data controller, check it against the ICO&apos;s guidance for small organisations, and consider whether you need to register with the ICO.</p>
+            <p className="hint">Last updated: 29 September 2026</p><h2>Who we are</h2><p>Going Going Gone is run from Market Bosworth, Leicestershire. We are responsible for the personal data described here. For anything to do with your data, contact Customer Service at <span className="mono">{CONTACT}</span>.</p>
 
       <h2>What we collect</h2>
       <ul>
@@ -21,7 +21,7 @@ export default function Privacy() {
       <p>To run the site: signing you in, showing listings and bids, putting winners and sellers in touch, and keeping the site safe. Our lawful basis is performing our agreement with you (the terms of use) and our legitimate interest in preventing fraud.</p>
 
       <h2>Who processes it</h2>
-      <p>Data is stored with Supabase (database, sign-in and photo storage) and the site is hosted by Vercel. Check each provider&apos;s data location and terms when you set up your accounts.</p>
+            <p>We use trusted providers to run the site: Supabase (database, sign-in and photo storage), Vercel (website hosting) and Resend (sign-in emails). They only process your data to provide these services to us.</p>
 
       <h2>How long we keep it</h2>
       <p>While your account is open. Completed sales and bid records may be kept for up to 2 years to help resolve disputes.</p>
