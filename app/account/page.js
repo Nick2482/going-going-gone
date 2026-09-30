@@ -5,7 +5,7 @@ import ProfileForm from "./ProfileForm";
 
 export const metadata = { title: "My account" };
 
-const LOT_FIELDS = "id, lot_no, title, category, location, current_price_pence, bid_count, ends_at, cover_path, high_bidder_id, status";
+const LOT_FIELDS = "id, lot_no, title, category, location, current_price_pence, bid_count, ends_at, cover_path, high_bidder_id, status, reserve_status";
 
 function Section({ title, lots, badge, empty }) {
   return (
@@ -37,7 +37,7 @@ export default async function AccountPage() {
   const now = Date.now();
   const isLive = (l) => l.status === "live" && new Date(l.ends_at).getTime() > now;
   const biddingOn = (bidLots ?? []).filter(isLive);
-  const won = (bidLots ?? []).filter((l) => !isLive(l) && l.high_bidder_id === userId).reverse();
+  const won = (bidLots ?? []).filter((l) => !isLive(l) && l.high_bidder_id === userId && l.reserve_status !== "not_met").reverse();
   const selling = (mine ?? []).filter(isLive).reverse();
   const finished = (mine ?? []).filter((l) => !isLive(l));
 
@@ -59,7 +59,9 @@ export default async function AccountPage() {
       <Section title="Selling" lots={selling} empty="Nothing for sale right now." />
       {finished.length ? (
         <Section title="Finished listings" lots={finished}
-          badge={(l) => l.status === "removed" ? <span className="pill p-unsold">Withdrawn</span> : null} />
+          badge={(l) => l.status === "removed"
+            ? <span className="pill p-unsold">Withdrawn</span>
+            : l.bid_count > 0 && l.reserve_status === "not_met" ? <span className="pill p-reserve">Reserve not met</span> : null} />
       ) : null}
     </div>
   );

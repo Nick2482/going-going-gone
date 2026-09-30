@@ -1,39 +1,46 @@
 import Link from "next/link";
-import { gbp, lotNumber, photoUrl } from "@/lib/format";
+import { gbp, lotNumber, photoUrl, RESERVE_LABEL } from "@/lib/format";
 import { StagePill, TimeLeft } from "./Clock";
+import { PhotoIcon, PinIcon } from "./Icons";
 
 // One lot in a grid. `badge` is an optional extra pill such as "Highest bidder".
 export default function LotCard({ lot, badge }) {
   const ended = new Date(lot.ends_at).getTime() <= Date.now();
   const cover = photoUrl(lot.cover_path);
+  const reserve = !ended ? RESERVE_LABEL[lot.reserve_status] : null;
   const priceLabel = ended
-    ? lot.bid_count ? "Hammer price" : "Started at"
+    ? lot.bid_count ? "Final bid" : "Started at"
     : lot.bid_count ? "Current bid" : "Starting bid";
 
   return (
     <Link href={`/lot/${lot.id}`} className="lot">
-      <div className="lot-head">
-        <span className="lotno">LOT {lotNumber(lot.lot_no)}</span>
-        <span className="cat">{lot.category}</span>
+      <div className="lot-media">
+        {cover
+          ? <img src={cover} alt="" loading="lazy" />
+          : <div className="lot-noimg" aria-hidden="true"><PhotoIcon /></div>}
+        <StagePill endsAt={lot.ends_at} bidCount={lot.bid_count} reserveStatus={lot.reserve_status} />
+        <span className="lot-no">LOT {lotNumber(lot.lot_no)}</span>
       </div>
-      {cover
-        ? <img className="lot-img" src={cover} alt="" loading="lazy" />
-        : <div className="lot-noimg" aria-hidden="true">{lot.category.slice(0, 1)}</div>}
       <div className="lot-body">
-        <div className="row" style={{ gap: 6 }}>
-          <StagePill endsAt={lot.ends_at} bidCount={lot.bid_count} />
-          {badge}
-        </div>
+        <span className="lot-cat">{lot.category}</span>
         <h3 className="lot-title">{lot.title}</h3>
-        {lot.location ? <p className="lot-where">{lot.location}</p> : null}
+        {lot.location ? <span className="lot-where"><PinIcon />{lot.location}</span> : null}
+        {reserve || badge ? (
+          <div className="lot-tags">
+            {reserve ? <span className={`pill ${lot.reserve_status === "met" ? "p-reserve-met" : "p-reserve"}`}>{reserve}</span> : null}
+            {badge}
+          </div>
+        ) : null}
       </div>
       <div className="lot-foot">
-        <span className="label">{priceLabel}</span>
-        <span className="label" style={{ textAlign: "right" }}>
-          {lot.bid_count} bid{lot.bid_count === 1 ? "" : "s"}
-        </span>
-        <span className="price">{gbp(lot.current_price_pence)}</span>
-        <TimeLeft endsAt={lot.ends_at} />
+        <div className="lot-price">
+          <small>{priceLabel}</small>
+          <span className="price">{gbp(lot.current_price_pence)}</span>
+        </div>
+        <div>
+          <TimeLeft endsAt={lot.ends_at} />
+          <div className="lot-bids">{lot.bid_count} bid{lot.bid_count === 1 ? "" : "s"}</div>
+        </div>
       </div>
     </Link>
   );

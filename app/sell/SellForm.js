@@ -13,6 +13,7 @@ export default function SellForm({ userId, defaultArea }) {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState(defaultArea);
   const [start, setStart] = useState("");
+  const [reserve, setReserve] = useState("");
   const [days, setDays] = useState("7");
   const [agree, setAgree] = useState(false);
   const [photos, setPhotos] = useState([]); // { blob, preview }
@@ -59,9 +60,13 @@ export default function SellForm({ userId, defaultArea }) {
     e.preventDefault();
     setError("");
     const pence = toPence(start);
+    const reservePence = reserve.trim() ? toPence(reserve) : null;
     if (title.trim().length < 3) return setError("Give your item a title of at least 3 characters.");
-    if (!Number.isFinite(pence) || pence < 1) return setError("Set a starting bid, for example 5.00.");
     if (!photos.length) return setError("Add at least one photo. Lots with photos get far more bids.");
+    if (!Number.isFinite(pence) || pence < 1) return setError("Set a starting bid, for example 5.00.");
+    if (reservePence !== null && (!Number.isFinite(reservePence) || reservePence <= pence)) {
+      return setError(`The reserve must be higher than the starting bid${Number.isFinite(pence) ? ` of ${gbp(pence)}` : ""}, or left empty.`);
+    }
     if (!agree) return setError("Please confirm the item is yours to sell and allowed on the site.");
 
     setSaving("Listing your item…");
@@ -80,6 +85,13 @@ export default function SellForm({ userId, defaultArea }) {
       .single();
     if (lotErr) { setSaving(""); return setError("Your listing didn't save. Check your connection and try again."); }
 
+    let reserveFailed = false;
+    if (reservePence !== null) {
+      const { error: resErr } = await supabase.from("lot_reserves").insert({ lot_id: lot.id, reserve_pence: reservePence });
+      // The lot is live without a reserve; the lot page tells the seller so they can add it again.
+      reserveFailed = Boolean(resErr);
+    }
+
     try {
       setSaving("Uploading photos…");
       const paths = await uploadLotPhotos(supabase, { userId, lotId: lot.id, blobs: photos.map((p) => p.blob) });
@@ -89,14 +101,15 @@ export default function SellForm({ userId, defaultArea }) {
     }
     // Remember the area for next time.
     if (location.trim()) await supabase.from("profiles").update({ area: location.trim() }).eq("id", userId);
-    router.push(`/lot/${lot.id}`);
+    router.push(`/lot/${lot.id}${reserveFailed ? "?reserve=failed" : ""}`);
     router.refresh();
   }
 
   const pence = toPence(start);
+  const reservePence = toPence(reserve);
 
   return (
-    <form className="stack" onSubmit={submit} noValidate>
+    <form className="form-card stack" style={{ gap: 22 }} onSubmit={submit} noValidate>
       <div className="formgrid">
         <div className="field full">
           <label htmlFor="title">What are you selling?</label>
@@ -104,7 +117,7 @@ export default function SellForm({ userId, defaultArea }) {
         </div>
 
         <div className="field full">
-          <span className="label">Photos <span style={{ textTransform: "none", letterSpacing: 0, fontWeight: 500 }}>(up to {MAX_PHOTOS}. The first one is the cover.)</span></span>
+          <span className="label">Photos <span className="optional">(up to {MAX_PHOTOS}. The first one is the cover.)</span></span>
           <div className="g-strip">
             {photos.map((p, k) => (
               <span key={p.preview} className="g-thumb" aria-current={k === 0}>
@@ -132,12 +145,9 @@ export default function SellForm({ userId, defaultArea }) {
         </div>
 
         <div className="field">
-          <label htmlFor="start">Starting bid</label>
-          <div className="money">
-            <span>£</span>
-            <input id="start" inputMode="decimal" placeholder="10.00" value={start} onChange={(e) => setStart(e.target.value)} />
-          </div>
-          {Number.isFinite(pence) && pence > 0 ? <span className="hint">Bidding opens at {gbp(pence)}.</span> : null}
+          <label htmlFor="location">Collection area</label>
+          <input id="location" className="input" maxLength={60} placeholder="e.g. Market Bosworth" value={location} onChange={(e) => setLocation(e.target.value)} />
+          <span className="hint">A town or village, never your full address.</span>
         </div>
 
         <div className="field full">
@@ -146,28 +156,46 @@ export default function SellForm({ userId, defaultArea }) {
             placeholder="Condition, size, age, any faults, and whether you can post it or it's collection only." />
         </div>
 
+        <h2 className="form-section full">Price and timing</h2>
+
         <div className="field">
-          <label htmlFor="location">Collection area</label>
-          <input id="location" className="input" maxLength={60} placeholder="e.g. Hornsey, N8" value={location} onChange={(e) => setLocation(e.target.value)} />
-          <span className="hint">A town or area, never your full address.</span>
+          <label htmlFor="start">Starting bid</label>
+          <div className="money">
+            <span>£</span>
+            <input id="start" inputMode="decimal" placeholder="10.00" value={start} onChange={(e) => setStart(e.target.value)} />
+          </div>
+          {Number.isFinite(pence) && pence > 0 ? <span className="hint">Bidding opens at {gbp(pence)}.</span> : null}
         </div>
 
         <div className="field">
+          <label htmlFor="reserve">Reserve price <span className="optional">(optional)</span></label>
+          <div className="money">
+            <span>£</span>
+            <input id="reserve" inputMode="decimal" placeholder="Leave empty for no reserve" value={reserve} onChange={(e) => setReserve(e.target.value)} />
+          </div>
+          <span className="hint">
+            {reserve.trim() && Number.isFinite(reservePence)
+              ? `It won't sell unless bidding reaches ${gbp(reservePence)}. Bidders only see "Reserve not met".`
+              : "The lowest price you'll accept. It's kept private."}
+          </span>
+        </div>
+
+        <div className="field full">
           <label htmlFor="days">Auction length</label>
-          <select id="days" className="input" value={days} onChange={(e) => setDays(e.target.value)}>
+          <select id="days" className="input" value={days} onChange={(e) => setDays(e.target.value)} style={{ maxWidth: 260 }}>
             {DURATIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
           </select>
         </div>
 
-        <label className="full row" style={{ alignItems: "flex-start", gap: 10, flexWrap: "nowrap" }}>
-          <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} style={{ marginTop: 4 }} />
-          <span className="hint">This item is mine to sell, it&apos;s described honestly, and it isn&apos;t on the <a href="/terms#not-allowed" target="_blank">not-allowed list</a>. I&apos;ll sell to the highest bidder if the auction ends with a bid.</span>
+        <label className="full check">
+          <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
+          <span className="hint">This item is mine to sell, it&apos;s described honestly, and it isn&apos;t on the <a href="/terms#not-allowed" target="_blank">not-allowed list</a>. I&apos;ll sell to the highest bidder if the auction ends with a bid that meets my reserve.</span>
         </label>
       </div>
 
       {error ? <p className="error" role="alert">{error}</p> : null}
-      <div className="row">
-        <button className="btn btn-brass" type="submit" disabled={Boolean(saving) || processing}>{saving || "List it"}</button>
+      <div>
+        <button className="btn btn-brass btn-lg" type="submit" disabled={Boolean(saving) || processing}>{saving || "List it"}</button>
       </div>
     </form>
   );

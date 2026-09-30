@@ -20,11 +20,15 @@ export default function HowItWorks() {
       </ul>
       <p>A bid is a promise to buy if you win, so only bid what you&apos;re happy to pay.</p>
 
+      <h2>Reserve prices</h2>
+      <p>Sellers can set a <strong>reserve</strong>: the lowest price they&apos;ll accept. The amount is kept private. Bidders see <strong>Reserve not met</strong> until bidding reaches it, then <strong>Reserve met</strong>. If an auction ends below the reserve, the lot doesn&apos;t sell and nobody has to go through with it.</p>
+      <p>Sellers can add a reserve when listing, or from the lot page before anyone bids. Once bidding has started, a reserve can only be lowered or removed.</p>
+
       <h2>Going once, going twice, gone</h2>
       <p>Lots show <strong>Going once</strong> in their final hour and <strong>Going twice</strong> in their final 10 minutes. Any bid in the last 2 minutes adds 2 minutes to the clock, so everyone gets a fair chance to respond.</p>
 
       <h2>After the hammer falls</h2>
-      <p>The highest bidder wins. The winner and the seller can then see each other&apos;s email on the lot page to arrange payment and collection. Going Going Gone doesn&apos;t handle payments.</p>
+      <p>The highest bidder wins, as long as any reserve has been met. The winner and the seller can then see each other&apos;s email on the lot page to arrange payment and collection. Going Going Gone doesn&apos;t handle payments.</p>
 
       <h2>Staying safe</h2>
       <ul>

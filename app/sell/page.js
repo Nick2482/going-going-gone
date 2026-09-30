@@ -13,8 +13,8 @@ export default async function SellPage() {
   return (
     <div className="wrap narrow">
       <h1 className="page-title">Sell something</h1>
-      <p className="hint" style={{ marginBottom: 24 }}>
-        Set a starting price and how long bidding runs. The highest bid when the clock runs out wins, and you arrange payment and collection with the buyer.
+      <p className="page-lead">
+        Add a few photos, set a starting price and how long bidding runs. The highest bid when the clock runs out wins, and you arrange payment and collection with the buyer.
       </p>
       <SellForm userId={userId} defaultArea={profile?.area || ""} />
     </div>

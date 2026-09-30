@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { stage, STAGE_LABEL, timeLeft, when } from "@/lib/format";
 
-// Ticks once a second so "Going once / Going twice / Gone" and the clock stay live.
+// Ticks once a second so "Going once / Going twice / Sold" and the clock stay live.
 function useNow(active = true) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -13,10 +13,10 @@ function useNow(active = true) {
   return now;
 }
 
-export function StagePill({ endsAt, bidCount }) {
+export function StagePill({ endsAt, bidCount, reserveStatus, className = "" }) {
   const now = useNow();
-  const s = stage(endsAt, bidCount, now);
-  return <span className={`pill p-${s}`} suppressHydrationWarning>{STAGE_LABEL[s]}</span>;
+  const s = stage(endsAt, bidCount, now, reserveStatus);
+  return <span className={`pill p-${s} ${className}`} suppressHydrationWarning>{STAGE_LABEL[s]}</span>;
 }
 
 export function TimeLeft({ endsAt, className = "time" }) {

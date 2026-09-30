@@ -29,7 +29,7 @@ How bidding works, all enforced by the database rather than the browser:
 ### 1. Supabase
 
 1. Create a project at [supabase.com](https://supabase.com). Choose the **London (eu-west-2)** region.
-2. Open **SQL Editor → New query**, paste the whole of `supabase/schema.sql`, and click **Run**. This creates the tables, security rules, bidding functions and the `lot-photos` storage bucket.
+2. Open **SQL Editor → New query**, paste the whole of `supabase/schema.sql`, and click **Run**. This creates the tables, security rules, bidding functions and the `lot-photos` storage bucket. Then do the same with `supabase/002-reserve-prices.sql`, which adds private reserve prices.
 3. Go to **Authentication → Emails → Templates → Magic Link** and replace the message body with:
 
    ```html

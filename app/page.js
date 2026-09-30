@@ -1,7 +1,10 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { CATEGORIES } from "@/lib/format";
+import { CATEGORIES, LOT_CARD_FIELDS } from "@/lib/format";
 import LotCard from "@/components/LotCard";
+import SortSelect from "@/components/SortSelect";
+import { ClockIcon, HomeIcon, TagIcon } from "@/components/Icons";
 
 const PAGE_SIZE = 48;
 const SORTS = {
@@ -34,7 +37,7 @@ export default async function Home({ searchParams }) {
 
   let live = supabase
     .from("lots")
-    .select("id, lot_no, title, category, location, current_price_pence, bid_count, ends_at, cover_path", { count: "exact" })
+    .select(LOT_CARD_FIELDS, { count: "exact" })
     .eq("status", "live")
     .gt("ends_at", nowIso)
     .order(sort.column, { ascending: sort.ascending })
@@ -45,71 +48,91 @@ export default async function Home({ searchParams }) {
 
   const gone = supabase
     .from("lots")
-    .select("id, lot_no, title, category, location, current_price_pence, bid_count, ends_at, cover_path")
+    .select(LOT_CARD_FIELDS)
     .eq("status", "live")
     .lte("ends_at", nowIso)
     .gt("bid_count", 0)
+    .neq("reserve_status", "not_met")
     .order("ends_at", { ascending: false })
     .limit(8);
 
   const [{ data: lots, count, error }, { data: sold }] = await Promise.all([live, gone]);
   const total = count ?? 0;
   const filtered = Boolean(cat || q);
+  const showHero = !filtered && page === 1;
 
   return (
-    <div className="wrap">
-      {!filtered && page === 1 ? (
+    <>
+      {showHero ? (
         <section className="hero">
-          <h1 aria-label="Going Going Gone"><span>Going</span><span>Going</span><span>Gone</span></h1>
-          <p>Local auctions for local people. List what you&apos;re selling, bid on what you want, and collect from just down the road.</p>
-        </section>
-      ) : null}
-
-      <div className="toolbar">
-        <nav className="chips" aria-label="Categories">
-          <Link className="chip" href={hrefWith(params, { cat: "", page: "" })} aria-current={!cat}>All</Link>
-          {CATEGORIES.map((c) => (
-            <Link key={c} className="chip" href={hrefWith(params, { cat: c, page: "" })} aria-current={cat === c}>{c}</Link>
-          ))}
-        </nav>
-      </div>
-
-      <form className="search" action="/" method="get" style={{ marginBottom: 20 }}>
-        {cat ? <input type="hidden" name="cat" value={cat} /> : null}
-        <label htmlFor="q" className="visually-hidden">Search lots</label>
-        <input id="q" name="q" className="input" placeholder="Search lots, e.g. bike, clock, sofa" defaultValue={q} />
-        <label htmlFor="sort" className="visually-hidden">Sort</label>
-        <select id="sort" name="sort" className="input" defaultValue={sortKey} style={{ width: "auto" }}>
-          {Object.entries(SORTS).map(([k, s]) => <option key={k} value={k}>{s.label}</option>)}
-        </select>
-        <button className="btn btn-ghost" type="submit">Search</button>
-      </form>
-
-      {error ? <p className="error">Lots couldn&apos;t load right now. Refresh the page to try again.</p> : null}
-
-      <div className="grid">
-        {lots?.length ? lots.map((lot) => <LotCard key={lot.id} lot={lot} />) : (
-          <div className="empty">
-            <strong>{filtered ? "No lots found" : "No lots open yet"}</strong>
-            {filtered ? "Try another search or category." : <>Be the first. <Link href="/sell">Sell something</Link>.</>}
+          <div className="wrap">
+            <div>
+              <h1 aria-label="Going Going Gone"><span>Going</span><span>Going</span><span>Gone</span></h1>
+              <p className="hero-sub">Local auctions for Market Bosworth and the villages around. Sell what you don&apos;t need, bid on what you do, and collect from just down the road.</p>
+              <div className="row">
+                <a href="#lots" className="btn btn-light btn-lg">Browse lots</a>
+                <Link href="/sell" className="btn btn-outline-light btn-lg">Sell something</Link>
+              </div>
+            </div>
+            <ul className="perks">
+              <li><TagIcon /><div><strong>Free to list, free to bid</strong><span>No fees for buyers or sellers.</span></div></li>
+              <li><ClockIcon /><div><strong>Listed in two minutes</strong><span>Add photos, set a starting price, done. Sign in with just your email.</span></div></li>
+              <li><HomeIcon /><div><strong>Collect locally</strong><span>Buyers and sellers are neighbours, so there&apos;s no postage.</span></div></li>
+            </ul>
           </div>
-        )}
-      </div>
-
-      {total > PAGE_SIZE ? (
-        <div className="row" style={{ justifyContent: "center", marginTop: 24 }}>
-          {page > 1 ? <Link className="btn btn-ghost" href={hrefWith(params, { page: String(page - 1) })}>Previous</Link> : null}
-          <span className="hint">Page {page} of {Math.ceil(total / PAGE_SIZE)}</span>
-          {page * PAGE_SIZE < total ? <Link className="btn btn-ghost" href={hrefWith(params, { page: String(page + 1) })}>Next</Link> : null}
-        </div>
-      ) : null}
-
-      {sold?.length && !filtered ? (
-        <section className="section">
-          <h2 className="section-title">Recently gone</h2>
-          <div className="grid">{sold.map((lot) => <LotCard key={lot.id} lot={lot} />)}</div>
         </section>
       ) : null}
-    </div>
+
+      <div className="wrap" id="lots">
+        <div className="toolbar">
+          <h2>
+            {q ? `Results for “${q}”` : cat || "Open lots"}
+            <span className="count">{total} {total === 1 ? "lot" : "lots"}</span>
+          </h2>
+          <Suspense fallback={null}>
+            <SortSelect options={Object.fromEntries(Object.entries(SORTS).map(([k, s]) => [k, s.label]))} value={sortKey} />
+          </Suspense>
+        </div>
+
+        <div className="chips-scroll" style={{ marginBottom: 20 }}>
+          <nav className="chips" aria-label="Categories">
+            <Link className="chip" href={hrefWith(params, { cat: "", page: "" })} aria-current={!cat}>All</Link>
+            {CATEGORIES.map((c) => (
+              <Link key={c} className="chip" href={hrefWith(params, { cat: c, page: "" })} aria-current={cat === c}>{c}</Link>
+            ))}
+          </nav>
+        </div>
+
+        {q ? (
+          <p className="filter-note">Showing lots matching “{q}”. <Link href={hrefWith(params, { q: "", page: "" })}>Clear search</Link></p>
+        ) : null}
+
+        {error ? <p className="error" style={{ marginBottom: 16 }}>Lots couldn&apos;t load right now. Refresh the page to try again.</p> : null}
+
+        <div className="grid">
+          {lots?.length ? lots.map((lot) => <LotCard key={lot.id} lot={lot} />) : (
+            <div className="empty">
+              <strong>{filtered ? "No lots found" : "No lots open yet"}</strong>
+              {filtered ? "Try another search or category." : <>Be the first. <Link href="/sell">Sell something</Link>.</>}
+            </div>
+          )}
+        </div>
+
+        {total > PAGE_SIZE ? (
+          <div className="pager">
+            {page > 1 ? <Link className="btn btn-ghost" href={hrefWith(params, { page: String(page - 1) })}>Previous</Link> : null}
+            <span className="hint">Page {page} of {Math.ceil(total / PAGE_SIZE)}</span>
+            {page * PAGE_SIZE < total ? <Link className="btn btn-ghost" href={hrefWith(params, { page: String(page + 1) })}>Next</Link> : null}
+          </div>
+        ) : null}
+
+        {sold?.length && !filtered ? (
+          <section className="section">
+            <h2 className="section-title">Recently sold</h2>
+            <div className="grid">{sold.map((lot) => <LotCard key={lot.id} lot={lot} />)}</div>
+          </section>
+        ) : null}
+      </div>
+    </>
   );
 }
