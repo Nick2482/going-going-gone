@@ -7,6 +7,7 @@ import { gbp, increment, lotNumber, MAX_PHOTOS, nextMinimum, photoUrl, RESERVE_L
 import { compressPhoto, uploadLotPhotos } from "@/lib/photos";
 import { StagePill, TimeLeft } from "@/components/Clock";
 import { PhotoIcon, PinIcon } from "@/components/Icons";
+import ShareButtons from "@/components/ShareButtons";
 
 function cleanError(error, fallback) {
   const msg = error?.message || "";
@@ -433,6 +434,14 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
           </div>
           <p className="hint">Payment and collection are arranged between buyer and seller after the auction ends. Cash on collection is simplest.</p>
         </div>
+
+        {lot.status === "live" ? (
+          <ShareButtons
+            path={`/lot/${lot.id}`}
+            title={lot.title}
+            text={`${lot.title}: ${ended ? (sold ? `sold for ${gbp(lot.current_price_pence)}` : "auction ended") : lot.bid_count ? `current bid ${gbp(lot.current_price_pence)}` : `bidding starts at ${gbp(lot.start_price_pence)}`} on Going Going Gone`}
+          />
+        ) : null}
 
         {userId && !isSeller && lot.status === "live" ? (
           <div>
