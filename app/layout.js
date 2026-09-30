@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Big_Shoulders, Public_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Big_Shoulders_Display, Public_Sans, IBM_Plex_Mono } from "next/font/google";
 import { createClient, getUserId } from "@/lib/supabase/server";
 import "./globals.css";
 
-const display = Big_Shoulders({ subsets: ["latin"], axes: ["opsz"], variable: "--font-display" });
+const display = Big_Shoulders_Display({ subsets: ["latin"], weight: ["700", "800", "900"], variable: "--font-display" });
 const body = Public_Sans({ subsets: ["latin"], variable: "--font-body" });
 const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-mono" });
 
