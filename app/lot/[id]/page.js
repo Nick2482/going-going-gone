@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient, getUserId } from "@/lib/supabase/server";
-import { photoUrl } from "@/lib/format";
+import { gbp, photoUrl } from "@/lib/format";
 import LotLive from "./LotLive";
 
 async function loadLot(supabase, id) {
@@ -14,16 +14,35 @@ async function loadLot(supabase, id) {
   return data;
 }
 
+const SITE = "https://www.going-going-gone.uk";
+
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const supabase = await createClient();
   const lot = await loadLot(supabase, id);
   if (!lot) return { title: "Lot not found" };
-  const image = photoUrl(lot.cover_path);
+
+  const photo = photoUrl(lot.cover_path);
+  // A 640px copy of the cover photo, made by Vercel. WhatsApp skips large preview images,
+  // and full-size phone photos can be too big.
+  const preview = photo ? `${SITE}/_next/image?url=${encodeURIComponent(photo)}&w=640&q=75` : null;
+  const price = `${lot.bid_count ? "Current bid" : "Starting bid"} ${gbp(lot.current_price_pence)}`;
+  const description = [price, lot.location, lot.description].filter(Boolean).join(" · ").replace(/\s+/g, " ").slice(0, 200);
+  const url = `${SITE}/lot/${lot.id}`;
+
   return {
     title: lot.title,
-    description: lot.description?.slice(0, 160),
-    openGraph: { title: lot.title, description: lot.description?.slice(0, 160), images: image ? [image] : [] },
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      siteName: "Going Going Gone",
+      url,
+      title: lot.title,
+      description,
+      images: preview ? [{ url: preview, width: 640, alt: lot.title }] : [],
+    },
+    twitter: { card: preview ? "summary_large_image" : "summary", title: lot.title, description, images: preview ? [preview] : [] },
   };
 }
 
