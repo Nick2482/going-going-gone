@@ -95,12 +95,17 @@ export default async function Home({ searchParams }) {
                 <Link href="/sell" className="btn btn-outline-light btn-lg">Sell something</Link>
               </div>
             </div>
-            <ul className="perks">
-              <li><TagIcon /><div><strong>Free to list, free to bid</strong><span>No fees for buyers or sellers.</span></div></li>
-              <li><ClockIcon /><div><strong>Listed in two minutes</strong><span>Add photos, set a starting price, done. Sign in with just your email.</span></div></li>
-              <li><HomeIcon /><div><strong>Collect locally</strong><span>Buyers and sellers are neighbours, so there&apos;s no postage.</span></div></li>
-            </ul>
           </div>
+        </section>
+      ) : null}
+
+      {showHero ? (
+        <section className="perks-strip" aria-label="Why Going Going Gone">
+          <ul className="wrap perks">
+            <li className="perk-aqua"><TagIcon /><div><strong>Free to list, free to bid</strong><span>No fees for buyers or sellers.</span></div></li>
+            <li className="perk-white"><ClockIcon /><div><strong>Listed in two minutes</strong><span>Add photos, set a starting price, done. Sign in with just your email.</span></div></li>
+            <li className="perk-red"><HomeIcon /><div><strong>Collect locally</strong><span>Buyers and sellers are neighbours, so there&apos;s no postage.</span></div></li>
+          </ul>
         </section>
       ) : null}
 
