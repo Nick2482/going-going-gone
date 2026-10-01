@@ -41,6 +41,14 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   const [reportMsg, setReportMsg] = useState("");
   const names = useRef(Object.fromEntries(initialBids.map((b) => [b.bidder_id, b.bidder?.display_name])));
 
+  // Flash the price whenever it changes while the page is open (someone else's bid, or yours).
+  const [flash, setFlash] = useState(0);
+  const firstPrice = useRef(true);
+  useEffect(() => {
+    if (firstPrice.current) { firstPrice.current = false; return; }
+    setFlash((n) => n + 1);
+  }, [lot.current_price_pence, lot.bid_count]);
+
   const ended = new Date(lot.ends_at).getTime() <= now;
   const reserveNotMet = lot.reserve_status === "not_met";
   const sold = ended && lot.bid_count > 0 && !reserveNotMet;
@@ -342,8 +350,14 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
       <div className="stack" style={{ gap: 28 }}>
         <div className="gallery">
           {mainSrc
-            ? <img className="g-main" src={mainSrc} alt={`Photo of ${lot.title}`} />
-            : <div className="g-empty" aria-hidden="true"><PhotoIcon size={56} /></div>}
+            ? <div className="g-frame">
+                <img className="g-main" src={mainSrc} alt={`Photo of ${lot.title}`} />
+                {sold ? <span className="sold-stamp" aria-hidden="true">Sold</span> : null}
+              </div>
+            : <div className="g-frame">
+                <div className="g-empty" aria-hidden="true"><PhotoIcon size={56} /></div>
+                {sold ? <span className="sold-stamp" aria-hidden="true">Sold</span> : null}
+              </div>}
           {(photos.length > 1 || canEditPhotos) ? (
             <div className="g-strip">
               {photos.map((p, k) => (
@@ -411,7 +425,8 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
           <div className="panel-head">
             <div>
               <div className="hint">{priceLabel}</div>
-              <div className="big-price">{gbp(lot.current_price_pence)}</div>
+              <div key={flash} className={`big-price${flash ? " price-flash" : ""}`}>{gbp(lot.current_price_pence)}</div>
+              {flash && !ended ? <div key={`n${flash}`} className="new-bid-note">New bid!</div> : null}
               <div className="hint">{lot.bid_count} bid{lot.bid_count === 1 ? "" : "s"}</div>
             </div>
             <div className="clock-box">

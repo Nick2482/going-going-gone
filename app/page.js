@@ -5,6 +5,9 @@ import { CATEGORIES, LOT_CARD_FIELDS } from "@/lib/format";
 import LotCard from "@/components/LotCard";
 import SortSelect from "@/components/SortSelect";
 import { ClockIcon, HomeIcon, TagIcon } from "@/components/Icons";
+import EndingSoon from "@/components/EndingSoon";
+import ActivityTicker from "@/components/ActivityTicker";
+import { BID_FIELDS, NEW_LOT_FIELDS, bidEvent, listingEvent, mergeEvents } from "@/lib/activity";
 
 const PAGE_SIZE = 48;
 const SORTS = {
@@ -56,10 +59,27 @@ export default async function Home({ searchParams }) {
     .order("ends_at", { ascending: false })
     .limit(8);
 
-  const [{ data: lots, count, error }, { data: sold }] = await Promise.all([live, gone]);
-  const total = count ?? 0;
   const filtered = Boolean(cat || q);
   const showHero = !filtered && page === 1;
+
+  // Homepage extras: the next lots to close, and recent activity for the live ticker.
+  const ending = showHero
+    ? supabase.from("lots").select(LOT_CARD_FIELDS).eq("status", "live").gt("ends_at", nowIso)
+        .order("ends_at", { ascending: true }).limit(8)
+    : Promise.resolve({ data: [] });
+  const recentBids = showHero
+    ? supabase.from("bids").select(BID_FIELDS).order("created_at", { ascending: false }).limit(10)
+    : Promise.resolve({ data: [] });
+  const recentLots = showHero
+    ? supabase.from("lots").select(NEW_LOT_FIELDS).eq("status", "live").order("created_at", { ascending: false }).limit(6)
+    : Promise.resolve({ data: [] });
+
+  const [{ data: lots, count, error }, { data: sold }, { data: endingLots }, { data: bidRows }, { data: newLots }] =
+    await Promise.all([live, gone, ending, recentBids, recentLots]);
+  const total = count ?? 0;
+  const events = mergeEvents((bidRows ?? []).map(bidEvent), (newLots ?? []).map(listingEvent));
+  // Only show the strip when there are enough lots for it to be worth it.
+  const endingSoon = (endingLots ?? []).length >= 3 ? endingLots.slice(0, 6) : [];
 
   return (
     <>
@@ -81,6 +101,12 @@ export default async function Home({ searchParams }) {
             </ul>
           </div>
         </section>
+      ) : null}
+
+      {showHero ? <ActivityTicker initial={events} /> : null}
+
+      {showHero && endingSoon.length ? (
+        <div className="wrap"><EndingSoon lots={endingSoon} /></div>
       ) : null}
 
       <div className="wrap" id="lots">
