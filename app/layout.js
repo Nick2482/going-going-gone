@@ -15,7 +15,7 @@ export const metadata = {
   description: "Local online auctions for Market Bosworth and the villages around. Free to list, free to bid, collect locally.",
 };
 
-export const viewport = { themeColor: "#16213a" };
+export const viewport = { themeColor: "#09212c" };
 
 export default async function RootLayout({ children }) {
   const supabase = await createClient();

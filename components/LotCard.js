@@ -28,7 +28,7 @@ export default function LotCard({ lot, badge }) {
         {lot.location ? <span className="lot-where"><PinIcon />{lot.location}</span> : null}
         {reserve || badge || buyNow || lot.bought_now ? (
           <div className="lot-tags">
-            {buyNow ? <span className="pill" style={{ background: "#16213a", color: "#fff" }}>Buy it now {gbp(buyNow)}</span> : null}
+            {buyNow ? <span className="pill" style={{ background: "#09212c", color: "#fff" }}>Buy it now {gbp(buyNow)}</span> : null}
             {lot.bought_now ? <span className="pill p-unsold">Bought with Buy it now</span> : null}
             {reserve ? <span className={`pill ${lot.reserve_status === "met" ? "p-reserve-met" : "p-reserve"}`}>{reserve}</span> : null}
             {badge}
