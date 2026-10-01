@@ -85,6 +85,7 @@ export default async function Home({ searchParams }) {
     <>
       {showHero ? (
         <section className="hero">
+          <div className="hero-photo" aria-hidden="true" />
           <div className="wrap">
             <div>
               <h1 aria-label="Going Going Gone"><span>Going</span><span>Going</span><span>Gone</span></h1>
