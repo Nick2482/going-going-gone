@@ -14,6 +14,7 @@ export default function SellForm({ userId, defaultArea }) {
   const [location, setLocation] = useState(defaultArea);
   const [start, setStart] = useState("");
   const [reserve, setReserve] = useState("");
+  const [buyNow, setBuyNow] = useState("");
   const [days, setDays] = useState("7");
   const [agree, setAgree] = useState(false);
   const [photos, setPhotos] = useState([]); // { blob, preview }
@@ -67,6 +68,13 @@ export default function SellForm({ userId, defaultArea }) {
     if (reservePence !== null && (!Number.isFinite(reservePence) || reservePence <= pence)) {
       return setError(`The reserve must be higher than the starting bid${Number.isFinite(pence) ? ` of ${gbp(pence)}` : ""}, or left empty.`);
     }
+    const buyNowPence = buyNow.trim() ? toPence(buyNow) : null;
+    if (buyNowPence !== null && (!Number.isFinite(buyNowPence) || buyNowPence <= pence)) {
+      return setError(`The Buy it now price must be higher than the starting bid of ${gbp(pence)}, or left empty.`);
+    }
+    if (buyNowPence !== null && reservePence !== null && reservePence > buyNowPence) {
+      return setError("The reserve can't be higher than the Buy it now price.");
+    }
     if (!agree) return setError("Please confirm the item is yours to sell and allowed on the site.");
 
     setSaving("Listing your item…");
@@ -79,6 +87,7 @@ export default function SellForm({ userId, defaultArea }) {
         category,
         location: location.trim() || null,
         start_price_pence: pence,
+        ...(buyNowPence !== null ? { buy_now_pence: buyNowPence } : {}),
         ends_at: endsAt,
       })
       .select("id")
@@ -107,6 +116,7 @@ export default function SellForm({ userId, defaultArea }) {
 
   const pence = toPence(start);
   const reservePence = toPence(reserve);
+  const buyNowPrice = toPence(buyNow);
 
   return (
     <form className="form-card stack" style={{ gap: 22 }} onSubmit={submit} noValidate>
@@ -180,16 +190,29 @@ export default function SellForm({ userId, defaultArea }) {
           </span>
         </div>
 
-        <div className="field full">
+        <div className="field">
+          <label htmlFor="buynow">Buy it now price <span className="optional">(optional)</span></label>
+          <div className="money">
+            <span>£</span>
+            <input id="buynow" inputMode="decimal" placeholder="Leave empty for auction only" value={buyNow} onChange={(e) => setBuyNow(e.target.value)} />
+          </div>
+          <span className="hint">
+            {buyNow.trim() && Number.isFinite(buyNowPrice)
+              ? `Someone can buy it straight away for ${gbp(buyNowPrice)}, until the first bid is placed.`
+              : "Lets someone buy it outright, until the first bid comes in."}
+          </span>
+        </div>
+
+        <div className="field">
           <label htmlFor="days">Auction length</label>
-          <select id="days" className="input" value={days} onChange={(e) => setDays(e.target.value)} style={{ maxWidth: 260 }}>
+          <select id="days" className="input" value={days} onChange={(e) => setDays(e.target.value)}>
             {DURATIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
           </select>
         </div>
 
         <label className="full check">
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-          <span className="hint">This item is mine to sell, it&apos;s described honestly, and it isn&apos;t on the <a href="/terms#not-allowed" target="_blank">not-allowed list</a>. I&apos;ll sell to the highest bidder if the auction ends with a bid that meets my reserve.</span>
+          <span className="hint">This item is mine to sell, it&apos;s described honestly, and it isn&apos;t on the <a href="/terms#not-allowed" target="_blank">not-allowed list</a>. I&apos;ll sell to the highest bidder if the auction ends with a bid that meets my reserve, or to anyone who uses Buy it now.</span>
         </label>
       </div>
 

@@ -8,8 +8,9 @@ export default function LotCard({ lot, badge }) {
   const ended = new Date(lot.ends_at).getTime() <= Date.now();
   const cover = photoUrl(lot.cover_path);
   const reserve = !ended ? RESERVE_LABEL[lot.reserve_status] : null;
+  const buyNow = !ended && lot.buy_now_pence && lot.bid_count === 0 ? lot.buy_now_pence : null;
   const priceLabel = ended
-    ? lot.bid_count ? "Final bid" : "Started at"
+    ? lot.bought_now ? "Bought for" : lot.bid_count ? "Final bid" : "Started at"
     : lot.bid_count ? "Current bid" : "Starting bid";
 
   return (
@@ -25,8 +26,10 @@ export default function LotCard({ lot, badge }) {
         <span className="lot-cat">{lot.category}</span>
         <h3 className="lot-title">{lot.title}</h3>
         {lot.location ? <span className="lot-where"><PinIcon />{lot.location}</span> : null}
-        {reserve || badge ? (
+        {reserve || badge || buyNow || lot.bought_now ? (
           <div className="lot-tags">
+            {buyNow ? <span className="pill" style={{ background: "#16213a", color: "#fff" }}>Buy it now {gbp(buyNow)}</span> : null}
+            {lot.bought_now ? <span className="pill p-unsold">Bought with Buy it now</span> : null}
             {reserve ? <span className={`pill ${lot.reserve_status === "met" ? "p-reserve-met" : "p-reserve"}`}>{reserve}</span> : null}
             {badge}
           </div>
