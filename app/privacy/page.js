@@ -24,7 +24,7 @@ export default function Privacy() {
       <p>To run the site: signing you in, showing listings and bids, putting winners and sellers in touch, and keeping the site safe. Our lawful basis is performing our agreement with you (the terms of use) and our legitimate interest in preventing fraud.</p>
 
       <h2>Who else handles it</h2>
-      <p>We use trusted providers to run the site: Supabase (database, sign-in and photo storage), Vercel (website hosting) and Resend (sign-in emails). They only process your data to provide these services to us.</p>
+      <p>We use trusted providers to run the site: Supabase (database, sign-in and photo storage), Vercel (website hosting) and Resend (sign-in and alert emails). They only process your data to provide these services to us.</p>
 
       <h2>How long we keep it</h2>
       <p>While your account is open. Completed sales and bid records may be kept for up to 2 years to help resolve disputes.</p>

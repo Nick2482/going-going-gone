@@ -24,11 +24,17 @@ export default function HowItWorks() {
       <p>Sellers can set a <strong>reserve</strong>: the lowest price they&apos;ll accept. The amount is kept private. Bidders see <strong>Reserve not met</strong> until bidding reaches it, then <strong>Reserve met</strong>. If an auction ends below the reserve, the lot doesn&apos;t sell and nobody has to go through with it.</p>
       <p>Sellers can add a reserve when listing, or from the lot page before anyone bids. Once bidding has started, a reserve can only be lowered or removed.</p>
 
+      <h2>Buy it now</h2>
+      <p>Sellers can add a <strong>Buy it now</strong> price. Until someone places the first bid, anyone can buy the item outright at that price, which ends the auction straight away. Once bidding starts, Buy it now disappears and it&apos;s a normal auction.</p>
+
       <h2>Going once, going twice, gone</h2>
       <p>Lots show <strong>Going once</strong> in their final hour and <strong>Going twice</strong> in their final 10 minutes. Any bid in the last 2 minutes adds 2 minutes to the clock, so everyone gets a fair chance to respond.</p>
 
       <h2>After the hammer falls</h2>
       <p>The highest bidder wins, as long as any reserve has been met. The winner and the seller can then see each other&apos;s email on the lot page to arrange payment and collection. Going Going Gone doesn&apos;t handle payments.</p>
+
+      <h2>Email alerts</h2>
+      <p>We&apos;ll email you when you&apos;re outbid, when you win, when something you&apos;re selling gets its first bid, and when your auction ends. The winner and seller get each other&apos;s email address so they can arrange collection. You can switch alerts off in <strong>My account</strong>.</p>
 
       <h2>Staying safe</h2>
       <ul>

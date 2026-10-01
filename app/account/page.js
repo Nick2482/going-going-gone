@@ -24,7 +24,7 @@ export default async function AccountPage() {
   if (!userId) redirect("/login?next=/account");
 
   const [{ data: profile }, { data: myBids }, { data: mine }] = await Promise.all([
-    supabase.from("profiles").select("display_name, area").eq("id", userId).maybeSingle(),
+    supabase.from("profiles").select("display_name, area, email_alerts").eq("id", userId).maybeSingle(),
     supabase.from("bids").select("lot_id").eq("bidder_id", userId).limit(1000),
     supabase.from("lots").select(LOT_FIELDS).eq("seller_id", userId).order("ends_at", { ascending: false }).limit(200),
   ]);
@@ -52,7 +52,7 @@ export default async function AccountPage() {
         <form action="/auth/signout" method="post"><button className="btn btn-ghost" type="submit">Sign out</button></form>
       </div>
 
-      <ProfileForm userId={userId} initialName={profile?.display_name || ""} initialArea={profile?.area || ""} />
+      <ProfileForm userId={userId} initialName={profile?.display_name || ""} initialArea={profile?.area || ""} initialAlerts={profile?.email_alerts ?? true} />
 
       <Section title="Bidding on" lots={biddingOn} badge={bidBadge} empty="You're not bidding on anything right now." />
       <Section title="Won" lots={won} badge={() => <span className="pill p-win">You won</span>} empty="Lots you win will appear here, with the seller's contact details on the lot page." />
