@@ -41,6 +41,14 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   const [reportMsg, setReportMsg] = useState("");
   const names = useRef(Object.fromEntries(initialBids.map((b) => [b.bidder_id, b.bidder?.display_name])));
 
+  // Flash the price whenever it changes while the page is open (someone else's bid, or yours).
+  const [flash, setFlash] = useState(0);
+  const firstPrice = useRef(true);
+  useEffect(() => {
+    if (firstPrice.current) { firstPrice.current = false; return; }
+    setFlash((n) => n + 1);
+  }, [lot.current_price_pence, lot.bid_count]);
+
   const ended = new Date(lot.ends_at).getTime() <= now;
   const reserveNotMet = lot.reserve_status === "not_met";
   const sold = ended && lot.bid_count > 0 && !reserveNotMet;
@@ -49,6 +57,8 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   const leading = !ended && userId && lot.high_bidder_id === userId;
   const minimum = nextMinimum(lot);
   const iBid = userId && bids.some((b) => b.bidder_id === userId);
+  // Buy it now is only offered until the first bid.
+  const canBuyNow = !ended && lot.status === "live" && lot.buy_now_pence && lot.bid_count === 0;
 
   // Clock for the "ended" switch-over.
   useEffect(() => {
@@ -103,6 +113,22 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
     setBidMsg({ kind: "success", text: stillBelow
       ? `Bid of ${gbp(pence)} placed. You're the highest bidder, but the reserve hasn't been met yet.`
       : `Bid of ${gbp(pence)} placed. You're the highest bidder.` });
+    refreshBids();
+  }
+
+  async function buyItNow() {
+    setBidMsg({ kind: "", text: "" });
+    setBusy(true);
+    const { data, error } = await supabase.rpc("buy_now", { p_lot: lot.id });
+    setBusy(false);
+    setConfirm(null);
+    if (error) {
+      setBidMsg({ kind: "error", text: cleanError(error, "That didn't go through. Try again.") });
+      router.refresh();
+      return;
+    }
+    if (data) setLot((prev) => ({ ...prev, ...data }));
+    setNow(Date.now());
     refreshBids();
   }
 
@@ -214,7 +240,9 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   const current = photos[Math.min(photoIdx, Math.max(0, photos.length - 1))];
   const mainSrc = current ? photoUrl(current.path) : photoUrl(lot.cover_path);
   const canEditPhotos = isSeller && !ended && lot.status === "live";
-  const priceLabel = ended ? (lot.bid_count ? "Final bid" : "Starting bid") : (lot.bid_count ? "Current bid" : "Starting bid");
+  const priceLabel = ended
+    ? (lot.bought_now ? "Bought for" : lot.bid_count ? "Final bid" : "Starting bid")
+    : (lot.bid_count ? "Current bid" : "Starting bid");
   const bidderName = (id) => (id === userId ? "You" : names.current[id] || "A bidder");
   const sellerName = isSeller ? "You" : initialLot.seller?.display_name || "A seller";
 
@@ -226,7 +254,7 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
     action = sold ? (
       <>
         <p className="stamp" style={{ fontWeight: 700, fontSize: 18 }}>
-          Sold to {bidderName(lot.high_bidder_id)} for <span className="num">{gbp(lot.current_price_pence)}</span>
+          {lot.bought_now ? "Bought with Buy it now by " : "Sold to "}{bidderName(lot.high_bidder_id)} for <span className="num">{gbp(lot.current_price_pence)}</span>
         </p>
         {isWinner ? <p>You won this lot. Contact the seller to arrange payment and collection.</p> : null}
         {isSeller ? <p>Your item sold. Contact the buyer to arrange payment and collection.</p> : null}
@@ -247,6 +275,7 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
     action = (
       <>
         <p className="hint">This is your listing, so you can&apos;t bid on it.</p>
+        {canBuyNow ? <p className="hint">Buy it now: <strong className="num">{gbp(lot.buy_now_pence)}</strong>. It disappears once someone bids.</p> : null}
         {confirm === "end" ? (
           <div className="confirm">
             <span>End the auction now? {lot.bid_count && !reserveNotMet ? "The current highest bidder wins." : lot.bid_count ? "The reserve hasn't been met, so it won't sell." : "It will close unsold."}</span>
@@ -271,13 +300,30 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   } else if (!userId) {
     action = (
       <>
-        <p>Sign in to bid. All you need is an email address.</p>
-        <Link className="btn btn-brass btn-lg btn-block" href={`/login?next=/lot/${lot.id}`}>Sign in to bid</Link>
+        {canBuyNow ? <p>Bid, or <strong>Buy it now for {gbp(lot.buy_now_pence)}</strong>. Sign in first. All you need is an email address.</p>
+          : <p>Sign in to bid. All you need is an email address.</p>}
+        <Link className="btn btn-brass btn-lg btn-block" href={`/login?next=/lot/${lot.id}`}>{canBuyNow ? "Sign in to bid or buy" : "Sign in to bid"}</Link>
       </>
     );
   } else {
     action = (
       <form className="stack" style={{ gap: 10 }} onSubmit={placeBid} noValidate>
+        {canBuyNow ? (
+          confirm === "buy" ? (
+            <div className="panel-note stack" style={{ gap: 10 }}>
+              <span>Buy <strong>{lot.title}</strong> for <strong>{gbp(lot.buy_now_pence)}</strong>? This ends the auction and you agree to buy it.</span>
+              <div className="row">
+                <button className="btn btn-primary" type="button" onClick={buyItNow} disabled={busy}>Yes, buy it</button>
+                <button className="btn btn-ghost" type="button" onClick={() => setConfirm(null)}>Cancel</button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <button className="btn btn-primary btn-lg btn-block" type="button" onClick={() => setConfirm("buy")}>Buy it now for {gbp(lot.buy_now_pence)}</button>
+              <p className="hint" style={{ textAlign: "center" }}>or place a bid. Buy it now disappears after the first bid.</p>
+            </>
+          )
+        ) : null}
         <div className="bidform">
           <div className="field">
             <label htmlFor="bid">Your bid</label>
@@ -304,8 +350,14 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
       <div className="stack" style={{ gap: 28 }}>
         <div className="gallery">
           {mainSrc
-            ? <img className="g-main" src={mainSrc} alt={`Photo of ${lot.title}`} />
-            : <div className="g-empty" aria-hidden="true"><PhotoIcon size={56} /></div>}
+            ? <div className="g-frame">
+                <img className="g-main" src={mainSrc} alt={`Photo of ${lot.title}`} />
+                {sold ? <span className="sold-stamp" aria-hidden="true">Sold</span> : null}
+              </div>
+            : <div className="g-frame">
+                <div className="g-empty" aria-hidden="true"><PhotoIcon size={56} /></div>
+                {sold ? <span className="sold-stamp" aria-hidden="true">Sold</span> : null}
+              </div>}
           {(photos.length > 1 || canEditPhotos) ? (
             <div className="g-strip">
               {photos.map((p, k) => (
@@ -373,7 +425,8 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
           <div className="panel-head">
             <div>
               <div className="hint">{priceLabel}</div>
-              <div className="big-price">{gbp(lot.current_price_pence)}</div>
+              <div key={flash} className={`big-price${flash ? " price-flash" : ""}`}>{gbp(lot.current_price_pence)}</div>
+              {flash && !ended ? <div key={`n${flash}`} className="new-bid-note">New bid!</div> : null}
               <div className="hint">{lot.bid_count} bid{lot.bid_count === 1 ? "" : "s"}</div>
             </div>
             <div className="clock-box">
