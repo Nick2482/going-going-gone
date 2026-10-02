@@ -1,0 +1,153 @@
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { createClient, getUserId } from "@/lib/supabase/server";
+import { gbp, when, lotNumber } from "@/lib/format";
+import AdminButton from "./AdminActions";
+
+export const metadata = { title: "Admin", robots: { index: false } };
+
+function lotState(l) {
+  if (l.status === "removed") return { label: "Withdrawn", cls: "p-unsold" };
+  if (new Date(l.ends_at).getTime() > Date.now()) return { label: "Running", cls: "p-open" };
+  return l.bid_count > 0 ? { label: "Ended", cls: "p-gone" } : { label: "No bids", cls: "p-unsold" };
+}
+
+export default async function AdminPage({ searchParams }) {
+  const supabase = await createClient();
+  const userId = await getUserId(supabase);
+  if (!userId) redirect("/login?next=/admin");
+  const { data: isAdmin } = await supabase.rpc("is_admin");
+  if (!isAdmin) notFound();
+
+  const sp = await searchParams;
+  const q = typeof sp.q === "string" ? sp.q.slice(0, 60) : "";
+
+  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }] = await Promise.all([
+    supabase.rpc("admin_stats"),
+    supabase.rpc("admin_open_reports"),
+    supabase.rpc("admin_members", { p_search: q }),
+    supabase.rpc("admin_recent_lots"),
+  ]);
+  const s = stats || {};
+
+  const tiles = [
+    { n: s.members ?? 0, label: "Members", sub: `${s.new_members ?? 0} new this week` },
+    { n: s.live_lots ?? 0, label: "Running lots", sub: `${s.total_lots ?? 0} listed in total` },
+    { n: s.bids_week ?? 0, label: "Bids this week" },
+    { n: s.sold ?? 0, label: "Sold", sub: `${gbp(s.sold_value ?? 0)} in total` },
+    { n: s.open_reports ?? 0, label: "Open reports", alert: (s.open_reports ?? 0) > 0 },
+  ];
+
+  return (
+    <div className="wrap admin" style={{ paddingBlock: 32 }}>
+      <h1 className="page-title">Admin</h1>
+      <p className="hint">Only admins can see this page.</p>
+
+      <div className="admin-tiles">
+        {tiles.map((t) => (
+          <div key={t.label} className={`admin-tile${t.alert ? " admin-tile-alert" : ""}`}>
+            <div className="admin-tile-n num">{t.n}</div>
+            <div className="admin-tile-label">{t.label}</div>
+            {t.sub ? <div className="hint">{t.sub}</div> : null}
+          </div>
+        ))}
+      </div>
+
+      <nav className="admin-jump" aria-label="Admin sections">
+        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a>
+      </nav>
+
+      <section className="section" id="reports">
+        <h2 className="section-title">Reports</h2>
+        {reports?.length ? (
+          <ul className="admin-list">
+            {reports.map((r) => (
+              <li key={r.id} className="admin-item">
+                <div className="admin-item-main">
+                  <div><strong>{r.lot_title}</strong> <span className="hint">Lot {lotNumber(r.lot_no)} · sold by {r.seller_name || "unknown"}</span></div>
+                  <blockquote className="admin-quote">{r.reason}</blockquote>
+                  <div className="hint">Reported by {r.reporter_name || "someone"} · {when(r.created_at)}{r.lot_status === "removed" ? " · already withdrawn" : ""}</div>
+                </div>
+                <div className="row admin-actions">
+                  {r.lot_status !== "removed" ? <Link className="btn btn-sm btn-ghost" href={`/lot/${r.lot_id}`} target="_blank">View lot</Link> : null}
+                  {r.lot_status !== "removed" ? <AdminButton fn="admin_remove_lot" args={{ p_lot: r.lot_id }} label="Remove lot" tone="delete" confirm={`Remove "${r.lot_title}" from the site?`} /> : null}
+                  <AdminButton fn="admin_resolve_report" args={{ p_report: r.id }} label="Dismiss" />
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : <div className="empty">No open reports. All quiet.</div>}
+      </section>
+
+      <section className="section" id="members">
+        <h2 className="section-title">Members</h2>
+        <form className="row admin-search" action="/admin#members" method="get" role="search">
+          <label htmlFor="admin-q" className="visually-hidden">Search members</label>
+          <input id="admin-q" className="input" name="q" defaultValue={q} placeholder="Search by name, email or area" />
+          <button className="btn btn-primary" type="submit">Search</button>
+          {q ? <Link href="/admin#members" className="btn btn-ghost">Clear</Link> : null}
+        </form>
+        {members?.length ? (
+          <ul className="admin-list">
+            {members.map((m) => (
+              <li key={m.id} className="admin-item">
+                <div className="admin-item-main">
+                  <div className="row" style={{ gap: 6 }}>
+                    <strong>{m.display_name}</strong>
+                    {m.admin ? <span className="pill p-gone">Admin</span> : null}
+                    {m.verified ? <span className="pill badge-local">Local member</span> : null}
+                    {m.blocked ? <span className="pill p-out">Blocked</span> : null}
+                  </div>
+                  <div className="mono admin-email">{m.email}</div>
+                  <div className="hint">
+                    {m.area ? `${m.area} · ` : ""}Joined {when(m.joined)} · {Number(m.lots)} lots · {Number(m.bids)} bids
+                    {m.last_seen ? ` · last signed in ${when(m.last_seen)}` : ""}
+                  </div>
+                </div>
+                <div className="row admin-actions">
+                  <AdminButton fn="admin_set_verified" args={{ p_user: m.id, p_on: !m.verified }}
+                    label={m.verified ? "Remove badge" : "Give Local member badge"} tone={m.verified ? "ghost" : "primary"} />
+                  {m.admin ? null : (
+                    <AdminButton fn="admin_set_blocked" args={{ p_user: m.id, p_on: !m.blocked }}
+                      label={m.blocked ? "Unblock" : "Block"} tone={m.blocked ? "ghost" : "danger"}
+                      confirm={m.blocked ? null : `Block ${m.display_name}? They won't be able to list, bid or report, and their running auctions will be withdrawn.`} />
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : <div className="empty">{q ? "No members match that search." : "No members yet."}</div>}
+      </section>
+
+      <section className="section" id="lots">
+        <h2 className="section-title">Latest lots</h2>
+        {lots?.length ? (
+          <ul className="admin-list">
+            {lots.map((l) => {
+              const st = lotState(l);
+              return (
+                <li key={l.id} className="admin-item">
+                  <div className="admin-item-main">
+                    <div className="row" style={{ gap: 6 }}>
+                      {l.status === "removed" ? <strong>{l.title}</strong> : <Link href={`/lot/${l.id}`}><strong>{l.title}</strong></Link>}
+                      <span className={`pill ${st.cls}`}>{st.label}</span>
+                      {Number(l.reports) ? <span className="pill p-out">{Number(l.reports)} report{Number(l.reports) === 1 ? "" : "s"}</span> : null}
+                    </div>
+                    <div className="hint">
+                      Lot {lotNumber(l.lot_no)} · by {l.seller_name || "unknown"} · {gbp(l.current_price_pence)} · {l.bid_count} bid{l.bid_count === 1 ? "" : "s"} · listed {when(l.created_at)}
+                    </div>
+                  </div>
+                  <div className="row admin-actions">
+                    {l.status === "removed"
+                      ? <AdminButton fn="admin_restore_lot" args={{ p_lot: l.id }} label="Put back" />
+                      : <AdminButton fn="admin_remove_lot" args={{ p_lot: l.id }} label="Remove" tone="danger" confirm={`Remove "${l.title}" from the site?`} />}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        ) : <div className="empty">No lots yet.</div>}
+      </section>
+    </div>
+  );
+}

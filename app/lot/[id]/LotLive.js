@@ -483,6 +483,7 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             <div>
               <div className="hint">Sold by</div>
               <strong>{sellerName}</strong>
+              {initialLot.seller?.verified ? <span className="pill badge-local" title="Known to Going Going Gone as a local member">✓ Local member</span> : null}
             </div>
           </div>
           <p className="hint">Payment and collection are arranged between buyer and seller after the auction ends. Cash on collection is simplest.</p>

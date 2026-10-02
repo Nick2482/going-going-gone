@@ -20,6 +20,7 @@ export const viewport = { themeColor: "#09212c" };
 export default async function RootLayout({ children }) {
   const supabase = await createClient();
   const userId = await getUserId(supabase);
+  const isAdmin = userId ? (await supabase.rpc("is_admin")).data === true : false;
 
   return (
     <html lang="en-GB" className={`${display.variable} ${body.variable} ${mono.variable}`}>
@@ -37,6 +38,7 @@ export default async function RootLayout({ children }) {
             </form>
             <nav className="nav" aria-label="Main">
               <Link href="/how-it-works" className="nav-link nav-hide-sm">How it works</Link>
+              {isAdmin ? <Link href="/admin" className="nav-link">Admin</Link> : null}
               {userId
                 ? <Link href="/account" className="nav-link">My account</Link>
                 : <Link href="/login" className="nav-link">Sign in</Link>}

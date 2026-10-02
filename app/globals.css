@@ -291,6 +291,30 @@ textarea.input { min-height: 130px; resize: vertical; }
 .btn-delete:hover { background: var(--brass-hover); }
 .btn-danger:hover { background: var(--sold-soft); }
 
+/* ---------- Admin ---------- */
+.btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 7px; }
+.badge-local { background: var(--aqua-soft); color: var(--aqua-ink); margin-left: 6px; }
+.admin-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+@media (max-width: 900px) { .admin-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.admin-tile { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow-sm); }
+.admin-tile-n { font-family: var(--display); font-weight: 900; font-size: 40px; line-height: 1; color: var(--ink); }
+.admin-tile-label { font-weight: 700; margin-top: 4px; }
+.admin-tile-alert { border-color: var(--sold); background: var(--sold-soft); }
+.admin-tile-alert .admin-tile-n { color: var(--sold); }
+.admin-jump { display: flex; gap: 16px; margin-top: 20px; font-weight: 700; }
+.admin-jump a { color: var(--ink-2); }
+.admin .section { margin-top: 40px; scroll-margin-top: 90px; }
+.admin-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.admin-item { display: flex; gap: 16px; justify-content: space-between; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+@media (max-width: 700px) { .admin-item { flex-direction: column; align-items: flex-start; } }
+.admin-item-main { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.admin-item-main a { color: var(--ink); }
+.admin-actions { flex: none; gap: 8px; }
+.admin-quote { margin: 2px 0; padding: 8px 12px; background: var(--bg); border-left: 3px solid var(--sold); border-radius: 4px; color: var(--ink-2); }
+.admin-email { font-size: 13px; color: var(--ink-2); overflow-wrap: anywhere; }
+.admin-search { margin-bottom: 14px; max-width: 620px; flex-wrap: nowrap; }
+.admin-search .input { flex: 1; }
+
 /* ---------- Live activity ticker ---------- */
 .ticker { background: var(--card); border-bottom: 1px solid var(--line); }
 .ticker-inner { display: flex; align-items: center; gap: 12px; min-height: 46px; padding-block: 8px; overflow: hidden; }
