@@ -1,15 +1,16 @@
-export const metadata = { title: "Privacy notice" };
+import Link from "next/link";
+import { OWNER, CONTACT, ICO_REG } from "@/lib/site";
 
-const CONTACT = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "hello@going-going-gone.uk";
+export const metadata = { title: "Privacy notice" };
 
 export default function Privacy() {
   return (
     <div className="wrap prose">
       <h1 className="page-title">Privacy notice</h1>
-      <p className="hint">Last updated: 29 September 2026</p>
+      <p className="hint">Last updated: 2 October 2026</p>
 
       <h2>Who we are</h2>
-      <p>Going Going Gone is run from Market Bosworth, Leicestershire. We are responsible for the personal data described here. For anything to do with your data, contact Customer Service at <span className="mono">{CONTACT}</span>.</p>
+      <p>Going Going Gone is run by {OWNER} from Market Bosworth, Leicestershire, who is responsible for (the &ldquo;controller&rdquo; of) the personal data described here.{ICO_REG ? <> Registered with the Information Commission, number <span className="mono">{ICO_REG}</span>.</> : null} For anything to do with your data, email <span className="mono">{CONTACT}</span>. More about who runs the site is on the <Link href="/about">About</Link> page.</p>
 
       <h2>What we collect</h2>
       <ul>
@@ -18,6 +19,7 @@ export default function Privacy() {
         <li><strong>Your listings, photos and bids</strong>, which are public.</li>
         <li><strong>Reports</strong> you send about listings.</li>
         <li>A sign-in cookie that keeps you logged in. We don&apos;t use advertising or tracking cookies.</li>
+        <li>We never ask for or store passwords, or card or bank details.</li>
       </ul>
 
       <h2>Why we use it</h2>
@@ -27,10 +29,10 @@ export default function Privacy() {
       <p>We use trusted providers to run the site: Supabase (database, sign-in and photo storage), Vercel (website hosting) and Resend (sign-in and alert emails). They only process your data to provide these services to us.</p>
 
       <h2>How long we keep it</h2>
-      <p>While your account is open. Completed sales and bid records may be kept for up to 2 years to help resolve disputes.</p>
+      <p>While your account is open. You can delete your account at any time from <Link href="/account">My account</Link>. That deletes your sign-in, name, listings, photos and bids straight away. Everything is stored encrypted.</p>
 
       <h2>Your rights</h2>
-      <p>You can ask to see, correct or delete your data, or object to how we use it. Email Customer Service at <span className="mono">{CONTACT}</span>. You can also complain to the Information Commissioner&apos;s Office (ico.org.uk).</p>
+      <p>You can ask to see, correct or delete your data, or object to how we use it. Email <span className="mono">{CONTACT}</span>. You can also complain to the Information Commission, the UK data protection regulator (ico.org.uk).</p>
     </div>
   );
 }

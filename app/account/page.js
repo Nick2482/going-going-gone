@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient, getUserId } from "@/lib/supabase/server";
 import LotCard from "@/components/LotCard";
 import ProfileForm from "./ProfileForm";
+import DeleteAccount from "@/components/DeleteAccount";
 
 export const metadata = { title: "My account" };
 
@@ -63,6 +64,8 @@ export default async function AccountPage() {
             ? <span className="pill p-unsold">Withdrawn</span>
             : l.bid_count > 0 && l.reserve_status === "not_met" ? <span className="pill p-reserve">Reserve not met</span> : null} />
       ) : null}
+
+      <DeleteAccount userId={userId} />
     </div>
   );
 }

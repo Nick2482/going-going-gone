@@ -36,11 +36,13 @@ export default function HowItWorks() {
       <h2>Email alerts</h2>
       <p>We&apos;ll email you when you&apos;re outbid, when you win, when something you&apos;re selling gets its first bid, and when your auction ends. The winner and seller get each other&apos;s email address so they can arrange collection. You can switch alerts off in <strong>My account</strong>.</p>
 
-      <h2>Staying safe</h2>
+      <h2 id="staying-safe">Staying safe</h2>
       <ul>
         <li>Meet somewhere public, or with someone else present.</li>
         <li>Check the item before you pay.</li>
         <li>Cash on collection is simplest. Never send a bank transfer to someone you haven&apos;t met for an item you haven&apos;t seen.</li>
+        <li>Going Going Gone will never ask for your bank details or a password. Sign-in is always by an emailed link.</li>
+        <li>Be wary of anyone who asks you to pay a deposit or delivery fee before you&apos;ve seen the item.</li>
         <li>If a listing looks wrong, tap <strong>Report this listing</strong>.</li>
       </ul>
     </div>

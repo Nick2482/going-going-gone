@@ -276,6 +276,20 @@ textarea.input { min-height: 130px; resize: vertical; }
 .foot-base { border-top: 1px solid rgba(255, 255, 255, 0.1); }
 .foot-base .wrap { display: block; padding-block: 16px; font-size: 13px; }
 
+/* ---------- Trust: About page, hero byline, delete account ---------- */
+.hero-by { margin-top: 20px; font-size: 14px; color: #e4eff0; text-shadow: 0 1px 8px rgba(9, 33, 44, 0.6); }
+.hero-by a { color: var(--aqua); font-weight: 700; }
+.about-intro { display: flex; gap: 18px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin-top: 8px; }
+.about-intro p { margin: 0; }
+.about-lead { font-size: 22px; font-weight: 800; color: var(--ink) !important; margin-bottom: 4px !important; }
+.about-badge { flex: none; width: 64px; height: 64px; border-radius: 50%; background: var(--ink); color: var(--aqua); display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 26px; border: 3px solid var(--brass); }
+.danger-zone { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); }
+.danger-zone .hint { margin-bottom: 12px; }
+.danger-panel { max-width: 680px; border-color: var(--sold); }
+.btn-delete { background: var(--sold); color: #fff; }
+.btn-delete:hover { background: var(--brass-hover); }
+.btn-danger:hover { background: var(--sold-soft); }
+
 /* ---------- Live activity ticker ---------- */
 .ticker { background: var(--card); border-bottom: 1px solid var(--line); }
 .ticker-inner { display: flex; align-items: center; gap: 12px; min-height: 46px; padding-block: 8px; overflow: hidden; }

@@ -94,6 +94,7 @@ export default async function Home({ searchParams }) {
                 <a href="#lots" className="btn btn-light btn-lg">Browse lots</a>
                 <Link href="/sell" className="btn btn-outline-light btn-lg">Sell something</Link>
               </div>
+              <p className="hero-by">Run by Nick, who runs Market Bosworth Classifieds (7,000 members) · <Link href="/about">About us</Link></p>
             </div>
           </div>
         </section>

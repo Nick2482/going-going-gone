@@ -67,6 +67,7 @@ export default async function RootLayout({ children }) {
             <div>
               <h3>Help</h3>
               <ul>
+                <li><Link href="/about">About us</Link></li>
                 <li><Link href="/how-it-works">How it works</Link></li>
                 <li><Link href="/terms">Terms of use</Link></li>
                 <li><Link href="/privacy">Privacy notice</Link></li>
@@ -74,7 +75,7 @@ export default async function RootLayout({ children }) {
             </div>
           </div>
           <div className="foot-base">
-            <div className="wrap">© {new Date().getFullYear()} Going Going Gone · Market Bosworth, Leicestershire</div>
+            <div className="wrap">© {new Date().getFullYear()} Going Going Gone · Run by Nick Hutton, Market Bosworth, Leicestershire</div>
           </div>
         </footer>
       </body>
