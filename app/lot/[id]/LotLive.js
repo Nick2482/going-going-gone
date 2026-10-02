@@ -365,7 +365,7 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
                   <button type="button" onClick={() => setPhotoIdx(k)} style={{ all: "unset", cursor: "pointer", display: "block", width: "100%", height: "100%" }} aria-label={`Show photo ${k + 1}`}>
                     <img src={photoUrl(p.path)} alt="" />
                   </button>
-                  {canEditPhotos ? <button type="button" className="g-del" onClick={() => removePhoto(k)} aria-label={`Remove photo ${k + 1}`}>×</button> : null}
+                  {canEditPhotos && lot.bid_count === 0 ? <button type="button" className="g-del" onClick={() => removePhoto(k)} aria-label={`Remove photo ${k + 1}`}>×</button> : null}
                 </span>
               ))}
               {canEditPhotos && photos.length < MAX_PHOTOS ? (

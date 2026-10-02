@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { safeNext } from "@/lib/safe-next";
 
 export default function LoginForm({ next }) {
   const supabase = createClient();
@@ -41,7 +42,7 @@ export default function LoginForm({ next }) {
     const { error: err } = await supabase.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: "email" });
     setBusy(false);
     if (err) return setError("That code didn't work. It may have expired, so ask for a new email.");
-    router.push(next);
+    router.push(safeNext(next));
     router.refresh();
   }
 

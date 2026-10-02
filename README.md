@@ -29,7 +29,7 @@ How bidding works, all enforced by the database rather than the browser:
 ### 1. Supabase
 
 1. Create a project at [supabase.com](https://supabase.com). Choose the **London (eu-west-2)** region.
-2. Open **SQL Editor → New query**, paste the whole of `supabase/schema.sql`, and click **Run**. This creates the tables, security rules, bidding functions and the `lot-photos` storage bucket. Then do the same with `supabase/002-reserve-prices.sql`, which adds private reserve prices.
+2. Open **SQL Editor → New query**, paste the whole of `supabase/schema.sql`, and click **Run**. This creates the tables, security rules, bidding functions and the `lot-photos` storage bucket. Then do the same with `supabase/002-reserve-prices.sql` (private reserve prices) and `supabase/003-email-alerts.sql` (email alerts). After the alerts file, run `select public.set_resend_key('re_your_key');` with your Resend API key.
 3. Go to **Authentication → Emails → Templates → Magic Link** and replace the message body with:
 
    ```html
@@ -39,7 +39,7 @@ How bidding works, all enforced by the database rather than the browser:
    ```
 
    Paste the same body into the **Confirm signup** template, which is what brand-new users receive. This lets people open the link on a different device from the one they signed in on, or just type the code.
-4. Go to **Authentication → URL Configuration** and set **Site URL** to your live address (for example `https://goinggoinggone.co.uk`). Add `http://localhost:3000/**` and your Vercel address (`https://*.vercel.app/**`) under **Redirect URLs**.
+4. Go to **Authentication → URL Configuration** and set **Site URL** to your live address (for example `https://goinggoinggone.co.uk`). Add only your own exact addresses under **Redirect URLs** (for example `https://www.going-going-gone.uk/**`). Never add a wildcard such as `https://*.vercel.app/**`, because that would let any Vercel site receive sign-in links.
 5. Go to **Project Settings → API** and copy the **Project URL** and the **publishable key** (called the anon key on older projects).
 
 ### 2. Run it on your computer

@@ -1,10 +1,11 @@
 import LoginForm from "./LoginForm";
+import { safeNext } from "@/lib/safe-next";
 
 export const metadata = { title: "Sign in" };
 
 export default async function LoginPage({ searchParams }) {
   const sp = await searchParams;
-  const next = typeof sp.next === "string" && sp.next.startsWith("/") && !sp.next.startsWith("//") ? sp.next : "/";
+  const next = safeNext(sp.next);
   return (
     <div className="wrap narrow" style={{ maxWidth: 560 }}>
       <h1 className="page-title">Sign in</h1>

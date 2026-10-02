@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { safeNext } from "@/lib/safe-next";
 
 // Where the sign-in link in the email lands. Handles both link styles Supabase can send:
 // ?token_hash=...&type=email (works on any device) and ?code=... (same browser only).
@@ -8,8 +9,7 @@ export async function GET(request) {
   const tokenHash = url.searchParams.get("token_hash");
   const type = url.searchParams.get("type") || "email";
   const code = url.searchParams.get("code");
-  const nextParam = url.searchParams.get("next") || "/";
-  const next = nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/";
+  const next = safeNext(url.searchParams.get("next") || "/");
 
   const supabase = await createClient();
   let error = null;
