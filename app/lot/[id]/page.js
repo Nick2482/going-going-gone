@@ -54,7 +54,7 @@ export default async function LotPage({ params, searchParams }) {
   if (!lot) notFound();
 
   const isSeller = userId && userId === lot.seller_id;
-  const [{ data: photos }, { data: bids }, reserveRes] = await Promise.all([
+  const [{ data: photos }, { data: bids }, reserveRes, { data: sellerSummary }] = await Promise.all([
     supabase.from("lot_photos").select("id, path, position").eq("lot_id", id).order("position").order("created_at"),
     supabase
       .from("bids")
@@ -64,6 +64,7 @@ export default async function LotPage({ params, searchParams }) {
       .limit(100),
     // Only the seller can read the reserve amount; everyone else gets nothing back.
     isSeller ? supabase.from("lot_reserves").select("reserve_pence").eq("lot_id", id).maybeSingle() : Promise.resolve({ data: null }),
+    supabase.rpc("member_summary", { p_user: lot.seller_id }),
   ]);
 
   return (
@@ -81,6 +82,7 @@ export default async function LotPage({ params, searchParams }) {
         initialBids={bids ?? []}
         initialReserve={reserveRes?.data?.reserve_pence ?? null}
         userId={userId}
+        sellerSummary={sellerSummary ?? null}
       />
     </div>
   );

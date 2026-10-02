@@ -315,6 +315,45 @@ textarea.input { min-height: 130px; resize: vertical; }
 .admin-search { margin-bottom: 14px; max-width: 620px; flex-wrap: nowrap; }
 .admin-search .input { flex: 1; }
 
+/* ---------- Ratings & member profiles ---------- */
+.seller-link { color: var(--ink); text-decoration: none; }
+.seller-link:hover { text-decoration: underline; }
+.score-1 { color: var(--win); }
+.score--1 { color: var(--sold); }
+.score-0 { color: var(--ink-2); }
+.score-dot { width: 12px; height: 12px; border-radius: 50%; flex: none; margin-top: 6px; background: var(--line-2); }
+.score-bg-1 { background: var(--win); }
+.score-bg--1 { background: var(--sold); }
+.rate { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 14px; }
+.rate-title { font-weight: 800; font-size: 16px; }
+.rate-choices { display: flex; gap: 8px; flex-wrap: wrap; }
+.rate-choice { border: 2px solid var(--line-2); background: var(--card); border-radius: 999px; padding: 8px 16px; font-weight: 700; cursor: pointer; color: var(--ink-2); }
+.rate-choice.rate-1.is-on { border-color: var(--win); background: var(--win-soft); color: var(--win); }
+.rate-choice.rate-0.is-on { border-color: var(--ink-2); background: var(--bg); color: var(--ink); }
+.rate-choice.rate--1.is-on { border-color: var(--sold); background: var(--sold-soft); color: var(--sold); }
+.rate-done { border-top: 1px solid var(--line); padding-top: 12px; font-size: 14px; }
+.panel-sold .rate, .panel-sold .rate-done { border-color: rgba(255, 255, 255, 0.15); }
+.panel-sold .rate-choice { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.35); }
+.panel-sold .score-1 { color: #7ddba6; }
+.panel-sold .rate-choice.rate-1.is-on { background: var(--win); border-color: var(--win); color: #fff; }
+.panel-sold .rate-choice.rate-0.is-on { background: #fff; border-color: #fff; color: var(--ink); }
+.panel-sold .rate-choice.rate--1.is-on { background: var(--sold); border-color: var(--sold); color: #fff; }
+.panel-sold .input { color: var(--ink); }
+.panel-sold .error { color: #ffb3bd; }
+.member-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 20px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow-sm); }
+@media (max-width: 820px) { .member-card { grid-template-columns: auto minmax(0, 1fr); } .member-stats { grid-column: 1 / -1; } }
+.member-avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--ink); color: var(--aqua); display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 34px; border: 3px solid var(--brass); }
+.member-main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.member-name { font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: clamp(30px, 5vw, 44px); line-height: 1; }
+.member-rating { font-weight: 800; font-size: 17px; }
+.member-stats { display: grid; grid-template-columns: repeat(5, minmax(0, auto)); gap: 6px 18px; margin: 0; text-align: center; }
+@media (max-width: 820px) { .member-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 8px; padding-top: 14px; border-top: 1px solid var(--line); } .member-stats dd { font-size: 26px; } }
+.member-stats dt { font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.member-stats dd { margin: 0; font-family: var(--display); font-weight: 900; font-size: 30px; line-height: 1.1; }
+.feedback-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.feedback { display: flex; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.feedback a { color: var(--ink-2); }
+
 /* ---------- Live activity ticker ---------- */
 .ticker { background: var(--card); border-bottom: 1px solid var(--line); }
 .ticker-inner { display: flex; align-items: center; gap: 12px; min-height: 46px; padding-block: 8px; overflow: hidden; }

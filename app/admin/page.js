@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient, getUserId } from "@/lib/supabase/server";
 import { gbp, when, lotNumber } from "@/lib/format";
+import { SCORE_LABEL } from "@/lib/ratings";
 import AdminButton from "./AdminActions";
 
 export const metadata = { title: "Admin", robots: { index: false } };
@@ -22,11 +23,12 @@ export default async function AdminPage({ searchParams }) {
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.slice(0, 60) : "";
 
-  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }] = await Promise.all([
+  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }] = await Promise.all([
     supabase.rpc("admin_stats"),
     supabase.rpc("admin_open_reports"),
     supabase.rpc("admin_members", { p_search: q }),
     supabase.rpc("admin_recent_lots"),
+    supabase.rpc("admin_recent_ratings"),
   ]);
   const s = stats || {};
 
@@ -54,7 +56,7 @@ export default async function AdminPage({ searchParams }) {
       </div>
 
       <nav className="admin-jump" aria-label="Admin sections">
-        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a>
+        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a>
       </nav>
 
       <section className="section" id="reports">
@@ -147,6 +149,25 @@ export default async function AdminPage({ searchParams }) {
             })}
           </ul>
         ) : <div className="empty">No lots yet.</div>}
+      </section>
+
+      <section className="section" id="feedback">
+        <h2 className="section-title">Latest feedback</h2>
+        {ratings?.length ? (
+          <ul className="admin-list">
+            {ratings.map((r) => (
+              <li key={r.id} className="admin-item">
+                <div className="admin-item-main">
+                  <div><strong className={`score-${r.score}`}>{SCORE_LABEL[r.score]}</strong>{r.comment ? <> · &ldquo;{r.comment}&rdquo;</> : null}</div>
+                  <div className="hint">{r.rater_name || "Someone"} rated {r.ratee_name || "someone"} as the {r.ratee_role} · {r.lot_title} · {when(r.created_at)}</div>
+                </div>
+                <div className="row admin-actions">
+                  <AdminButton fn="admin_remove_rating" args={{ p_rating: r.id }} label="Remove" tone="danger" confirm="Remove this rating? Only do this if it's abusive or clearly unfair." />
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : <div className="empty">No feedback yet.</div>}
       </section>
     </div>
   );

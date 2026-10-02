@@ -8,6 +8,8 @@ import { compressPhoto, uploadLotPhotos } from "@/lib/photos";
 import { StagePill, TimeLeft } from "@/components/Clock";
 import { PhotoIcon, PinIcon } from "@/components/Icons";
 import ShareButtons from "@/components/ShareButtons";
+import RateSale from "@/components/RateSale";
+import { ratingLine } from "@/lib/ratings";
 
 function cleanError(error, fallback) {
   const msg = error?.message || "";
@@ -16,7 +18,7 @@ function cleanError(error, fallback) {
   return fallback;
 }
 
-export default function LotLive({ initialLot, initialPhotos, initialBids, initialReserve, userId }) {
+export default function LotLive({ initialLot, initialPhotos, initialBids, initialReserve, userId, sellerSummary }) {
   const supabase = createClient();
   const router = useRouter();
   const [lot, setLot] = useState(initialLot);
@@ -265,6 +267,9 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
           </p>
         ) : null}
         {(isWinner || isSeller) ? <p className="hint">Meet somewhere public, check the item before paying, and never pay by bank transfer to someone you haven&apos;t met.</p> : null}
+        {(isWinner || isSeller) && contact ? (
+          <RateSale lotId={lot.id} userId={userId} otherName={contact.display_name} otherRole={isSeller ? "buyer" : "seller"} />
+        ) : null}
       </>
     ) : lot.bid_count ? (
       <p>Bidding ended below the seller&apos;s reserve, so this lot didn&apos;t sell.{isSeller ? " You can list it again with a lower reserve." : ""}</p>
@@ -482,8 +487,9 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             <div className="avatar" aria-hidden="true">{sellerName.slice(0, 1).toUpperCase()}</div>
             <div>
               <div className="hint">Sold by</div>
-              <strong>{sellerName}</strong>
+              <Link href={`/member/${lot.seller_id}`} className="seller-link"><strong>{sellerName}</strong></Link>
               {initialLot.seller?.verified ? <span className="pill badge-local" title="Known to Going Going Gone as a local member">✓ Local member</span> : null}
+              {sellerSummary ? <div className="hint">{ratingLine(sellerSummary)}{Number(sellerSummary.sold) ? ` · ${sellerSummary.sold} sold` : ""}</div> : null}
             </div>
           </div>
           <p className="hint">Payment and collection are arranged between buyer and seller after the auction ends. Cash on collection is simplest.</p>

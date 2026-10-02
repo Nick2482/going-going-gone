@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, getUserId } from "@/lib/supabase/server";
 import LotCard from "@/components/LotCard";
@@ -49,7 +50,10 @@ export default async function AccountPage() {
   return (
     <div className="wrap" style={{ paddingBlock: 32 }}>
       <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-end" }}>
-        <h1 className="page-title">My account</h1>
+        <div>
+          <h1 className="page-title">My account</h1>
+          <Link href={`/member/${userId}`} className="hint">View my public profile and ratings</Link>
+        </div>
         <form action="/auth/signout" method="post"><button className="btn btn-ghost" type="submit">Sign out</button></form>
       </div>
 
