@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { gbp, lotNumber, photoUrl, RESERVE_LABEL } from "@/lib/format";
 import { StagePill, TimeLeft } from "./Clock";
-import { PhotoIcon, PinIcon } from "./Icons";
+import { HeartIcon, PhotoIcon, PinIcon } from "./Icons";
 
 // One lot in a grid. `badge` is an optional extra pill such as "Highest bidder".
 export default function LotCard({ lot, badge }) {
@@ -26,8 +26,9 @@ export default function LotCard({ lot, badge }) {
         <span className="lot-cat">{lot.category}</span>
         <h3 className="lot-title">{lot.title}</h3>
         {lot.location ? <span className="lot-where"><PinIcon />{lot.location}</span> : null}
-        {reserve || badge || buyNow || lot.bought_now ? (
+        {reserve || badge || buyNow || lot.bought_now || lot.charity_percent ? (
           <div className="lot-tags">
+            {lot.charity_percent ? <span className="pill charity-pill"><HeartIcon size={11} /> {lot.charity_percent === 100 ? "All to charity" : `${lot.charity_percent}% to charity`}</span> : null}
             {buyNow ? <span className="pill" style={{ background: "#09212c", color: "#fff" }}>Buy it now {gbp(buyNow)}</span> : null}
             {lot.bought_now ? <span className="pill p-unsold">Bought with Buy it now</span> : null}
             {reserve ? <span className={`pill ${lot.reserve_status === "met" ? "p-reserve-met" : "p-reserve"}`}>{reserve}</span> : null}

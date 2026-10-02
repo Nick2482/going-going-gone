@@ -70,6 +70,7 @@ export default async function RootLayout({ children }) {
               <h3>Help</h3>
               <ul>
                 <li><Link href="/about">About us</Link></li>
+                <li><Link href="/causes">Local causes</Link></li>
                 <li><Link href="/how-it-works">How it works</Link></li>
                 <li><Link href="/terms">Terms of use</Link></li>
                 <li><Link href="/privacy">Privacy notice</Link></li>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 export const metadata = { title: "How it works" };
 
 export default function HowItWorks() {
@@ -32,6 +33,9 @@ export default function HowItWorks() {
 
       <h2>After the hammer falls</h2>
       <p>The highest bidder wins, as long as any reserve has been met. The winner and the seller can then see each other&apos;s email on the lot page to arrange payment and collection. Going Going Gone doesn&apos;t handle payments.</p>
+
+      <h2>Charity auctions</h2>
+      <p>When listing, sellers can give 10%, 25%, 50% or all of the final price to one of the <Link href="/causes">local causes</Link> on our list. Those lots carry a charity badge. The seller pays the cause once they&apos;ve been paid, and the pledge can&apos;t be changed after listing.</p>
 
       <h2>Email alerts</h2>
       <p>We&apos;ll email you when you&apos;re outbid, when you win, when something you&apos;re selling gets its first bid, and when your auction ends. The winner and seller get each other&apos;s email address so they can arrange collection. You can switch alerts off in <strong>My account</strong>.</p>

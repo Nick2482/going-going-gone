@@ -19,3 +19,6 @@ export function ClockIcon({ size = 22 }) {
 export function PhotoIcon({ size = 40 }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" {...base} strokeWidth={1.4} aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="1.8" /><path d="m21 16-5-5-8 8" /></svg>;
 }
+export function HeartIcon({ size = 14 }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.4C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.8 1.2 5.4 3.1 1.6-1.9 3.3-3.1 5.4-3.1 3.6 0 5.7 3.7 4.2 7.1C19.5 16.4 12 21 12 21Z" /></svg>;
+}

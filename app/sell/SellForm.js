@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { CATEGORIES, DURATIONS, MAX_PHOTOS, gbp, toPence } from "@/lib/format";
 import { compressPhoto, uploadLotPhotos } from "@/lib/photos";
 
-export default function SellForm({ userId, defaultArea }) {
+export default function SellForm({ userId, defaultArea, causes = [] }) {
   const supabase = createClient();
   const router = useRouter();
   const [title, setTitle] = useState("");
@@ -17,6 +17,9 @@ export default function SellForm({ userId, defaultArea }) {
   const [buyNow, setBuyNow] = useState("");
   const [days, setDays] = useState("7");
   const [agree, setAgree] = useState(false);
+  const [giving, setGiving] = useState(false);
+  const [causeId, setCauseId] = useState("");
+  const [percent, setPercent] = useState(100);
   const [photos, setPhotos] = useState([]); // { blob, preview }
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
@@ -75,6 +78,7 @@ export default function SellForm({ userId, defaultArea }) {
     if (buyNowPence !== null && reservePence !== null && reservePence > buyNowPence) {
       return setError("The reserve can't be higher than the Buy it now price.");
     }
+    if (giving && !causeId) return setError("Choose which local cause you'd like to support, or untick the charity box.");
     if (!agree) return setError("Please confirm the item is yours to sell and allowed on the site.");
 
     setSaving("Listing your item…");
@@ -88,6 +92,7 @@ export default function SellForm({ userId, defaultArea }) {
         location: location.trim() || null,
         start_price_pence: pence,
         ...(buyNowPence !== null ? { buy_now_pence: buyNowPence } : {}),
+        ...(giving && causeId ? { charity_id: causeId, charity_percent: percent } : {}),
         ends_at: endsAt,
       })
       .select("id")
@@ -209,6 +214,39 @@ export default function SellForm({ userId, defaultArea }) {
             {DURATIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
           </select>
         </div>
+
+        {causes.length ? (
+          <div className="full charity-box">
+            <label className="check">
+              <input type="checkbox" checked={giving} onChange={(e) => setGiving(e.target.checked)} />
+              <span><strong>Support a local cause</strong> <span className="optional">(optional)</span><br />
+                <span className="hint">Give some or all of the final price to a local cause. Your lot gets a charity badge, which tends to bring in more bids.</span></span>
+            </label>
+            {giving ? (
+              <div className="formgrid" style={{ marginTop: 12 }}>
+                <div className="field">
+                  <label htmlFor="cause">Which cause?</label>
+                  <select id="cause" className="input" value={causeId} onChange={(e) => setCauseId(e.target.value)}>
+                    <option value="">Choose a cause</option>
+                    {causes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div className="field">
+                  <span className="label" id="pct-label">How much goes to the cause?</span>
+                  <div className="pct-choices" role="radiogroup" aria-labelledby="pct-label">
+                    {[10, 25, 50, 100].map((p) => (
+                      <button key={p} type="button" role="radio" aria-checked={percent === p}
+                        className={`pct${percent === p ? " is-on" : ""}`} onClick={() => setPercent(p)}>
+                        {p === 100 ? "All of it" : `${p}%`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <p className="hint full">You pay the cause yourself once you&apos;ve been paid. The pledge can&apos;t be changed after listing, and it&apos;s shown to bidders.</p>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         <label className="full check">
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />

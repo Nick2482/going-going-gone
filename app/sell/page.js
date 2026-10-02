@@ -8,7 +8,10 @@ export default async function SellPage() {
   const supabase = await createClient();
   const userId = await getUserId(supabase);
   if (!userId) redirect("/login?next=/sell");
-  const { data: profile } = await supabase.from("profiles").select("area").eq("id", userId).maybeSingle();
+  const [{ data: profile }, { data: causes }] = await Promise.all([
+    supabase.from("profiles").select("area").eq("id", userId).maybeSingle(),
+    supabase.from("charities").select("id, name, description").eq("active", true).order("name"),
+  ]);
 
   return (
     <div className="wrap narrow">
@@ -16,7 +19,7 @@ export default async function SellPage() {
       <p className="page-lead">
         Add a few photos, set a starting price and how long bidding runs. The highest bid when the clock runs out wins, and you arrange payment and collection with the buyer.
       </p>
-      <SellForm userId={userId} defaultArea={profile?.area || ""} />
+      <SellForm userId={userId} defaultArea={profile?.area || ""} causes={causes ?? []} />
     </div>
   );
 }

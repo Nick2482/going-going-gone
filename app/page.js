@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { CATEGORIES, LOT_CARD_FIELDS } from "@/lib/format";
+import { CATEGORIES, LOT_CARD_FIELDS, gbp } from "@/lib/format";
 import LotCard from "@/components/LotCard";
 import SortSelect from "@/components/SortSelect";
-import { ClockIcon, HomeIcon, TagIcon } from "@/components/Icons";
+import { ClockIcon, HeartIcon, HomeIcon, TagIcon } from "@/components/Icons";
 import EndingSoon from "@/components/EndingSoon";
 import ActivityTicker from "@/components/ActivityTicker";
 import { BID_FIELDS, NEW_LOT_FIELDS, bidEvent, listingEvent, mergeEvents } from "@/lib/activity";
@@ -32,7 +32,8 @@ export default async function Home({ searchParams }) {
   const sortKey = SORTS[sp.sort] ? sp.sort : "ending";
   const q = typeof sp.q === "string" ? sp.q.trim().slice(0, 60) : "";
   const page = Math.max(1, parseInt(sp.page || "1", 10) || 1);
-  const params = { cat, sort: sortKey, q };
+  const charity = sp.charity === "1" ? "1" : "";
+  const params = { cat, sort: sortKey, q, charity };
 
   const supabase = await createClient();
   const nowIso = new Date().toISOString();
@@ -47,6 +48,7 @@ export default async function Home({ searchParams }) {
     .order("lot_no", { ascending: true })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (cat) live = live.eq("category", cat);
+  if (charity) live = live.not("charity_id", "is", null);
   if (q) live = live.ilike("title", `%${q.replace(/[%_\\]/g, "\\$&")}%`);
 
   const gone = supabase
@@ -59,7 +61,7 @@ export default async function Home({ searchParams }) {
     .order("ends_at", { ascending: false })
     .limit(8);
 
-  const filtered = Boolean(cat || q);
+  const filtered = Boolean(cat || q || charity);
   const showHero = !filtered && page === 1;
 
   // Homepage extras: the next lots to close, and recent activity for the live ticker.
@@ -74,8 +76,12 @@ export default async function Home({ searchParams }) {
     ? supabase.from("lots").select(NEW_LOT_FIELDS).eq("status", "live").order("created_at", { ascending: false }).limit(6)
     : Promise.resolve({ data: [] });
 
-  const [{ data: lots, count, error }, { data: sold }, { data: endingLots }, { data: bidRows }, { data: newLots }] =
-    await Promise.all([live, gone, ending, recentBids, recentLots]);
+  const causes = showHero ? supabase.rpc("charity_totals") : Promise.resolve({ data: [] });
+
+  const [{ data: lots, count, error }, { data: sold }, { data: endingLots }, { data: bidRows }, { data: newLots }, { data: causeRows }] =
+    await Promise.all([live, gone, ending, recentBids, recentLots, causes]);
+  const raised = (causeRows ?? []).reduce((t, c) => t + Number(c.raised_pence || 0), 0);
+  const charityRunning = (causeRows ?? []).reduce((t, c) => t + Number(c.running || 0), 0);
   const total = count ?? 0;
   const events = mergeEvents((bidRows ?? []).map(bidEvent), (newLots ?? []).map(listingEvent));
   // Only show the strip when there are enough lots for it to be worth it.
@@ -116,10 +122,23 @@ export default async function Home({ searchParams }) {
         <div className="wrap"><EndingSoon lots={endingSoon} /></div>
       ) : null}
 
+      {showHero && (raised > 0 || charityRunning > 0) ? (
+        <div className="wrap">
+          <Link href="/causes" className="charity-banner">
+            <HeartIcon size={22} />
+            <span>
+              {raised > 0 ? <><strong>{gbp(raised)} raised for local causes</strong> through Going Going Gone auctions. </> : <strong>Charity auctions are running now. </strong>}
+              {charityRunning > 0 ? <>{charityRunning} charity lot{charityRunning === 1 ? " is" : "s are"} open for bids.</> : null}
+            </span>
+            <span className="charity-banner-go">See the causes</span>
+          </Link>
+        </div>
+      ) : null}
+
       <div className="wrap" id="lots">
         <div className="toolbar">
           <h2>
-            {q ? `Results for “${q}”` : cat || "Open lots"}
+            {q ? `Results for “${q}”` : cat || (charity ? "Charity lots" : "Open lots")}
             <span className="count">{total} {total === 1 ? "lot" : "lots"}</span>
           </h2>
           <Suspense fallback={null}>
@@ -129,7 +148,8 @@ export default async function Home({ searchParams }) {
 
         <div className="chips-scroll" style={{ marginBottom: 20 }}>
           <nav className="chips" aria-label="Categories">
-            <Link className="chip" href={hrefWith(params, { cat: "", page: "" })} aria-current={!cat}>All</Link>
+            <Link className="chip" href={hrefWith(params, { cat: "", charity: "", page: "" })} aria-current={!cat && !charity}>All</Link>
+            <Link className="chip chip-charity" href={hrefWith(params, { cat: "", charity: charity ? "" : "1", page: "" })} aria-current={Boolean(charity)}><HeartIcon size={12} /> For charity</Link>
             {CATEGORIES.map((c) => (
               <Link key={c} className="chip" href={hrefWith(params, { cat: c, page: "" })} aria-current={cat === c}>{c}</Link>
             ))}

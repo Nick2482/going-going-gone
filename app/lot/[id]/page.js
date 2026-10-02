@@ -8,7 +8,7 @@ async function loadLot(supabase, id) {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const { data } = await supabase
     .from("lots")
-    .select("*, seller:profiles!lots_seller_id_fkey(display_name, area, verified)")
+    .select("*, seller:profiles!lots_seller_id_fkey(display_name, area, verified), charity:charities(id, name, website)")
     .eq("id", id)
     .maybeSingle();
   return data;

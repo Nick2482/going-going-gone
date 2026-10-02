@@ -3,10 +3,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { gbp, increment, lotNumber, MAX_PHOTOS, nextMinimum, photoUrl, RESERVE_LABEL, toPence, when } from "@/lib/format";
+import { charityLine, gbp, increment, lotNumber, MAX_PHOTOS, nextMinimum, photoUrl, RESERVE_LABEL, toPence, when } from "@/lib/format";
 import { compressPhoto, uploadLotPhotos } from "@/lib/photos";
 import { StagePill, TimeLeft } from "@/components/Clock";
-import { PhotoIcon, PinIcon } from "@/components/Icons";
+import { HeartIcon, PhotoIcon, PinIcon } from "@/components/Icons";
 import ShareButtons from "@/components/ShareButtons";
 import RateSale from "@/components/RateSale";
 import { ratingLine } from "@/lib/ratings";
@@ -260,6 +260,12 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
         </p>
         {isWinner ? <p>You won this lot. Contact the seller to arrange payment and collection.</p> : null}
         {isSeller ? <p>Your item sold. Contact the buyer to arrange payment and collection.</p> : null}
+        {isSeller && initialLot.charity_percent ? (
+          <p className="charity-due">
+            <HeartIcon size={14} /> You pledged {charityLine(initialLot.charity_percent, initialLot.charity?.name)}: please give <strong className="num">{gbp(Math.round(lot.current_price_pence * initialLot.charity_percent / 100))}</strong>
+            {initialLot.charity?.website ? <> (<a href={initialLot.charity.website} target="_blank" rel="noopener noreferrer">donate here</a>)</> : null}. Thank you!
+          </p>
+        ) : null}
         {contact ? (
           <p>
             {contact.role === "seller" ? "Seller" : "Buyer"}: <strong>{contact.display_name}</strong>
@@ -425,6 +431,13 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
           <span>{lot.category}</span>
           {lot.location ? <span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><PinIcon />{lot.location}</span> : null}
         </div>
+
+        {initialLot.charity_percent ? (
+          <Link href="/causes" className="charity-note">
+            <HeartIcon size={18} />
+            <span><strong>Charity lot.</strong> {charityLine(initialLot.charity_percent, initialLot.charity?.name)}.</span>
+          </Link>
+        ) : null}
 
         <div className={`panel${sold ? " panel-sold" : ""}`}>
           <div className="panel-head">

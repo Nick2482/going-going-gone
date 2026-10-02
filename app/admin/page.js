@@ -4,6 +4,7 @@ import { createClient, getUserId } from "@/lib/supabase/server";
 import { gbp, when, lotNumber } from "@/lib/format";
 import { SCORE_LABEL } from "@/lib/ratings";
 import AdminButton from "./AdminActions";
+import CauseForm from "./CauseForm";
 
 export const metadata = { title: "Admin", robots: { index: false } };
 
@@ -23,12 +24,13 @@ export default async function AdminPage({ searchParams }) {
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.slice(0, 60) : "";
 
-  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }] = await Promise.all([
+  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }] = await Promise.all([
     supabase.rpc("admin_stats"),
     supabase.rpc("admin_open_reports"),
     supabase.rpc("admin_members", { p_search: q }),
     supabase.rpc("admin_recent_lots"),
     supabase.rpc("admin_recent_ratings"),
+    supabase.rpc("charity_totals"),
   ]);
   const s = stats || {};
 
@@ -56,7 +58,7 @@ export default async function AdminPage({ searchParams }) {
       </div>
 
       <nav className="admin-jump" aria-label="Admin sections">
-        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a>
+        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#causes">Local causes</a>
       </nav>
 
       <section className="section" id="reports">
@@ -168,6 +170,25 @@ export default async function AdminPage({ searchParams }) {
             ))}
           </ul>
         ) : <div className="empty">No feedback yet.</div>}
+      </section>
+
+      <section className="section" id="causes">
+        <h2 className="section-title">Local causes</h2>
+        <p className="hint" style={{ marginBottom: 12 }}>Sellers can only pledge to causes on this list. Hide a cause to stop new pledges; lots already pledged keep it.</p>
+        <div style={{ marginBottom: 12 }}><CauseForm /></div>
+        {causes?.length ? (
+          <ul className="admin-list">
+            {causes.map((c) => (
+              <li key={c.id} className="admin-item">
+                <div className="admin-item-main">
+                  <div className="row" style={{ gap: 6 }}><strong>{c.name}</strong>{c.active ? null : <span className="pill p-unsold">Hidden</span>}</div>
+                  <div className="hint">{gbp(Number(c.raised_pence))} raised · {Number(c.sold)} sold · {Number(c.running)} open now{c.website ? ` · ${c.website}` : ""}</div>
+                </div>
+                <div className="admin-actions"><CauseForm cause={c} /></div>
+              </li>
+            ))}
+          </ul>
+        ) : <div className="empty">No causes yet. Add the first one above.</div>}
       </section>
     </div>
   );
