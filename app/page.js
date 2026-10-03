@@ -8,6 +8,7 @@ import { ClockIcon, HeartIcon, HomeIcon, TagIcon } from "@/components/Icons";
 import EndingSoon from "@/components/EndingSoon";
 import ActivityTicker from "@/components/ActivityTicker";
 import { BID_FIELDS, NEW_LOT_FIELDS, bidEvent, listingEvent, mergeEvents } from "@/lib/activity";
+import { GROUP_NAME, GROUP_URL, GROUP_MEMBERS } from "@/lib/site";
 
 const PAGE_SIZE = 48;
 const SORTS = {
@@ -132,6 +133,16 @@ export default async function Home({ searchParams }) {
             </span>
             <span className="charity-banner-go">See the causes</span>
           </Link>
+        </div>
+      ) : null}
+
+      {showHero ? (
+        <div className="wrap">
+          <a href={GROUP_URL} target="_blank" rel="noopener noreferrer" className="group-strip">
+            <span className="group-strip-f" aria-hidden="true">f</span>
+            <span>Part of <strong>{GROUP_NAME}</strong>, {GROUP_MEMBERS} local members on Facebook.</span>
+            <span className="group-strip-go">Join the group</span>
+          </a>
         </div>
       ) : null}
 

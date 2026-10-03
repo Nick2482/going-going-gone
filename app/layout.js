@@ -3,6 +3,7 @@ import { Big_Shoulders, Public_Sans, IBM_Plex_Mono } from "next/font/google";
 import { createClient, getUserId } from "@/lib/supabase/server";
 import { BrandMark, BrandWord } from "@/components/Logo";
 import { SearchIcon } from "@/components/Icons";
+import { GROUP_URL } from "@/lib/site";
 import "./globals.css";
 
 // Variable font: the "opsz" axis gives the tall display cut automatically at headline sizes.
@@ -38,6 +39,7 @@ export default async function RootLayout({ children }) {
             </form>
             <nav className="nav" aria-label="Main">
               <Link href="/how-it-works" className="nav-link nav-hide-sm">How it works</Link>
+              <a href={GROUP_URL} target="_blank" rel="noopener noreferrer" className="nav-link nav-hide-sm">Facebook group</a>
               {isAdmin ? <Link href="/admin" className="nav-link">Admin</Link> : null}
               {userId
                 ? <Link href="/account" className="nav-link">My account</Link>
@@ -63,6 +65,7 @@ export default async function RootLayout({ children }) {
               <ul>
                 <li><Link href="/">Browse lots</Link></li>
                 <li><Link href="/sell">Sell something</Link></li>
+                <li><a href={GROUP_URL} target="_blank" rel="noopener noreferrer">Join our Facebook group</a></li>
                 <li><Link href={userId ? "/account" : "/login"}>{userId ? "My account" : "Sign in"}</Link></li>
               </ul>
             </div>

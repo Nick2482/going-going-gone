@@ -386,6 +386,18 @@ textarea.input { min-height: 130px; resize: vertical; }
 .cause-stats dd { margin: 0; font-family: var(--display); font-weight: 900; font-size: 26px; }
 .cause-form { margin-top: 8px; max-width: 760px; }
 
+/* ---------- Facebook group links ---------- */
+.btn-fb { background: #1877f2; color: #fff; }
+.btn-fb:hover { background: #0f63d1; }
+.group-share { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.group-strip { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 12px 16px; border-radius: var(--radius); background: #eef4ff; border: 1px solid #cfe0fb; color: var(--ink); text-decoration: none; }
+.group-strip-f { width: 28px; height: 28px; border-radius: 50%; background: #1877f2; color: #fff; display: grid; place-items: center; font-weight: 900; font-family: Arial, sans-serif; font-size: 18px; flex: none; }
+.group-strip-go { margin-left: auto; font-weight: 800; color: #1659c7; white-space: nowrap; }
+@media (max-width: 600px) { .group-strip { flex-wrap: wrap; } .group-strip-go { margin-left: 40px; } }
+.listed-banner { display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: 16px; padding: 18px 20px; border-radius: var(--radius); background: var(--win-soft); border: 1px solid #b8e0c7; }
+.listed-title { font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: 26px; color: var(--win); }
+.roundup-text { font-size: 13px; line-height: 1.5; resize: vertical; }
+
 /* ---------- Live activity ticker ---------- */
 .ticker { background: var(--card); border-bottom: 1px solid var(--line); }
 .ticker-inner { display: flex; align-items: center; gap: 12px; min-height: 46px; padding-block: 8px; overflow: hidden; }

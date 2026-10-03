@@ -5,6 +5,7 @@ import { gbp, when, lotNumber } from "@/lib/format";
 import { SCORE_LABEL } from "@/lib/ratings";
 import AdminButton from "./AdminActions";
 import CauseForm from "./CauseForm";
+import Roundup from "./Roundup";
 
 export const metadata = { title: "Admin", robots: { index: false } };
 
@@ -24,13 +25,17 @@ export default async function AdminPage({ searchParams }) {
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.slice(0, 60) : "";
 
-  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }] = await Promise.all([
+  const nowIso = new Date().toISOString();
+  const RU = "id, title, current_price_pence, bid_count, ends_at, charity_percent";
+  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }, { data: ruEnding }, { data: ruFresh }] = await Promise.all([
     supabase.rpc("admin_stats"),
     supabase.rpc("admin_open_reports"),
     supabase.rpc("admin_members", { p_search: q }),
     supabase.rpc("admin_recent_lots"),
     supabase.rpc("admin_recent_ratings"),
     supabase.rpc("charity_totals"),
+    supabase.from("lots").select(RU).eq("status", "live").gt("ends_at", nowIso).lte("ends_at", new Date(Date.now() + 7 * 864e5).toISOString()).order("ends_at", { ascending: true }).limit(8),
+    supabase.from("lots").select(RU).eq("status", "live").gt("ends_at", nowIso).order("created_at", { ascending: false }).limit(10),
   ]);
   const s = stats || {};
 
@@ -58,7 +63,7 @@ export default async function AdminPage({ searchParams }) {
       </div>
 
       <nav className="admin-jump" aria-label="Admin sections">
-        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#causes">Local causes</a>
+        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#causes">Local causes</a><a href="#roundup">Facebook round-up</a>
       </nav>
 
       <section className="section" id="reports">
@@ -189,6 +194,11 @@ export default async function AdminPage({ searchParams }) {
             ))}
           </ul>
         ) : <div className="empty">No causes yet. Add the first one above.</div>}
+      </section>
+
+      <section className="section" id="roundup">
+        <h2 className="section-title">Facebook round-up</h2>
+        <Roundup ending={ruEnding ?? []} fresh={ruFresh ?? []} />
       </section>
     </div>
   );

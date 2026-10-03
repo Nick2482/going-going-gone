@@ -115,7 +115,7 @@ export default function SellForm({ userId, defaultArea, causes = [] }) {
     }
     // Remember the area for next time.
     if (location.trim()) await supabase.from("profiles").update({ area: location.trim() }).eq("id", userId);
-    router.push(`/lot/${lot.id}${reserveFailed ? "?reserve=failed" : ""}`);
+    router.push(`/lot/${lot.id}?new=1${reserveFailed ? "&reserve=failed" : ""}`);
     router.refresh();
   }
 

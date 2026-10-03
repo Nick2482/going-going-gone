@@ -8,6 +8,8 @@ import { compressPhoto, uploadLotPhotos } from "@/lib/photos";
 import { StagePill, TimeLeft } from "@/components/Clock";
 import { HeartIcon, PhotoIcon, PinIcon } from "@/components/Icons";
 import ShareButtons from "@/components/ShareButtons";
+import GroupShare from "@/components/GroupShare";
+import { SITE_URL } from "@/lib/site";
 import RateSale from "@/components/RateSale";
 import { ratingLine } from "@/lib/ratings";
 
@@ -514,6 +516,9 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             title={lot.title}
             text={`${lot.title}: ${ended ? (sold ? `sold for ${gbp(lot.current_price_pence)}` : "auction ended") : lot.bid_count ? `current bid ${gbp(lot.current_price_pence)}` : `bidding starts at ${gbp(lot.start_price_pence)}`} on Going Going Gone`}
           />
+        ) : null}
+        {lot.status === "live" && !ended ? (
+          <GroupShare message={`🔨 Up for auction: ${lot.title}. ${lot.bid_count ? `Current bid ${gbp(lot.current_price_pence)}` : `Bidding starts at ${gbp(lot.start_price_pence)}`}, ends ${when(lot.ends_at)}.${initialLot.charity_percent ? " ❤️ Charity lot." : ""}\n${SITE_URL}/lot/${lot.id}`} />
         ) : null}
 
         {userId && !isSeller && lot.status === "live" ? (

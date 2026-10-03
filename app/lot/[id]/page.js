@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { createClient, getUserId } from "@/lib/supabase/server";
 import { gbp, photoUrl } from "@/lib/format";
 import LotLive from "./LotLive";
+import GroupShare from "@/components/GroupShare";
+import { GROUP_NAME, SITE_URL } from "@/lib/site";
 
 async function loadLot(supabase, id) {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
@@ -73,6 +75,16 @@ export default async function LotPage({ params, searchParams }) {
         <Link href="/">All lots</Link><span>›</span>
         <Link href={`/?cat=${encodeURIComponent(lot.category)}`}>{lot.category}</Link>
       </nav>
+      {sp?.new === "1" && isSeller && lot.status === "live" ? (
+        <div className="listed-banner">
+          <div>
+            <strong className="listed-title">Your lot is live!</strong>
+            <p>Get more bids by sharing it with the {GROUP_NAME} group on Facebook.</p>
+          </div>
+          <GroupShare big label="Share it in the group"
+            message={`🔨 I've just listed ${lot.title} on Going Going Gone. Bidding starts at ${gbp(lot.start_price_pence)}!${lot.charity_percent ? " ❤️ Money goes to a local cause." : ""}\n${SITE_URL}/lot/${lot.id}`} />
+        </div>
+      ) : null}
       {sp?.reserve === "failed" && isSeller && !reserveRes?.data ? (
         <p className="notice" style={{ marginTop: 16 }}>Your item is listed, but the reserve didn&apos;t save. Add it again below before anyone bids.</p>
       ) : null}
