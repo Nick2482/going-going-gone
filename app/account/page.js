@@ -25,10 +25,11 @@ export default async function AccountPage() {
   const userId = await getUserId(supabase);
   if (!userId) redirect("/login?next=/account");
 
-  const [{ data: profile }, { data: myBids }, { data: mine }] = await Promise.all([
+  const [{ data: profile }, { data: myBids }, { data: mine }, { data: watchRows }] = await Promise.all([
     supabase.from("profiles").select("display_name, area, email_alerts").eq("id", userId).maybeSingle(),
     supabase.from("bids").select("lot_id").eq("bidder_id", userId).limit(1000),
     supabase.from("lots").select(LOT_FIELDS).eq("seller_id", userId).order("ends_at", { ascending: false }).limit(200),
+    supabase.from("watches").select(`lot:lots(${LOT_FIELDS})`).eq("user_id", userId).limit(200),
   ]);
 
   const bidLotIds = [...new Set((myBids ?? []).map((b) => b.lot_id))];
@@ -59,6 +60,8 @@ export default async function AccountPage() {
 
       <ProfileForm userId={userId} initialName={profile?.display_name || ""} initialArea={profile?.area || ""} initialAlerts={profile?.email_alerts ?? true} />
 
+      <Section title="Watching" lots={(watchRows ?? []).map((w) => w.lot).filter((l) => l && isLive(l)).sort((a, b) => new Date(a.ends_at) - new Date(b.ends_at))}
+        empty="Tap Watch on any lot to keep an eye on it. We'll email you an hour before it ends." />
       <Section title="Bidding on" lots={biddingOn} badge={bidBadge} empty="You're not bidding on anything right now." />
       <Section title="Won" lots={won} badge={() => <span className="pill p-win">You won</span>} empty="Lots you win will appear here, with the seller's contact details on the lot page." />
       <Section title="Selling" lots={selling} empty="Nothing for sale right now." />

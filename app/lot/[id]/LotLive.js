@@ -9,6 +9,8 @@ import { StagePill, TimeLeft } from "@/components/Clock";
 import { HeartIcon, PhotoIcon, PinIcon } from "@/components/Icons";
 import ShareButtons from "@/components/ShareButtons";
 import GroupShare from "@/components/GroupShare";
+import PhotoViewer from "@/components/PhotoViewer";
+import WatchButton from "@/components/WatchButton";
 import { SITE_URL } from "@/lib/site";
 import RateSale from "@/components/RateSale";
 import { ratingLine } from "@/lib/ratings";
@@ -20,7 +22,7 @@ function cleanError(error, fallback) {
   return fallback;
 }
 
-export default function LotLive({ initialLot, initialPhotos, initialBids, initialReserve, userId, sellerSummary }) {
+export default function LotLive({ initialLot, initialPhotos, initialBids, initialReserve, userId, sellerSummary, watchCount = 0, watching = false }) {
   const supabase = createClient();
   const router = useRouter();
   const [lot, setLot] = useState(initialLot);
@@ -28,6 +30,8 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   const [bids, setBids] = useState(initialBids);
   const [reserve, setReserve] = useState(initialReserve);
   const [photoIdx, setPhotoIdx] = useState(0);
+  const [viewer, setViewer] = useState(false);
+  const swipe = useRef(null);
   const [now, setNow] = useState(() => Date.now());
 
   const [amount, setAmount] = useState("");
@@ -363,8 +367,18 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
       <div className="stack" style={{ gap: 28 }}>
         <div className="gallery">
           {mainSrc
-            ? <div className="g-frame">
-                <img className="g-main" src={mainSrc} alt={`Photo of ${lot.title}`} />
+            ? <div className="g-frame"
+                onTouchStart={(e) => { swipe.current = e.touches.length === 1 ? e.touches[0].clientX : null; }}
+                onTouchEnd={(e) => {
+                  const x0 = swipe.current; swipe.current = null;
+                  if (x0 === null || photos.length < 2) return;
+                  const dx = e.changedTouches[0].clientX - x0;
+                  if (Math.abs(dx) > 50) setPhotoIdx((k) => (Math.min(k, photos.length - 1) + (dx < 0 ? 1 : -1) + photos.length) % photos.length);
+                }}>
+                <button type="button" className="g-open" onClick={() => setViewer(true)} aria-label="Open photos full screen">
+                  <img className="g-main" src={mainSrc} alt={`Photo of ${lot.title}`} />
+                  <span className="g-zoom" aria-hidden="true">⤢ {photos.length > 1 ? `${Math.min(photoIdx, photos.length - 1) + 1} / ${photos.length}` : "View"}</span>
+                </button>
                 {sold ? <span className="sold-stamp" aria-hidden="true">Sold</span> : null}
               </div>
             : <div className="g-frame">
@@ -390,6 +404,14 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             </div>
           ) : null}
           {photoErr ? <p className="error">{photoErr}</p> : null}
+          {viewer && mainSrc ? (
+            <PhotoViewer
+              srcs={photos.length ? photos.map((p) => photoUrl(p.path)) : [mainSrc]}
+              start={Math.min(photoIdx, Math.max(0, photos.length - 1))}
+              title={lot.title}
+              onClose={() => setViewer(false)}
+            />
+          ) : null}
         </div>
 
         {lot.description ? (
@@ -433,6 +455,9 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
           <span>{lot.category}</span>
           {lot.location ? <span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><PinIcon />{lot.location}</span> : null}
         </div>
+        {lot.status === "live" && (!ended || watchCount > 0) ? (
+          <WatchButton lotId={lot.id} userId={userId} initialWatching={watching} initialCount={watchCount} canWatch={!ended && !isSeller} />
+        ) : null}
 
         {initialLot.charity_percent ? (
           <Link href="/causes" className="charity-note">
