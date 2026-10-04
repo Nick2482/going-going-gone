@@ -40,7 +40,6 @@ export default async function RootLayout({ children }) {
               <input id="site-q" name="q" placeholder="Search lots" autoComplete="off" />
             </form>
             <nav className="nav" aria-label="Main">
-              <Link href="/wanted" className="nav-link">Wanted</Link>
               <Link href="/how-it-works" className="nav-link nav-hide-sm">How it works</Link>
               <a href={GROUP_URL} target="_blank" rel="noopener noreferrer" className="nav-link nav-hide-sm">Facebook group</a>
               {isAdmin ? <Link href="/admin" className="nav-link">Admin</Link> : null}
@@ -68,7 +67,6 @@ export default async function RootLayout({ children }) {
               <ul>
                 <li><Link href="/">Browse lots</Link></li>
                 <li><Link href="/sell">Sell something</Link></li>
-                <li><Link href="/wanted">Wanted ads</Link></li>
                 <li><Link href="/sold">Sold prices</Link></li>
                 <li><Link href="/flights">Cheap flights</Link></li>
                 <li><Link href="/get-the-app">Get the app</Link></li>

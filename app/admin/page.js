@@ -27,7 +27,7 @@ export default async function AdminPage({ searchParams }) {
 
   const nowIso = new Date().toISOString();
   const RU = "id, title, current_price_pence, bid_count, ends_at, charity_percent";
-  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }, { data: ruEnding }, { data: ruFresh }, { data: questions }] = await Promise.all([
+  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }, { data: ruEnding }, { data: ruFresh }, { data: questions }, { data: wanted }] = await Promise.all([
     supabase.rpc("admin_stats"),
     supabase.rpc("admin_open_reports"),
     supabase.rpc("admin_members", { p_search: q }),
@@ -37,6 +37,7 @@ export default async function AdminPage({ searchParams }) {
     supabase.from("lots").select(RU).eq("status", "live").gt("ends_at", nowIso).lte("ends_at", new Date(Date.now() + 7 * 864e5).toISOString()).order("ends_at", { ascending: true }).limit(8),
     supabase.from("lots").select(RU).eq("status", "live").gt("ends_at", nowIso).order("created_at", { ascending: false }).limit(10),
     supabase.rpc("admin_recent_questions"),
+    supabase.rpc("admin_recent_wanted"),
   ]);
   const s = stats || {};
 
@@ -64,7 +65,7 @@ export default async function AdminPage({ searchParams }) {
       </div>
 
       <nav className="admin-jump" aria-label="Admin sections">
-        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#questions">Questions</a><a href="#causes">Local causes</a><a href="#roundup">Facebook round-up</a>
+        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#questions">Questions</a><a href="#wanted">Wanted ads</a><a href="#causes">Local causes</a><a href="#roundup">Facebook round-up</a>
       </nav>
 
       <section className="section" id="reports">
@@ -201,6 +202,33 @@ export default async function AdminPage({ searchParams }) {
             ))}
           </ul>
         ) : <div className="empty">No questions yet.</div>}
+      </section>
+
+      <section className="section" id="wanted">
+        <h2 className="section-title">Wanted ads</h2>
+        {wanted?.length ? (
+          <ul className="admin-list">
+            {wanted.map((w) => (
+              <li key={w.id} className="admin-item">
+                <div className="admin-item-main">
+                  <div className="row" style={{ gap: 6 }}>
+                    <strong>Wanted: {w.title}</strong>
+                    {w.status === "removed" ? <span className="pill p-unsold">Removed</span>
+                      : w.status === "found" ? <span className="pill p-win">Found</span>
+                      : new Date(w.expires_at) <= new Date() ? <span className="pill p-unsold">Expired</span> : <span className="pill p-open">Open</span>}
+                  </div>
+                  {w.details ? <blockquote className="admin-quote">{w.details}</blockquote> : null}
+                  <div className="hint">{w.poster_name || "Someone"} · {w.category}{w.budget_pence ? ` · up to ${gbp(w.budget_pence)}` : ""} · {Number(w.replies)} repl{Number(w.replies) === 1 ? "y" : "ies"} · {when(w.created_at)}</div>
+                </div>
+                {w.status === "removed" ? null : (
+                  <div className="row admin-actions">
+                    <AdminButton fn="set_wanted_status" args={{ p_ad: w.id, p_status: "removed" }} label="Remove" tone="danger" confirm="Remove this wanted ad from the site?" />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : <div className="empty">No wanted ads yet.</div>}
       </section>
 
       <section className="section" id="causes">

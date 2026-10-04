@@ -1,83 +1,39 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { createClient, getUserId } from "@/lib/supabase/server";
-import LotCard from "@/components/LotCard";
-import ProfileForm from "./ProfileForm";
-import DeleteAccount from "@/components/DeleteAccount";
-import SearchAlerts from "./SearchAlerts";
+import { OWNER, CONTACT, ICO_REG } from "@/lib/site";
 
-export const metadata = { title: "My account" };
+export const metadata = { title: "Privacy notice" };
 
-const LOT_FIELDS = "id, lot_no, title, category, location, current_price_pence, bid_count, ends_at, cover_path, high_bidder_id, status, reserve_status";
-
-function Section({ title, lots, badge, empty }) {
+export default function Privacy() {
   return (
-    <section className="section">
-      <h2 className="section-title">{title}</h2>
-      <div className="grid">
-        {lots.length ? lots.map((l) => <LotCard key={l.id} lot={l} badge={badge?.(l)} />) : <div className="empty">{empty}</div>}
-      </div>
-    </section>
-  );
-}
+    <div className="wrap prose">
+      <h1 className="page-title">Privacy notice</h1>
+      <p className="hint">Last updated: 2 October 2026</p>
 
-export default async function AccountPage() {
-  const supabase = await createClient();
-  const userId = await getUserId(supabase);
-  if (!userId) redirect("/login?next=/account");
+      <h2>Who we are</h2>
+      <p>Going Going Gone is run by {OWNER} from Market Bosworth, Leicestershire, who is responsible for (the &ldquo;controller&rdquo; of) the personal data described here.{ICO_REG ? <> Registered with the Information Commission, number <span className="mono">{ICO_REG}</span>.</> : null} For anything to do with your data, email <span className="mono">{CONTACT}</span>. More about who runs the site is on the <Link href="/about">About</Link> page.</p>
 
-  const [{ data: profile }, { data: myBids }, { data: mine }, { data: watchRows }, { data: alerts }] = await Promise.all([
-    supabase.from("profiles").select("display_name, area, email_alerts").eq("id", userId).maybeSingle(),
-    supabase.from("bids").select("lot_id").eq("bidder_id", userId).limit(1000),
-    supabase.from("lots").select(LOT_FIELDS).eq("seller_id", userId).order("ends_at", { ascending: false }).limit(200),
-    supabase.from("watches").select(`lot:lots(${LOT_FIELDS})`).eq("user_id", userId).limit(200),
-    supabase.from("saved_searches").select("id, query, category, charity_only, max_price_pence, created_at").eq("user_id", userId).order("created_at"),
-  ]);
+      <h2>What we collect</h2>
+      <ul>
+        <li><strong>Email address</strong>, to sign you in. It is shown only to the other person in a completed sale.</li>
+        <li><strong>Display name and area</strong>, which other people see on your listings and bids.</li>
+        <li><strong>Your listings, photos and bids</strong>, which are public.</li>
+        <li><strong>Reports</strong> you send about listings.</li>
+        <li>A sign-in cookie that keeps you logged in. We don&apos;t use advertising or tracking cookies, except on the <Link href="/flights">Cheap flights</Link> page, and only if you agree there: our flights partner Travelpayouts may then set cookies so that bookings are credited to us (the commission goes to local causes).</li>
+        <li>A small note in your browser remembering if you tapped &ldquo;Not now&rdquo; on the &ldquo;Add to your phone&rdquo; banner, so we don&apos;t keep asking. It never leaves your device.</li>
+        <li>We never ask for or store passwords, or card or bank details.</li>
+      </ul>
 
-  const bidLotIds = [...new Set((myBids ?? []).map((b) => b.lot_id))];
-  const { data: bidLots } = bidLotIds.length
-    ? await supabase.from("lots").select(LOT_FIELDS).in("id", bidLotIds).order("ends_at", { ascending: true })
-    : { data: [] };
+      <h2>Why we use it</h2>
+      <p>To run the site: signing you in, showing listings and bids, putting winners and sellers in touch, and keeping the site safe. Our lawful basis is performing our agreement with you (the terms of use) and our legitimate interest in preventing fraud.</p>
 
-  const now = Date.now();
-  const isLive = (l) => l.status === "live" && new Date(l.ends_at).getTime() > now;
-  const biddingOn = (bidLots ?? []).filter(isLive);
-  const won = (bidLots ?? []).filter((l) => !isLive(l) && l.high_bidder_id === userId && l.reserve_status !== "not_met").reverse();
-  const selling = (mine ?? []).filter(isLive).reverse();
-  const finished = (mine ?? []).filter((l) => !isLive(l));
+      <h2>Who else handles it</h2>
+      <p>We use trusted providers to run the site: Supabase (database, sign-in and photo storage), Vercel (website hosting) and Resend (sign-in and alert emails). They only process your data to provide these services to us.</p>
 
-  const bidBadge = (l) => l.high_bidder_id === userId
-    ? <span className="pill p-win">Highest bidder</span>
-    : <span className="pill p-out">Outbid</span>;
+      <h2>How long we keep it</h2>
+      <p>While your account is open. You can delete your account at any time from <Link href="/account">My account</Link>. That deletes your sign-in, name, listings, photos and bids straight away. Everything is stored encrypted.</p>
 
-  return (
-    <div className="wrap" style={{ paddingBlock: 32 }}>
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-end" }}>
-        <div>
-          <h1 className="page-title">My account</h1>
-          <Link href={`/member/${userId}`} className="hint">View my public profile and ratings</Link>
-        </div>
-        <form action="/auth/signout" method="post"><button className="btn btn-ghost" type="submit">Sign out</button></form>
-      </div>
-
-      <ProfileForm userId={userId} initialName={profile?.display_name || ""} initialArea={profile?.area || ""} initialAlerts={profile?.email_alerts ?? true} />
-
-      <SearchAlerts initial={alerts ?? []} alertsOn={profile?.email_alerts ?? true} />
-
-      <Section title="Watching" lots={(watchRows ?? []).map((w) => w.lot).filter((l) => l && isLive(l)).sort((a, b) => new Date(a.ends_at) - new Date(b.ends_at))}
-        empty="Tap Watch on any lot to keep an eye on it. We'll email you an hour before it ends." />
-      <Section title="Bidding on" lots={biddingOn} badge={bidBadge} empty="You're not bidding on anything right now." />
-      <Section title="Won" lots={won} badge={() => <span className="pill p-win">You won</span>} empty="Lots you win will appear here, with the seller's contact details on the lot page." />
-      <Section title="Selling" lots={selling} empty="Nothing for sale right now." />
-      {finished.length ? (
-        <Section title="Finished listings" lots={finished}
-          badge={(l) => l.status === "removed"
-            ? <span className="pill p-unsold">Withdrawn</span>
-            : l.bid_count > 0 && l.reserve_status === "not_met" ? <span className="pill p-reserve">Reserve not met · Relist</span>
-            : l.bid_count === 0 ? <span className="pill p-unsold">No bids · Relist</span> : null} />
-      ) : null}
-
-      <DeleteAccount userId={userId} />
+      <h2>Your rights</h2>
+      <p>You can ask to see, correct or delete your data, or object to how we use it. Email <span className="mono">{CONTACT}</span>. You can also complain to the Information Commission, the UK data protection regulator (ico.org.uk).</p>
     </div>
   );
 }

@@ -178,6 +178,9 @@ export default async function Home({ searchParams }) {
           <p className="filter-note">Showing lots matching “{q}”. <Link href={hrefWith(params, { q: "", page: "" })}>Clear search</Link></p>
         ) : null}
 
+        {!filtered ? (
+          <p className="alert-hint"><span aria-hidden="true">🔔</span> Looking for something in particular? Search or pick a category, then tap <strong>Email me new matches</strong> and we&apos;ll tell you when one is listed.</p>
+        ) : null}
         {filtered ? <SaveSearch key={`${q}|${cat}|${charity}`} q={q} cat={cat} charity={Boolean(charity)} backTo={hrefWith(params, { page: "" }) + "#lots"} /> : null}
 
         {error ? <p className="error" style={{ marginBottom: 16 }}>Lots couldn&apos;t load right now. Refresh the page to try again.</p> : null}
@@ -186,7 +189,7 @@ export default async function Home({ searchParams }) {
           {lots?.length ? lots.map((lot) => <LotCard key={lot.id} lot={lot} />) : (
             <div className="empty">
               <strong>{filtered ? "No lots found" : "No lots open yet"}</strong>
-              {filtered ? "Try another search or category." : <>Be the first. <Link href="/sell">Sell something</Link>.</>}
+              {filtered ? <>Try another search or category, or <Link href="/wanted">post a wanted ad</Link> so people know you&apos;re looking.</> : <>Be the first. <Link href="/sell">Sell something</Link>.</>}
             </div>
           )}
         </div>

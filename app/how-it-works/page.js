@@ -24,6 +24,9 @@ export default function HowItWorks() {
       </ul>
       <p>A bid is a promise to buy if you win, so only enter a maximum you&apos;re happy to pay.</p>
 
+      <h2>Wanted ads</h2>
+      <p>Can&apos;t find what you need? Post a free <Link href="/wanted">wanted ad</Link> saying what you&apos;re looking for. Anyone who has one can tap <strong>I have one</strong> and send you a message, which we email to you. Your email address is only shared if you reply. Ads run for 30 days, and you can mark yours as found once you&apos;ve got what you needed.</p>
+
       <h2>Search alerts</h2>
       <p>Looking for something particular? Search for it or pick a category, then tap <strong>Email me new matches</strong>. Whenever a matching lot is listed, we&apos;ll email you (at most one email every 15 minutes, however many lots match). You can see and remove your alerts in <Link href="/account#alerts">My account</Link>.</p>
 
