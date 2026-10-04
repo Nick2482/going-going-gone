@@ -4,6 +4,7 @@ import { createClient, getUserId } from "@/lib/supabase/server";
 import LotCard from "@/components/LotCard";
 import ProfileForm from "./ProfileForm";
 import DeleteAccount from "@/components/DeleteAccount";
+import SearchAlerts from "./SearchAlerts";
 
 export const metadata = { title: "My account" };
 
@@ -25,11 +26,12 @@ export default async function AccountPage() {
   const userId = await getUserId(supabase);
   if (!userId) redirect("/login?next=/account");
 
-  const [{ data: profile }, { data: myBids }, { data: mine }, { data: watchRows }] = await Promise.all([
+  const [{ data: profile }, { data: myBids }, { data: mine }, { data: watchRows }, { data: alerts }] = await Promise.all([
     supabase.from("profiles").select("display_name, area, email_alerts").eq("id", userId).maybeSingle(),
     supabase.from("bids").select("lot_id").eq("bidder_id", userId).limit(1000),
     supabase.from("lots").select(LOT_FIELDS).eq("seller_id", userId).order("ends_at", { ascending: false }).limit(200),
     supabase.from("watches").select(`lot:lots(${LOT_FIELDS})`).eq("user_id", userId).limit(200),
+    supabase.from("saved_searches").select("id, query, category, charity_only, max_price_pence, created_at").eq("user_id", userId).order("created_at"),
   ]);
 
   const bidLotIds = [...new Set((myBids ?? []).map((b) => b.lot_id))];
@@ -59,6 +61,8 @@ export default async function AccountPage() {
       </div>
 
       <ProfileForm userId={userId} initialName={profile?.display_name || ""} initialArea={profile?.area || ""} initialAlerts={profile?.email_alerts ?? true} />
+
+      <SearchAlerts initial={alerts ?? []} alertsOn={profile?.email_alerts ?? true} />
 
       <Section title="Watching" lots={(watchRows ?? []).map((w) => w.lot).filter((l) => l && isLive(l)).sort((a, b) => new Date(a.ends_at) - new Date(b.ends_at))}
         empty="Tap Watch on any lot to keep an eye on it. We'll email you an hour before it ends." />

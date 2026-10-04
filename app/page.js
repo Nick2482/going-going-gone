@@ -10,6 +10,7 @@ import ActivityTicker from "@/components/ActivityTicker";
 import { BID_FIELDS, NEW_LOT_FIELDS, bidEvent, listingEvent, mergeEvents } from "@/lib/activity";
 import { GROUP_NAME, GROUP_URL, GROUP_MEMBERS } from "@/lib/site";
 import { flightsConfigured } from "@/lib/flights";
+import SaveSearch from "@/components/SaveSearch";
 
 const PAGE_SIZE = 48;
 const SORTS = {
@@ -176,6 +177,8 @@ export default async function Home({ searchParams }) {
         {q ? (
           <p className="filter-note">Showing lots matching “{q}”. <Link href={hrefWith(params, { q: "", page: "" })}>Clear search</Link></p>
         ) : null}
+
+        {filtered ? <SaveSearch key={`${q}|${cat}|${charity}`} q={q} cat={cat} charity={Boolean(charity)} backTo={hrefWith(params, { page: "" }) + "#lots"} /> : null}
 
         {error ? <p className="error" style={{ marginBottom: 16 }}>Lots couldn&apos;t load right now. Refresh the page to try again.</p> : null}
 

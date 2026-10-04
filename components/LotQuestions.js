@@ -82,6 +82,15 @@ export default function LotQuestions({ lotId, userId, isSeller, ended, live, ini
     );
   }
 
+  // The seller's own running lot with no questions yet: say where they'll appear.
+  if (!questions.length && isSeller && live && !ended) {
+    return (
+      <section id="questions" className="qa">
+        <h2 className="block-title">Questions &amp; answers</h2>
+        <p className="qa-signin">No questions yet. If a buyer asks something, we&apos;ll email you and it will appear here for you to answer.</p>
+      </section>
+    );
+  }
   // Nothing to show and nobody can ask: keep the page tidy.
   if (!questions.length && !canAsk) return null;
 

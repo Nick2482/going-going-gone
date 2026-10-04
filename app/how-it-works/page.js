@@ -24,6 +24,9 @@ export default function HowItWorks() {
       </ul>
       <p>A bid is a promise to buy if you win, so only enter a maximum you&apos;re happy to pay.</p>
 
+      <h2>Search alerts</h2>
+      <p>Looking for something particular? Search for it or pick a category, then tap <strong>Email me new matches</strong>. Whenever a matching lot is listed, we&apos;ll email you (at most one email every 15 minutes, however many lots match). You can see and remove your alerts in <Link href="/account#alerts">My account</Link>.</p>
+
       <h2>Questions for the seller</h2>
       <p>Not sure about the size, condition or collection? Use <strong>Ask the seller a question</strong> on the lot page while the auction is running. The seller gets an email and answers on the lot. Once answered, the question and answer show on the lot for everyone (your name isn&apos;t shown), so other bidders don&apos;t need to ask the same thing. We&apos;ll email you when your question has an answer.</p>
 
