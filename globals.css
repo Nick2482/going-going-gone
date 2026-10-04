@@ -548,3 +548,12 @@ textarea.qa-input { min-height: 64px; }
 #alerts { scroll-margin-top: 90px; }
 .alert-hint { font-size: 14px; color: var(--muted); margin: -6px 0 18px; }
 .alert-hint strong { color: var(--ink); }
+
+/* Relist an unsold lot */
+.relist { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.relist-open { background: var(--aqua-soft); border-radius: 12px; padding: 14px; }
+.relist-title { font-weight: 800; font-size: 16px; }
+.relist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.relist-grid .field label { font-size: 13px; font-weight: 700; }
+@media (max-width: 380px) { .relist-grid { grid-template-columns: 1fr; } }
+.relist-open { color: var(--ink); }

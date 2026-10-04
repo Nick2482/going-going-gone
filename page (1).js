@@ -73,7 +73,8 @@ export default async function AccountPage() {
         <Section title="Finished listings" lots={finished}
           badge={(l) => l.status === "removed"
             ? <span className="pill p-unsold">Withdrawn</span>
-            : l.bid_count > 0 && l.reserve_status === "not_met" ? <span className="pill p-reserve">Reserve not met</span> : null} />
+            : l.bid_count > 0 && l.reserve_status === "not_met" ? <span className="pill p-reserve">Reserve not met · Relist</span>
+            : l.bid_count === 0 ? <span className="pill p-unsold">No bids · Relist</span> : null} />
       ) : null}
 
       <DeleteAccount userId={userId} />

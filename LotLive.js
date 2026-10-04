@@ -3,11 +3,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { gbp, increment, lotNumber, MAX_PHOTOS, nextMinimum, photoUrl, RESERVE_LABEL, toPence, when } from "@/lib/format";
+import { charityLine, gbp, lotNumber, MAX_PHOTOS, nextMinimum, photoUrl, RESERVE_LABEL, toPence, when } from "@/lib/format";
 import { compressPhoto, uploadLotPhotos } from "@/lib/photos";
 import { StagePill, TimeLeft } from "@/components/Clock";
-import { PhotoIcon, PinIcon } from "@/components/Icons";
+import { HeartIcon, PhotoIcon, PinIcon } from "@/components/Icons";
 import ShareButtons from "@/components/ShareButtons";
+import GroupShare from "@/components/GroupShare";
+import PhotoViewer from "@/components/PhotoViewer";
+import WatchButton from "@/components/WatchButton";
+import { SITE_URL } from "@/lib/site";
+import RateSale from "@/components/RateSale";
+import LotQuestions from "@/components/LotQuestions";
+import RelistLot from "@/components/RelistLot";
+import { ratingLine } from "@/lib/ratings";
 
 function cleanError(error, fallback) {
   const msg = error?.message || "";
@@ -16,7 +24,7 @@ function cleanError(error, fallback) {
   return fallback;
 }
 
-export default function LotLive({ initialLot, initialPhotos, initialBids, initialReserve, userId }) {
+export default function LotLive({ initialLot, initialPhotos, initialBids, initialReserve, userId, sellerSummary, watchCount = 0, watching = false, initialQuestions = [] }) {
   const supabase = createClient();
   const router = useRouter();
   const [lot, setLot] = useState(initialLot);
@@ -24,6 +32,9 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   const [bids, setBids] = useState(initialBids);
   const [reserve, setReserve] = useState(initialReserve);
   const [photoIdx, setPhotoIdx] = useState(0);
+  const [viewer, setViewer] = useState(false);
+  const [myMax, setMyMax] = useState(null);
+  const swipe = useRef(null);
   const [now, setNow] = useState(() => Date.now());
 
   const [amount, setAmount] = useState("");
@@ -69,9 +80,10 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   const refreshBids = useCallback(async () => {
     const { data } = await supabase
       .from("bids")
-      .select("id, amount_pence, created_at, bidder_id, bidder:profiles(display_name)")
+      .select("id, amount_pence, created_at, bidder_id, auto, bidder:profiles(display_name)")
       .eq("lot_id", lot.id)
       .order("amount_pence", { ascending: false })
+      .order("auto", { ascending: false })
       .limit(100);
     if (data) {
       data.forEach((b) => { names.current[b.bidder_id] = b.bidder?.display_name; });
@@ -91,6 +103,13 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
     return () => { supabase.removeChannel(channel); };
   }, [supabase, lot.id, refreshBids]);
 
+  // Your own private maximum on this lot (only you can see it).
+  useEffect(() => {
+    if (!userId) return;
+    supabase.from("max_bids").select("max_pence").eq("lot_id", lot.id).eq("bidder_id", userId).maybeSingle()
+      .then(({ data }) => { if (data) setMyMax(data.max_pence); });
+  }, [supabase, lot.id, userId]);
+
   // Once a lot sells, the seller and winner can see each other's contact details.
   useEffect(() => {
     if (!sold || !userId || !(isSeller || isWinner) || contact) return;
@@ -109,10 +128,13 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
     if (error) return setBidMsg({ kind: "error", text: cleanError(error, "Your bid didn't go through. Try again.") });
     if (data) setLot((prev) => ({ ...prev, ...data }));
     setAmount("");
-    const stillBelow = data?.reserve_status === "not_met";
-    setBidMsg({ kind: "success", text: stillBelow
-      ? `Bid of ${gbp(pence)} placed. You're the highest bidder, but the reserve hasn't been met yet.`
-      : `Bid of ${gbp(pence)} placed. You're the highest bidder.` });
+    if (data?.high_bidder_id === userId) {
+      setMyMax(pence);
+      const stillBelow = data.reserve_status === "not_met";
+      setBidMsg({ kind: "success", text: `You're the highest bidder at ${gbp(data.current_price_pence)}. We'll bid for you automatically, up to your maximum of ${gbp(pence)}.${stillBelow ? " The reserve hasn't been met yet." : ""}` });
+    } else {
+      setBidMsg({ kind: "error", text: `Another bidder's maximum is higher, so their automatic bid has beaten yours. The price is now ${gbp(data?.current_price_pence ?? pence)}. Try a higher maximum.` });
+    }
     refreshBids();
   }
 
@@ -258,6 +280,12 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
         </p>
         {isWinner ? <p>You won this lot. Contact the seller to arrange payment and collection.</p> : null}
         {isSeller ? <p>Your item sold. Contact the buyer to arrange payment and collection.</p> : null}
+        {isSeller && initialLot.charity_percent ? (
+          <p className="charity-due">
+            <HeartIcon size={14} /> You pledged {charityLine(initialLot.charity_percent, initialLot.charity?.name)}: please give <strong className="num">{gbp(Math.round(lot.current_price_pence * initialLot.charity_percent / 100))}</strong>
+            {initialLot.charity?.website ? <> (<a href={initialLot.charity.website} target="_blank" rel="noopener noreferrer">donate here</a>)</> : null}. Thank you!
+          </p>
+        ) : null}
         {contact ? (
           <p>
             {contact.role === "seller" ? "Seller" : "Buyer"}: <strong>{contact.display_name}</strong>
@@ -265,11 +293,17 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
           </p>
         ) : null}
         {(isWinner || isSeller) ? <p className="hint">Meet somewhere public, check the item before paying, and never pay by bank transfer to someone you haven&apos;t met.</p> : null}
+        {(isWinner || isSeller) && contact ? (
+          <RateSale lotId={lot.id} userId={userId} otherName={contact.display_name} otherRole={isSeller ? "buyer" : "seller"} />
+        ) : null}
       </>
-    ) : lot.bid_count ? (
-      <p>Bidding ended below the seller&apos;s reserve, so this lot didn&apos;t sell.{isSeller ? " You can list it again with a lower reserve." : ""}</p>
     ) : (
-      <p>This lot closed without any bids.</p>
+      <>
+        {lot.bid_count
+          ? <p>Bidding ended below the seller&apos;s reserve, so this lot didn&apos;t sell.</p>
+          : <p>This lot closed without any bids.</p>}
+        {isSeller ? <RelistLot lot={lot} photos={photos} reserve={reserve} userId={userId} /> : null}
+      </>
     );
   } else if (isSeller) {
     action = (
@@ -326,18 +360,18 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
         ) : null}
         <div className="bidform">
           <div className="field">
-            <label htmlFor="bid">Your bid</label>
+            <label htmlFor="bid">{leading ? "Raise your maximum" : "Your maximum bid"}</label>
             <div className="money">
               <span>£</span>
               <input id="bid" inputMode="decimal" autoComplete="off" placeholder={(minimum / 100).toFixed(2)}
                 value={amount} onChange={(e) => setAmount(e.target.value)} />
             </div>
           </div>
-          <button className="btn btn-brass btn-lg" type="submit" disabled={busy}>{leading ? "Raise my bid" : "Place bid"}</button>
+          <button className="btn btn-brass btn-lg" type="submit" disabled={busy}>{leading ? "Raise maximum" : "Place bid"}</button>
         </div>
+        {leading && myMax ? <p className="max-note">You&apos;re winning. Your maximum is <strong className="num">{gbp(myMax)}</strong> (only you can see this).</p> : null}
         <p className="hint">
-          Enter <strong className="num">{gbp(minimum)}</strong> or more.
-          {lot.bid_count ? <> Bids go up in steps of {gbp(increment(lot.current_price_pence))}.</> : null}
+          Enter the most you&apos;d pay: <strong className="num">{gbp(minimum)}</strong> or more. We&apos;ll bid for you automatically, only as much as needed to keep you in the lead. Nobody else sees your maximum.
           {" "}A bid in the last 2 minutes adds 2 minutes to the clock.
         </p>
         {bidMsg.text ? <p className={bidMsg.kind} role="status">{bidMsg.text}</p> : null}
@@ -350,8 +384,18 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
       <div className="stack" style={{ gap: 28 }}>
         <div className="gallery">
           {mainSrc
-            ? <div className="g-frame">
-                <img className="g-main" src={mainSrc} alt={`Photo of ${lot.title}`} />
+            ? <div className="g-frame"
+                onTouchStart={(e) => { swipe.current = e.touches.length === 1 ? e.touches[0].clientX : null; }}
+                onTouchEnd={(e) => {
+                  const x0 = swipe.current; swipe.current = null;
+                  if (x0 === null || photos.length < 2) return;
+                  const dx = e.changedTouches[0].clientX - x0;
+                  if (Math.abs(dx) > 50) setPhotoIdx((k) => (Math.min(k, photos.length - 1) + (dx < 0 ? 1 : -1) + photos.length) % photos.length);
+                }}>
+                <button type="button" className="g-open" onClick={() => setViewer(true)} aria-label="Open photos full screen">
+                  <img className="g-main" src={mainSrc} alt={`Photo of ${lot.title}`} />
+                  <span className="g-zoom" aria-hidden="true">⤢ {photos.length > 1 ? `${Math.min(photoIdx, photos.length - 1) + 1} / ${photos.length}` : "View"}</span>
+                </button>
                 {sold ? <span className="sold-stamp" aria-hidden="true">Sold</span> : null}
               </div>
             : <div className="g-frame">
@@ -365,7 +409,7 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
                   <button type="button" onClick={() => setPhotoIdx(k)} style={{ all: "unset", cursor: "pointer", display: "block", width: "100%", height: "100%" }} aria-label={`Show photo ${k + 1}`}>
                     <img src={photoUrl(p.path)} alt="" />
                   </button>
-                  {canEditPhotos ? <button type="button" className="g-del" onClick={() => removePhoto(k)} aria-label={`Remove photo ${k + 1}`}>×</button> : null}
+                  {canEditPhotos && lot.bid_count === 0 ? <button type="button" className="g-del" onClick={() => removePhoto(k)} aria-label={`Remove photo ${k + 1}`}>×</button> : null}
                 </span>
               ))}
               {canEditPhotos && photos.length < MAX_PHOTOS ? (
@@ -377,6 +421,14 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             </div>
           ) : null}
           {photoErr ? <p className="error">{photoErr}</p> : null}
+          {viewer && mainSrc ? (
+            <PhotoViewer
+              srcs={photos.length ? photos.map((p) => photoUrl(p.path)) : [mainSrc]}
+              start={Math.min(photoIdx, Math.max(0, photos.length - 1))}
+              title={lot.title}
+              onClose={() => setViewer(false)}
+            />
+          ) : null}
         </div>
 
         {lot.description ? (
@@ -386,13 +438,16 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
           </section>
         ) : null}
 
+        <LotQuestions lotId={lot.id} userId={userId} isSeller={Boolean(isSeller)} ended={ended}
+          live={lot.status === "live"} initialQuestions={initialQuestions} />
+
         <section>
           <h2 className="block-title">Bid history <span className="hint" style={{ fontWeight: 400 }}>({lot.bid_count})</span></h2>
           {bids.length ? (
             <div className="hist">
               {bids.map((b, k) => (
                 <div key={b.id} className={`hist-row${k === 0 ? " top" : ""}`}>
-                  <span className="who">{bidderName(b.bidder_id)}</span>
+                  <span className="who">{bidderName(b.bidder_id)}{b.auto ? <span className="auto-tag" title="Placed automatically, up to this bidder's maximum">auto</span> : null}</span>
                   <span className="when">{when(b.created_at)}</span>
                   <span className="num" style={{ fontWeight: 700 }}>{gbp(b.amount_pence)}</span>
                 </div>
@@ -420,6 +475,16 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
           <span>{lot.category}</span>
           {lot.location ? <span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><PinIcon />{lot.location}</span> : null}
         </div>
+        {lot.status === "live" && (!ended || watchCount > 0) ? (
+          <WatchButton lotId={lot.id} userId={userId} initialWatching={watching} initialCount={watchCount} canWatch={!ended && !isSeller} />
+        ) : null}
+
+        {initialLot.charity_percent ? (
+          <Link href="/causes" className="charity-note">
+            <HeartIcon size={18} />
+            <span><strong>Charity lot.</strong> {charityLine(initialLot.charity_percent, initialLot.charity?.name)}.</span>
+          </Link>
+        ) : null}
 
         <div className={`panel${sold ? " panel-sold" : ""}`}>
           <div className="panel-head">
@@ -482,7 +547,9 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             <div className="avatar" aria-hidden="true">{sellerName.slice(0, 1).toUpperCase()}</div>
             <div>
               <div className="hint">Sold by</div>
-              <strong>{sellerName}</strong>
+              <Link href={`/member/${lot.seller_id}`} className="seller-link"><strong>{sellerName}</strong></Link>
+              {initialLot.seller?.verified ? <span className="pill badge-local" title="Known to Going Going Gone as a local member">✓ Local member</span> : null}
+              {sellerSummary ? <div className="hint">{ratingLine(sellerSummary)}{Number(sellerSummary.sold) ? ` · ${sellerSummary.sold} sold` : ""}</div> : null}
             </div>
           </div>
           <p className="hint">Payment and collection are arranged between buyer and seller after the auction ends. Cash on collection is simplest.</p>
@@ -494,6 +561,9 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             title={lot.title}
             text={`${lot.title}: ${ended ? (sold ? `sold for ${gbp(lot.current_price_pence)}` : "auction ended") : lot.bid_count ? `current bid ${gbp(lot.current_price_pence)}` : `bidding starts at ${gbp(lot.start_price_pence)}`} on Going Going Gone`}
           />
+        ) : null}
+        {lot.status === "live" && !ended ? (
+          <GroupShare message={`🔨 Up for auction: ${lot.title}. ${lot.bid_count ? `Current bid ${gbp(lot.current_price_pence)}` : `Bidding starts at ${gbp(lot.start_price_pence)}`}, ends ${when(lot.ends_at)}.${initialLot.charity_percent ? " ❤️ Charity lot." : ""}\n${SITE_URL}/lot/${lot.id}`} />
         ) : null}
 
         {userId && !isSeller && lot.status === "live" ? (
