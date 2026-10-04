@@ -10,7 +10,10 @@ export default function HowItWorks() {
       <p>Sign in with your email, tap <strong>Sell something</strong>, add photos and a description, and set a starting price and how long bidding runs (1 to 10 days). You can&apos;t bid on your own lot. If nobody has bid yet, you can withdraw the listing.</p>
 
       <h2>Bidding</h2>
-      <p>Enter any amount at or above the minimum shown. Each bid must beat the current one by at least the bid step:</p>
+      <p><strong>Every bid is a maximum.</strong> Enter the most you&apos;d be happy to pay, and the site bids for you automatically, one step at a time, only as much as needed to keep you in the lead. Nobody else can see your maximum.</p>
+      <p>For example, if the price is £20 and you enter £50, you lead at £21. If someone else then bids £30, your automatic bid answers at £31 straight away. If they bid more than £50, they take the lead and we email you. If two people enter the same maximum, the one who bid first wins.</p>
+      <p>If a lot has a reserve and your maximum covers it, the price goes straight up to the reserve so the item can sell. To raise your maximum while you&apos;re winning, just bid again; the price won&apos;t move.</p>
+      <p>The bid steps are:</p>
       <ul>
         <li>Under £20: steps of 50p</li>
         <li>£20 to £99.99: steps of £1</li>
@@ -19,7 +22,7 @@ export default function HowItWorks() {
         <li>£1,000 to £4,999.99: steps of £25</li>
         <li>£5,000 and over: steps of £50</li>
       </ul>
-      <p>A bid is a promise to buy if you win, so only bid what you&apos;re happy to pay.</p>
+      <p>A bid is a promise to buy if you win, so only enter a maximum you&apos;re happy to pay.</p>
 
       <h2>Reserve prices</h2>
       <p>Sellers can set a <strong>reserve</strong>: the lowest price they&apos;ll accept. The amount is kept private. Bidders see <strong>Reserve not met</strong> until bidding reaches it, then <strong>Reserve met</strong>. If an auction ends below the reserve, the lot doesn&apos;t sell and nobody has to go through with it.</p>

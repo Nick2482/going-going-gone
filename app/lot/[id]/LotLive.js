@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { charityLine, gbp, increment, lotNumber, MAX_PHOTOS, nextMinimum, photoUrl, RESERVE_LABEL, toPence, when } from "@/lib/format";
+import { charityLine, gbp, lotNumber, MAX_PHOTOS, nextMinimum, photoUrl, RESERVE_LABEL, toPence, when } from "@/lib/format";
 import { compressPhoto, uploadLotPhotos } from "@/lib/photos";
 import { StagePill, TimeLeft } from "@/components/Clock";
 import { HeartIcon, PhotoIcon, PinIcon } from "@/components/Icons";
@@ -31,6 +31,7 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   const [reserve, setReserve] = useState(initialReserve);
   const [photoIdx, setPhotoIdx] = useState(0);
   const [viewer, setViewer] = useState(false);
+  const [myMax, setMyMax] = useState(null);
   const swipe = useRef(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -77,9 +78,10 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   const refreshBids = useCallback(async () => {
     const { data } = await supabase
       .from("bids")
-      .select("id, amount_pence, created_at, bidder_id, bidder:profiles(display_name)")
+      .select("id, amount_pence, created_at, bidder_id, auto, bidder:profiles(display_name)")
       .eq("lot_id", lot.id)
       .order("amount_pence", { ascending: false })
+      .order("auto", { ascending: false })
       .limit(100);
     if (data) {
       data.forEach((b) => { names.current[b.bidder_id] = b.bidder?.display_name; });
@@ -99,6 +101,13 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
     return () => { supabase.removeChannel(channel); };
   }, [supabase, lot.id, refreshBids]);
 
+  // Your own private maximum on this lot (only you can see it).
+  useEffect(() => {
+    if (!userId) return;
+    supabase.from("max_bids").select("max_pence").eq("lot_id", lot.id).eq("bidder_id", userId).maybeSingle()
+      .then(({ data }) => { if (data) setMyMax(data.max_pence); });
+  }, [supabase, lot.id, userId]);
+
   // Once a lot sells, the seller and winner can see each other's contact details.
   useEffect(() => {
     if (!sold || !userId || !(isSeller || isWinner) || contact) return;
@@ -117,10 +126,13 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
     if (error) return setBidMsg({ kind: "error", text: cleanError(error, "Your bid didn't go through. Try again.") });
     if (data) setLot((prev) => ({ ...prev, ...data }));
     setAmount("");
-    const stillBelow = data?.reserve_status === "not_met";
-    setBidMsg({ kind: "success", text: stillBelow
-      ? `Bid of ${gbp(pence)} placed. You're the highest bidder, but the reserve hasn't been met yet.`
-      : `Bid of ${gbp(pence)} placed. You're the highest bidder.` });
+    if (data?.high_bidder_id === userId) {
+      setMyMax(pence);
+      const stillBelow = data.reserve_status === "not_met";
+      setBidMsg({ kind: "success", text: `You're the highest bidder at ${gbp(data.current_price_pence)}. We'll bid for you automatically, up to your maximum of ${gbp(pence)}.${stillBelow ? " The reserve hasn't been met yet." : ""}` });
+    } else {
+      setBidMsg({ kind: "error", text: `Another bidder's maximum is higher, so their automatic bid has beaten yours. The price is now ${gbp(data?.current_price_pence ?? pence)}. Try a higher maximum.` });
+    }
     refreshBids();
   }
 
@@ -343,18 +355,18 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
         ) : null}
         <div className="bidform">
           <div className="field">
-            <label htmlFor="bid">Your bid</label>
+            <label htmlFor="bid">{leading ? "Raise your maximum" : "Your maximum bid"}</label>
             <div className="money">
               <span>£</span>
               <input id="bid" inputMode="decimal" autoComplete="off" placeholder={(minimum / 100).toFixed(2)}
                 value={amount} onChange={(e) => setAmount(e.target.value)} />
             </div>
           </div>
-          <button className="btn btn-brass btn-lg" type="submit" disabled={busy}>{leading ? "Raise my bid" : "Place bid"}</button>
+          <button className="btn btn-brass btn-lg" type="submit" disabled={busy}>{leading ? "Raise maximum" : "Place bid"}</button>
         </div>
+        {leading && myMax ? <p className="max-note">You&apos;re winning. Your maximum is <strong className="num">{gbp(myMax)}</strong> (only you can see this).</p> : null}
         <p className="hint">
-          Enter <strong className="num">{gbp(minimum)}</strong> or more.
-          {lot.bid_count ? <> Bids go up in steps of {gbp(increment(lot.current_price_pence))}.</> : null}
+          Enter the most you&apos;d pay: <strong className="num">{gbp(minimum)}</strong> or more. We&apos;ll bid for you automatically, only as much as needed to keep you in the lead. Nobody else sees your maximum.
           {" "}A bid in the last 2 minutes adds 2 minutes to the clock.
         </p>
         {bidMsg.text ? <p className={bidMsg.kind} role="status">{bidMsg.text}</p> : null}
@@ -427,7 +439,7 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             <div className="hist">
               {bids.map((b, k) => (
                 <div key={b.id} className={`hist-row${k === 0 ? " top" : ""}`}>
-                  <span className="who">{bidderName(b.bidder_id)}</span>
+                  <span className="who">{bidderName(b.bidder_id)}{b.auto ? <span className="auto-tag" title="Placed automatically, up to this bidder's maximum">auto</span> : null}</span>
                   <span className="when">{when(b.created_at)}</span>
                   <span className="num" style={{ fontWeight: 700 }}>{gbp(b.amount_pence)}</span>
                 </div>

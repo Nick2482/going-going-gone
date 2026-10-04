@@ -192,7 +192,10 @@ export default async function Home({ searchParams }) {
 
         {sold?.length && !filtered ? (
           <section className="section">
-            <h2 className="section-title">Recently sold</h2>
+            <div className="ending-head">
+              <h2 className="section-title" style={{ margin: 0 }}>Recently sold</h2>
+              <Link href="/sold" className="hint">See all sold prices</Link>
+            </div>
             <div className="grid">{sold.map((lot) => <LotCard key={lot.id} lot={lot} />)}</div>
           </section>
         ) : null}

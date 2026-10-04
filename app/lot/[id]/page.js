@@ -60,9 +60,10 @@ export default async function LotPage({ params, searchParams }) {
     supabase.from("lot_photos").select("id, path, position").eq("lot_id", id).order("position").order("created_at"),
     supabase
       .from("bids")
-      .select("id, amount_pence, created_at, bidder_id, bidder:profiles(display_name)")
+      .select("id, amount_pence, created_at, bidder_id, auto, bidder:profiles(display_name)")
       .eq("lot_id", id)
       .order("amount_pence", { ascending: false })
+      .order("auto", { ascending: false })
       .limit(100),
     // Only the seller can read the reserve amount; everyone else gets nothing back.
     isSeller ? supabase.from("lot_reserves").select("reserve_pence").eq("lot_id", id).maybeSingle() : Promise.resolve({ data: null }),

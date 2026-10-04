@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, getUserId } from "@/lib/supabase/server";
 import SellForm from "./SellForm";
@@ -17,7 +18,7 @@ export default async function SellPage() {
     <div className="wrap narrow">
       <h1 className="page-title">Sell something</h1>
       <p className="page-lead">
-        Add a few photos, set a starting price and how long bidding runs. The highest bid when the clock runs out wins, and you arrange payment and collection with the buyer.
+        Add a few photos, set a starting price and how long bidding runs. Not sure what to ask? <Link href="/sold">See what similar things sold for</Link>. The highest bid when the clock runs out wins, and you arrange payment and collection with the buyer.
       </p>
       <SellForm userId={userId} defaultArea={profile?.area || ""} causes={causes ?? []} />
     </div>
