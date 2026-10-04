@@ -13,6 +13,7 @@ import PhotoViewer from "@/components/PhotoViewer";
 import WatchButton from "@/components/WatchButton";
 import { SITE_URL } from "@/lib/site";
 import RateSale from "@/components/RateSale";
+import LotQuestions from "@/components/LotQuestions";
 import { ratingLine } from "@/lib/ratings";
 
 function cleanError(error, fallback) {
@@ -22,7 +23,7 @@ function cleanError(error, fallback) {
   return fallback;
 }
 
-export default function LotLive({ initialLot, initialPhotos, initialBids, initialReserve, userId, sellerSummary, watchCount = 0, watching = false }) {
+export default function LotLive({ initialLot, initialPhotos, initialBids, initialReserve, userId, sellerSummary, watchCount = 0, watching = false, initialQuestions = [] }) {
   const supabase = createClient();
   const router = useRouter();
   const [lot, setLot] = useState(initialLot);
@@ -432,6 +433,9 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             <p className="desc">{lot.description}</p>
           </section>
         ) : null}
+
+        <LotQuestions lotId={lot.id} userId={userId} isSeller={Boolean(isSeller)} ended={ended}
+          live={lot.status === "live"} initialQuestions={initialQuestions} />
 
         <section>
           <h2 className="block-title">Bid history <span className="hint" style={{ fontWeight: 400 }}>({lot.bid_count})</span></h2>

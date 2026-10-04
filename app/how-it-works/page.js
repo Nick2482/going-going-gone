@@ -24,6 +24,9 @@ export default function HowItWorks() {
       </ul>
       <p>A bid is a promise to buy if you win, so only enter a maximum you&apos;re happy to pay.</p>
 
+      <h2>Questions for the seller</h2>
+      <p>Not sure about the size, condition or collection? Use <strong>Ask the seller a question</strong> on the lot page while the auction is running. The seller gets an email and answers on the lot. Once answered, the question and answer show on the lot for everyone (your name isn&apos;t shown), so other bidders don&apos;t need to ask the same thing. We&apos;ll email you when your question has an answer.</p>
+
       <h2>Reserve prices</h2>
       <p>Sellers can set a <strong>reserve</strong>: the lowest price they&apos;ll accept. The amount is kept private. Bidders see <strong>Reserve not met</strong> until bidding reaches it, then <strong>Reserve met</strong>. If an auction ends below the reserve, the lot doesn&apos;t sell and nobody has to go through with it.</p>
       <p>Sellers can add a reserve when listing, or from the lot page before anyone bids. Once bidding has started, a reserve can only be lowered or removed.</p>

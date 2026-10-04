@@ -513,3 +513,26 @@ textarea.input { min-height: 130px; resize: vertical; }
 .stamp { animation: hammer 0.35s ease-out; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 .admin-item:has(.cause-form) { flex-direction: column; align-items: stretch; }
+
+/* Questions & answers on a lot */
+.qa { scroll-margin-top: 90px; }
+.qa-list { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.qa-item { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; max-width: 68ch; }
+.qa-q, .qa-a { display: flex; gap: 10px; align-items: flex-start; line-height: 1.45; }
+.qa-q { font-weight: 700; }
+.qa-a { color: var(--ink-2); white-space: pre-wrap; }
+.qa-tag { flex: none; width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 12px; font-weight: 800; background: var(--aqua-soft); color: var(--aqua-ink); margin-top: 1px; }
+.qa-tag-a { background: var(--brass); color: #fff; }
+.qa-when { font-weight: 400; }
+.qa-mine { border-style: dashed; }
+.qa-edit { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--aqua-ink); font-size: 13px; font-weight: 600; text-decoration: underline; cursor: pointer; }
+.qa-remove { color: var(--sold); }
+.qa-waiting { background: var(--brass-soft); border: 1px solid #f5c2c8; border-radius: 12px; padding: 12px; margin-bottom: 14px; max-width: calc(68ch + 30px); }
+.qa-waiting-title { font-weight: 800; margin-bottom: 10px; color: var(--brass); }
+.qa-answer-form { display: flex; flex-direction: column; gap: 8px; }
+textarea.qa-input { min-height: 64px; }
+.qa-ask { display: flex; flex-direction: column; gap: 8px; max-width: 68ch; background: var(--aqua-soft); border-radius: 12px; padding: 14px; }
+.qa-ask-label { font-weight: 800; }
+.qa-sent { font-size: 14px; font-weight: 700; color: var(--aqua-ink); }
+.qa-signin { background: var(--aqua-soft); border-radius: 12px; padding: 12px 14px; max-width: 68ch; }
+.qa-signin a { font-weight: 700; color: var(--aqua-ink); }

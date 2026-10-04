@@ -56,7 +56,7 @@ export default async function LotPage({ params, searchParams }) {
   if (!lot) notFound();
 
   const isSeller = userId && userId === lot.seller_id;
-  const [{ data: photos }, { data: bids }, reserveRes, { data: sellerSummary }, { data: watchCount }, { data: myWatch }] = await Promise.all([
+  const [{ data: photos }, { data: bids }, reserveRes, { data: sellerSummary }, { data: watchCount }, { data: myWatch }, { data: questions }] = await Promise.all([
     supabase.from("lot_photos").select("id, path, position").eq("lot_id", id).order("position").order("created_at"),
     supabase
       .from("bids")
@@ -70,6 +70,8 @@ export default async function LotPage({ params, searchParams }) {
     supabase.rpc("member_summary", { p_user: lot.seller_id }),
     supabase.rpc("watch_count", { p_lot: id }),
     userId ? supabase.from("watches").select("lot_id").eq("lot_id", id).eq("user_id", userId).maybeSingle() : Promise.resolve({ data: null }),
+    // Answered questions for everyone; unanswered ones only for the seller and whoever asked (the database decides).
+    supabase.from("lot_questions").select("id, question, answer, asker_id, created_at, answered_at").eq("lot_id", id).order("created_at").limit(100),
   ]);
 
   return (
@@ -100,6 +102,7 @@ export default async function LotPage({ params, searchParams }) {
         sellerSummary={sellerSummary ?? null}
         watchCount={Number(watchCount) || 0}
         watching={Boolean(myWatch)}
+        initialQuestions={questions ?? []}
       />
     </div>
   );

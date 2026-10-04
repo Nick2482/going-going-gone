@@ -27,7 +27,7 @@ export default async function AdminPage({ searchParams }) {
 
   const nowIso = new Date().toISOString();
   const RU = "id, title, current_price_pence, bid_count, ends_at, charity_percent";
-  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }, { data: ruEnding }, { data: ruFresh }] = await Promise.all([
+  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }, { data: ruEnding }, { data: ruFresh }, { data: questions }] = await Promise.all([
     supabase.rpc("admin_stats"),
     supabase.rpc("admin_open_reports"),
     supabase.rpc("admin_members", { p_search: q }),
@@ -36,6 +36,7 @@ export default async function AdminPage({ searchParams }) {
     supabase.rpc("charity_totals"),
     supabase.from("lots").select(RU).eq("status", "live").gt("ends_at", nowIso).lte("ends_at", new Date(Date.now() + 7 * 864e5).toISOString()).order("ends_at", { ascending: true }).limit(8),
     supabase.from("lots").select(RU).eq("status", "live").gt("ends_at", nowIso).order("created_at", { ascending: false }).limit(10),
+    supabase.rpc("admin_recent_questions"),
   ]);
   const s = stats || {};
 
@@ -63,7 +64,7 @@ export default async function AdminPage({ searchParams }) {
       </div>
 
       <nav className="admin-jump" aria-label="Admin sections">
-        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#causes">Local causes</a><a href="#roundup">Facebook round-up</a>
+        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#questions">Questions</a><a href="#causes">Local causes</a><a href="#roundup">Facebook round-up</a>
       </nav>
 
       <section className="section" id="reports">
@@ -175,6 +176,31 @@ export default async function AdminPage({ searchParams }) {
             ))}
           </ul>
         ) : <div className="empty">No feedback yet.</div>}
+      </section>
+
+      <section className="section" id="questions">
+        <h2 className="section-title">Latest questions</h2>
+        {questions?.length ? (
+          <ul className="admin-list">
+            {questions.map((q) => (
+              <li key={q.id} className="admin-item">
+                <div className="admin-item-main">
+                  <div className="row" style={{ gap: 6 }}>
+                    <strong>{q.question}</strong>
+                    {q.hidden ? <span className="pill p-unsold">Removed</span> : q.answer ? null : <span className="pill p-open">Waiting</span>}
+                  </div>
+                  {q.answer ? <blockquote className="admin-quote">{q.answer}</blockquote> : null}
+                  <div className="hint">{q.asker_name || "Someone"} asked {q.seller_name || "the seller"} · <Link href={`/lot/${q.lot_id}#questions`}>{q.lot_title}</Link> · {when(q.created_at)}</div>
+                </div>
+                {q.hidden ? null : (
+                  <div className="row admin-actions">
+                    <AdminButton fn="remove_question" args={{ p_question: q.id }} label="Remove" tone="danger" confirm="Remove this question and its answer from the lot?" />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : <div className="empty">No questions yet.</div>}
       </section>
 
       <section className="section" id="causes">
