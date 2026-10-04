@@ -19,6 +19,7 @@ export default function Privacy() {
         <li><strong>Your listings, photos and bids</strong>, which are public.</li>
         <li><strong>Reports</strong> you send about listings.</li>
         <li>A sign-in cookie that keeps you logged in. We don&apos;t use advertising or tracking cookies, except on the <Link href="/flights">Cheap flights</Link> page, and only if you agree there: our flights partner Travelpayouts may then set cookies so that bookings are credited to us (the commission goes to local causes).</li>
+        <li>A small note in your browser remembering if you tapped &ldquo;Not now&rdquo; on the &ldquo;Add to your phone&rdquo; banner, so we don&apos;t keep asking. It never leaves your device.</li>
         <li>We never ask for or store passwords, or card or bank details.</li>
       </ul>
 

@@ -90,6 +90,9 @@ export default async function LotPage({ params, searchParams }) {
             message={`🔨 I've just listed ${lot.title} on Going Going Gone. Bidding starts at ${gbp(lot.start_price_pence)}!${lot.charity_percent ? " ❤️ Money goes to a local cause." : ""}\n${SITE_URL}/lot/${lot.id}`} />
         </div>
       ) : null}
+      {sp?.cause === "dropped" && isSeller ? (
+        <p className="notice" style={{ marginTop: 16 }}>Relisted. The local cause you chose before is no longer on our list, so this listing doesn&apos;t have one.</p>
+      ) : null}
       {sp?.reserve === "failed" && isSeller && !reserveRes?.data ? (
         <p className="notice" style={{ marginTop: 16 }}>Your item is listed, but the reserve didn&apos;t save. Add it again below before anyone bids.</p>
       ) : null}

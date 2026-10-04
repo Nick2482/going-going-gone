@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { safeNext } from "@/lib/safe-next";
@@ -13,6 +13,11 @@ export default function LoginForm({ next }) {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [inApp, setInApp] = useState(false);
+  // On the home-screen app, email links open in the browser instead, so the code is the way in.
+  useEffect(() => {
+    setInApp(window.matchMedia("(display-mode: standalone)").matches || Boolean(window.navigator.standalone));
+  }, []);
 
   async function send(e) {
     e.preventDefault();
@@ -49,7 +54,11 @@ export default function LoginForm({ next }) {
   if (sent) {
     return (
       <form className="stack" onSubmit={verify} noValidate>
-        <div className="notice">Check your inbox for <strong>{email}</strong>. Tap the link in the email, or type the 6-digit code here.</div>
+        <div className="notice">
+          Check your inbox for <strong>{email}</strong>.{" "}
+          {inApp ? <>Type the <strong>6-digit code</strong> from the email here. (Tapping the link would open your web browser instead of the app.)</>
+            : <>Tap the link in the email, or type the 6-digit code here.</>}
+        </div>
         <div className="field">
           <label htmlFor="code">6-digit code</label>
           <input id="code" className="input mono" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value)} style={{ fontSize: 22, letterSpacing: "0.2em", maxWidth: 200 }} />

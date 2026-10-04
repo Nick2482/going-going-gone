@@ -14,6 +14,7 @@ import WatchButton from "@/components/WatchButton";
 import { SITE_URL } from "@/lib/site";
 import RateSale from "@/components/RateSale";
 import LotQuestions from "@/components/LotQuestions";
+import RelistLot from "@/components/RelistLot";
 import { ratingLine } from "@/lib/ratings";
 
 function cleanError(error, fallback) {
@@ -296,10 +297,13 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
           <RateSale lotId={lot.id} userId={userId} otherName={contact.display_name} otherRole={isSeller ? "buyer" : "seller"} />
         ) : null}
       </>
-    ) : lot.bid_count ? (
-      <p>Bidding ended below the seller&apos;s reserve, so this lot didn&apos;t sell.{isSeller ? " You can list it again with a lower reserve." : ""}</p>
     ) : (
-      <p>This lot closed without any bids.</p>
+      <>
+        {lot.bid_count
+          ? <p>Bidding ended below the seller&apos;s reserve, so this lot didn&apos;t sell.</p>
+          : <p>This lot closed without any bids.</p>}
+        {isSeller ? <RelistLot lot={lot} photos={photos} reserve={reserve} userId={userId} /> : null}
+      </>
     );
   } else if (isSeller) {
     action = (
