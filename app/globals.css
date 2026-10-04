@@ -436,6 +436,26 @@ textarea.input { min-height: 130px; resize: vertical; }
 .sold-stats dt { font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 .sold-stats dd { margin: 2px 0 0; font-family: var(--display); font-weight: 900; font-size: 26px; }
 
+/* ---------- Cheap flights ---------- */
+.flights-good { background: var(--sold-soft); border: 1px solid #f2b8c0; border-radius: 10px; padding: 10px 14px; margin-top: 14px; max-width: 760px; }
+.flights-good span { color: var(--sold); }
+.flights { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.flight { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 18px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow-sm); }
+@media (max-width: 600px) { .flight { grid-template-columns: minmax(0, 1fr) auto; } .flight .btn { grid-column: 1 / -1; } }
+.flight-route { font-size: 19px; }
+.flight-route strong { font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: 24px; letter-spacing: 0.01em; }
+.flight-meta { color: var(--ink-2); font-size: 14px; margin-top: 2px; }
+.flight-price { text-align: right; }
+.flight-price small { display: block; font-size: 12px; color: var(--muted); }
+.flight-price span { font-family: var(--display); font-weight: 900; font-size: 30px; color: var(--brass); line-height: 1; }
+.flights-strip { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 12px 16px; border-radius: var(--radius); background: var(--aqua-soft); border: 1px solid #bfe2e4; color: var(--ink); text-decoration: none; }
+.flights-strip-icon { width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--aqua); display: grid; place-items: center; font-size: 15px; flex: none; }
+.flights-strip .group-strip-go { color: var(--aqua-ink); }
+@media (max-width: 600px) { .flights-strip { flex-wrap: wrap; } .flights-strip .group-strip-go { margin-left: 40px; } }
+
+.partner-ask { margin-top: 14px; max-width: 760px; background: var(--card); border: 1px solid var(--line-2); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); }
+.partner-ask p { margin: 0; font-size: 14px; color: var(--ink-2); }
+
 /* ---------- Live activity ticker ---------- */
 .ticker { background: var(--card); border-bottom: 1px solid var(--line); }
 .ticker-inner { display: flex; align-items: center; gap: 12px; min-height: 46px; padding-block: 8px; overflow: hidden; }

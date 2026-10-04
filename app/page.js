@@ -9,6 +9,7 @@ import EndingSoon from "@/components/EndingSoon";
 import ActivityTicker from "@/components/ActivityTicker";
 import { BID_FIELDS, NEW_LOT_FIELDS, bidEvent, listingEvent, mergeEvents } from "@/lib/activity";
 import { GROUP_NAME, GROUP_URL, GROUP_MEMBERS } from "@/lib/site";
+import { flightsConfigured } from "@/lib/flights";
 
 const PAGE_SIZE = 48;
 const SORTS = {
@@ -143,6 +144,11 @@ export default async function Home({ searchParams }) {
             <span>Part of <strong>{GROUP_NAME}</strong>, {GROUP_MEMBERS} local members on Facebook.</span>
             <span className="group-strip-go">Join the group</span>
           </a>
+          {flightsConfigured() ? <Link href="/flights" className="flights-strip">
+            <span className="flights-strip-icon" aria-hidden="true">✈</span>
+            <span><strong>Cheap flights</strong> from East Midlands, Birmingham and Luton. Any commission goes to local causes.</span>
+            <span className="group-strip-go">See deals</span>
+          </Link> : null}
         </div>
       ) : null}
 
