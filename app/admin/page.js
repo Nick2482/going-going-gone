@@ -42,10 +42,7 @@ export default async function AdminPage({ searchParams }) {
     supabase.rpc("admin_push_status"),
   ]);
   const pushStatus = {
-    publicKey: Boolean(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY),
-    privateKey: Boolean(process.env.VAPID_PRIVATE_KEY),
-    siteSecret: Boolean(process.env.PUSH_SECRET),
-    dbSecret: Boolean(push?.secret_saved),
+    keysSaved: Boolean(push?.keys_saved),
     devices: Number(push?.devices ?? 0),
     people: Number(push?.people ?? 0),
   };

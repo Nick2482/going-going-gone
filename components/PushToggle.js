@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-const KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "";
-
 function keyBytes(b64) {
   const pad = "=".repeat((4 - (b64.length % 4)) % 4);
   const raw = atob((b64 + pad).replace(/-/g, "+").replace(/_/g, "/"));
@@ -25,19 +23,32 @@ function environment() {
 // compact: a one-line nudge (lot page) that only shows when notifications are off.
 export default function PushToggle({ compact = false }) {
   const supabase = createClient();
-  const [state, setState] = useState("loading"); // loading | off | on | blocked | ios-browser | unsupported
+  const [state, setState] = useState("loading"); // loading | not-ready | off | on | blocked | ios-browser | unsupported
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [key, setKey] = useState("");
 
   useEffect(() => {
-    if (!KEY) return setState("unsupported");
-    const env = environment();
-    if (env !== "ok") return setState(env);
-    if (Notification.permission === "denied") return setState("blocked");
-    navigator.serviceWorker.getRegistration("/").then(async (reg) => {
-      const sub = reg ? await reg.pushManager.getSubscription() : null;
-      setState(sub && Notification.permission === "granted" ? "on" : "off");
-    }).catch(() => setState("off"));
+    let live = true;
+    (async () => {
+      // The site's public notification key. None yet means the admin hasn't switched notifications on.
+      const { data } = await supabase.rpc("get_push_public_key");
+      if (!live) return;
+      if (!data) return setState("not-ready");
+      setKey(data);
+      const env = environment();
+      if (env !== "ok") return setState(env);
+      if (Notification.permission === "denied") return setState("blocked");
+      try {
+        const reg = await navigator.serviceWorker.getRegistration("/");
+        const sub = reg ? await reg.pushManager.getSubscription() : null;
+        if (live) setState(sub && Notification.permission === "granted" ? "on" : "off");
+      } catch {
+        if (live) setState("off");
+      }
+    })();
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function turnOn() {
@@ -48,7 +59,10 @@ export default function PushToggle({ compact = false }) {
       await navigator.serviceWorker.ready;
       const perm = await Notification.requestPermission();
       if (perm !== "granted") { setState(perm === "denied" ? "blocked" : "off"); return; }
-      const sub = (await reg.pushManager.getSubscription()) || (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(KEY) }));
+      // Start fresh, in case this device signed up with an older key.
+      const existing = await reg.pushManager.getSubscription();
+      if (existing) await existing.unsubscribe();
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(key) });
       const j = sub.toJSON();
       const { error } = await supabase.rpc("save_push_subscription", { p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth });
       if (error) throw new Error(error.message);
@@ -81,10 +95,9 @@ export default function PushToggle({ compact = false }) {
   async function test() {
     setBusy(true);
     setMsg("");
-    const res = await fetch("/api/push/test", { method: "POST" }).catch(() => null);
-    const data = res ? await res.json().catch(() => ({})) : {};
+    const { error } = await supabase.rpc("push_test");
     setBusy(false);
-    setMsg(res?.ok ? "Test sent. It should pop up in a few seconds." : data.error || "The test didn't send. Please try again.");
+    setMsg(!error ? "Test sent. It should pop up in a few seconds." : /switched on|sign in/i.test(error.message || "") ? error.message : "The test didn't send. Please try again.");
   }
 
   if (compact) {
@@ -103,14 +116,14 @@ export default function PushToggle({ compact = false }) {
     );
   }
 
-  if (state === "loading") return null;
+  if (state === "loading" || state === "not-ready") return null;
   return (
     <section className="section" id="notifications">
       <h2 className="section-title">Phone notifications</h2>
       <div className="push-card">
         <p>Get a notification the moment you&apos;re outbid, win, sell, or someone asks or replies. It&apos;s set up separately on each phone or computer.</p>
         {state === "unsupported" ? (
-          <p className="hint">{KEY ? "This browser can't show notifications. Try Chrome, Edge or Firefox, or the app on your phone." : "Phone notifications are coming soon."}</p>
+          <p className="hint">This browser can&apos;t show notifications. Try Chrome, Edge or Firefox, or the app on your phone.</p>
         ) : state === "ios-browser" ? (
           <p className="hint">On iPhone and iPad, notifications work in the app. First <Link href="/get-the-app">add Going Going Gone to your home screen</Link>, open it from there, then come back to this page.</p>
         ) : state === "blocked" ? (

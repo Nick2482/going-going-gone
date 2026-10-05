@@ -1,76 +1,56 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 const b64url = (bytes) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const fromB64url = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (s.length % 4)) % 4)), (c) => c.charCodeAt(0));
 
-// Makes the notification keys right here in your browser, so they never travel anywhere
-// except where you paste them (Vercel and Supabase).
+// One button: makes the site's notification keys in this browser and stores them
+// safely in Supabase Vault. Nothing to copy, nothing to paste.
 export default function PushSetup({ status }) {
-  const [keys, setKeys] = useState(null);
-  const [copied, setCopied] = useState("");
-  const ready = status.publicKey && status.privateKey && status.siteSecret && status.dbSecret;
+  const supabase = createClient();
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const on = status.keysSaved;
 
-  async function generate() {
-    const pair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign"]);
-    const jwk = await crypto.subtle.exportKey("jwk", pair.privateKey);
-    const pub = new Uint8Array([4, ...fromB64url(jwk.x), ...fromB64url(jwk.y)]);
-    setKeys({ publicKey: b64url(pub), privateKey: jwk.d, secret: b64url(crypto.getRandomValues(new Uint8Array(32))) });
+  async function switchOn() {
+    if (on && !window.confirm("Make new keys? Everyone who has notifications on will need to turn them on again. Only do this if something's gone wrong.")) return;
+    setBusy(true);
+    setError("");
+    try {
+      const pair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign"]);
+      const jwk = await crypto.subtle.exportKey("jwk", pair.privateKey);
+      const publicKey = b64url(new Uint8Array([4, ...fromB64url(jwk.x), ...fromB64url(jwk.y)]));
+      const { error: err } = await supabase.rpc("admin_enable_push", { p_public: publicKey, p_private: jwk.d });
+      if (err) throw new Error(err.message);
+      router.refresh();
+    } catch (err) {
+      setError(err?.message?.includes("function") ? "Run the latest SQL update in Supabase first, then try again." : err?.message || "That didn't work. Please try again.");
+    } finally {
+      setBusy(false);
+    }
   }
-
-  async function copy(label, text) {
-    try { await navigator.clipboard.writeText(text); setCopied(label); setTimeout(() => setCopied(""), 2000); } catch {}
-  }
-
-  const sql = keys ? `do $$
-begin
-  if exists (select 1 from vault.secrets where name = 'push_secret') then
-    perform vault.update_secret((select id from vault.secrets where name = 'push_secret'), '${keys.secret}');
-  else
-    perform vault.create_secret('${keys.secret}', 'push_secret');
-  end if;
-end $$;` : "";
-
-  const Item = ({ label, value }) => (
-    <div>
-      <div className="row" style={{ gap: 8, marginBottom: 4 }}>
-        <strong className="mono">{label}</strong>
-        <button type="button" className="btn btn-ghost btn-sm" onClick={() => copy(label, value)}>{copied === label ? "Copied ✓" : "Copy"}</button>
-      </div>
-      <code>{value}</code>
-    </div>
-  );
 
   return (
     <div className="push-setup">
-      <div className="row" style={{ gap: 6 }}>
-        <span className={`pill ${status.publicKey && status.privateKey ? "p-win" : "p-unsold"}`}>Vercel keys {status.publicKey && status.privateKey ? "✓" : "missing"}</span>
-        <span className={`pill ${status.siteSecret ? "p-win" : "p-unsold"}`}>Vercel password {status.siteSecret ? "✓" : "missing"}</span>
-        <span className={`pill ${status.dbSecret ? "p-win" : "p-unsold"}`}>Supabase password {status.dbSecret ? "✓" : "missing"}</span>
-        <span className="hint">{status.people} {status.people === 1 ? "person has" : "people have"} notifications on ({status.devices} device{status.devices === 1 ? "" : "s"})</span>
-      </div>
-      {ready ? <p className="hint">Everything is set up. Members can switch notifications on in My account.</p> : null}
-      {!keys ? (
-        <div><button type="button" className={`btn ${ready ? "btn-ghost" : "btn-brass"}`} onClick={generate}>{ready ? "Make new keys (only if you need to start again)" : "Make my notification keys"}</button></div>
+      {on ? (
+        <>
+          <div className="row" style={{ gap: 8 }}>
+            <span className="pill p-win">On ✓</span>
+            <span className="hint">{status.people} {status.people === 1 ? "person has" : "people have"} notifications on ({status.devices} device{status.devices === 1 ? "" : "s"}).</span>
+          </div>
+          <p className="hint">Members switch them on in My account. Try it yourself there, then press <strong>Send me a test</strong>.</p>
+          <div><button type="button" className="btn btn-ghost btn-sm" onClick={switchOn} disabled={busy}>{busy ? "Working…" : "Make new keys (only if something's wrong)"}</button></div>
+        </>
       ) : (
-        <ol>
-          <li>
-            In <strong>Vercel → Settings → Environment Variables</strong>, add these three (type each name exactly, paste each value). Make the second and third <strong>Secret</strong>, all for <strong>Production</strong>:
-            <div className="push-setup" style={{ marginTop: 8 }}>
-              <Item label="NEXT_PUBLIC_VAPID_PUBLIC_KEY" value={keys.publicKey} />
-              <Item label="VAPID_PRIVATE_KEY" value={keys.privateKey} />
-              <Item label="PUSH_SECRET" value={keys.secret} />
-            </div>
-          </li>
-          <li>
-            In <strong>Supabase → SQL Editor → New query</strong>, paste this and press <strong>Run</strong>:
-            <div className="row" style={{ gap: 8, margin: "8px 0 4px" }}><button type="button" className="btn btn-ghost btn-sm" onClick={() => copy("sql", sql)}>{copied === "sql" ? "Copied ✓" : "Copy SQL"}</button></div>
-            <pre>{sql}</pre>
-          </li>
-          <li>In Vercel, <strong>Deployments → ⋯ on the top one → Redeploy</strong>. Then come back here: all three ticks should be green.</li>
-          <li>Keep this page open until you&apos;ve done all three. These keys aren&apos;t saved anywhere else, and you shouldn&apos;t send them to anyone.</li>
-        </ol>
+        <>
+          <p>Phone notifications are ready to go. Press the button and they&apos;re switched on for the whole site. Members can then turn them on in My account.</p>
+          <div><button type="button" className="btn btn-brass" onClick={switchOn} disabled={busy}>{busy ? "Switching on…" : "Switch on phone notifications"}</button></div>
+        </>
       )}
+      {error ? <p className="error" role="alert">{error}</p> : null}
     </div>
   );
 }
