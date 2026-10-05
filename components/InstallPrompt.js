@@ -27,6 +27,14 @@ export default function InstallPrompt() {
     const path = window.location.pathname;
     if (path.startsWith("/get-the-app") || path.startsWith("/login") || path.startsWith("/admin")) return;
 
+    const ua = window.navigator.userAgent;
+    // Samsung's own browser installs the app outside the Play Store, which can make
+    // Samsung phones show an "Unsafe app" warning. Chrome doesn't, so point people there.
+    if (/SamsungBrowser/i.test(ua)) {
+      const t0 = setTimeout(() => setMode("samsung"), 6000);
+      return () => clearTimeout(t0);
+    }
+
     const onPrompt = (e) => {
       e.preventDefault();
       setPromptEvent(e);
@@ -34,7 +42,6 @@ export default function InstallPrompt() {
     };
     window.addEventListener("beforeinstallprompt", onPrompt);
 
-    const ua = window.navigator.userAgent;
     const isIOS = /iPhone|iPad|iPod/.test(ua) || (ua.includes("Macintosh") && navigator.maxTouchPoints > 1);
     const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|FBAN|FBAV|Instagram/.test(ua);
     let t;
@@ -64,6 +71,8 @@ export default function InstallPrompt() {
         <strong>Add Going Going Gone to your phone</strong>
         {mode === "ios" ? (
           <span>Tap <ShareGlyph /> <b>Share</b> below, then <b>Add to Home Screen</b>.</span>
+        ) : mode === "samsung" ? (
+          <span>On Samsung phones, open <b>going-going-gone.uk</b> in <b>Chrome</b> to add it. It installs smoothly from there.</span>
         ) : (
           <span>Opens like an app, straight from your home screen.</span>
         )}
