@@ -15,6 +15,7 @@ import { SITE_URL } from "@/lib/site";
 import RateSale from "@/components/RateSale";
 import LotQuestions from "@/components/LotQuestions";
 import RelistLot from "@/components/RelistLot";
+import PushToggle from "@/components/PushToggle";
 import { ratingLine } from "@/lib/ratings";
 
 function cleanError(error, fallback) {
@@ -375,6 +376,7 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
           {" "}A bid in the last 2 minutes adds 2 minutes to the clock.
         </p>
         {bidMsg.text ? <p className={bidMsg.kind} role="status">{bidMsg.text}</p> : null}
+        <PushToggle compact />
       </form>
     );
   }

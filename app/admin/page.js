@@ -6,6 +6,7 @@ import { SCORE_LABEL } from "@/lib/ratings";
 import AdminButton from "./AdminActions";
 import CauseForm from "./CauseForm";
 import Roundup from "./Roundup";
+import PushSetup from "./PushSetup";
 
 export const metadata = { title: "Admin", robots: { index: false } };
 
@@ -27,7 +28,7 @@ export default async function AdminPage({ searchParams }) {
 
   const nowIso = new Date().toISOString();
   const RU = "id, title, current_price_pence, bid_count, ends_at, charity_percent";
-  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }, { data: ruEnding }, { data: ruFresh }, { data: questions }, { data: wanted }] = await Promise.all([
+  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }, { data: ruEnding }, { data: ruFresh }, { data: questions }, { data: wanted }, { data: push }] = await Promise.all([
     supabase.rpc("admin_stats"),
     supabase.rpc("admin_open_reports"),
     supabase.rpc("admin_members", { p_search: q }),
@@ -38,7 +39,16 @@ export default async function AdminPage({ searchParams }) {
     supabase.from("lots").select(RU).eq("status", "live").gt("ends_at", nowIso).order("created_at", { ascending: false }).limit(10),
     supabase.rpc("admin_recent_questions"),
     supabase.rpc("admin_recent_wanted"),
+    supabase.rpc("admin_push_status"),
   ]);
+  const pushStatus = {
+    publicKey: Boolean(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY),
+    privateKey: Boolean(process.env.VAPID_PRIVATE_KEY),
+    siteSecret: Boolean(process.env.PUSH_SECRET),
+    dbSecret: Boolean(push?.secret_saved),
+    devices: Number(push?.devices ?? 0),
+    people: Number(push?.people ?? 0),
+  };
   const s = stats || {};
 
   const tiles = [
@@ -65,7 +75,7 @@ export default async function AdminPage({ searchParams }) {
       </div>
 
       <nav className="admin-jump" aria-label="Admin sections">
-        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#questions">Questions</a><a href="#wanted">Wanted ads</a><a href="#causes">Local causes</a><a href="#roundup">Facebook round-up</a>
+        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#questions">Questions</a><a href="#wanted">Wanted ads</a><a href="#causes">Local causes</a><a href="#roundup">Facebook round-up</a><a href="#push">Phone notifications</a>
       </nav>
 
       <section className="section" id="reports">
@@ -248,6 +258,11 @@ export default async function AdminPage({ searchParams }) {
             ))}
           </ul>
         ) : <div className="empty">No causes yet. Add the first one above.</div>}
+      </section>
+
+      <section className="section" id="push">
+        <h2 className="section-title">Phone notifications</h2>
+        <PushSetup status={pushStatus} />
       </section>
 
       <section className="section" id="roundup">

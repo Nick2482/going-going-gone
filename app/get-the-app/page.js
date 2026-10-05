@@ -34,6 +34,9 @@ export default function GetTheApp() {
       <h2>Signing in on the app</h2>
       <p>We email you a sign-in link and a 6-digit code. On the app, <strong>type the code</strong> rather than tapping the link, because links in emails open in your web browser instead of the app. You only need to do this once.</p>
 
+      <h2>Notifications</h2>
+      <p>Once the app is on your home screen, open it, go to <strong>My account</strong> and tap <strong>Turn on notifications</strong>. Your phone will buzz the moment you&apos;re outbid, win, or someone replies to you.</p>
+
       <h2>Is it safe?</h2>
       <p>Yes. It&apos;s the same website you already use, just with its own icon. It doesn&apos;t get access to your photos, contacts or location, and you can remove it any time by pressing and holding the icon.</p>
 

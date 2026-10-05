@@ -3,7 +3,7 @@ import { Big_Shoulders, Public_Sans, IBM_Plex_Mono } from "next/font/google";
 import { createClient, getUserId } from "@/lib/supabase/server";
 import { BrandMark, BrandWord } from "@/components/Logo";
 import { SearchIcon } from "@/components/Icons";
-import { GROUP_URL } from "@/lib/site";
+import { GROUP_URL, ICO_REG } from "@/lib/site";
 import InstallPrompt from "@/components/InstallPrompt";
 import "./globals.css";
 
@@ -88,7 +88,7 @@ export default async function RootLayout({ children }) {
             </div>
           </div>
           <div className="foot-base">
-            <div className="wrap">© {new Date().getFullYear()} Going Going Gone · Run by Nick Hutton, Market Bosworth, Leicestershire</div>
+            <div className="wrap">© {new Date().getFullYear()} Going Going Gone · Run by Nick Hutton, Market Bosworth, Leicestershire{ICO_REG ? <> · Registered with the Information Commission: <Link href="/privacy">{ICO_REG}</Link></> : null}</div>
           </div>
         </footer>
         <InstallPrompt />

@@ -5,6 +5,7 @@ import LotCard from "@/components/LotCard";
 import ProfileForm from "./ProfileForm";
 import DeleteAccount from "@/components/DeleteAccount";
 import SearchAlerts from "./SearchAlerts";
+import PushToggle from "@/components/PushToggle";
 
 export const metadata = { title: "My account" };
 
@@ -61,6 +62,8 @@ export default async function AccountPage() {
       </div>
 
       <ProfileForm userId={userId} initialName={profile?.display_name || ""} initialArea={profile?.area || ""} initialAlerts={profile?.email_alerts ?? true} />
+
+      <PushToggle />
 
       <SearchAlerts initial={alerts ?? []} alertsOn={profile?.email_alerts ?? true} />
 

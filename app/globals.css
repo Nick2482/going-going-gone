@@ -601,3 +601,11 @@ textarea.qa-input { min-height: 64px; }
 .wanted-remove { color: var(--sold); }
 #mine, #ads { scroll-margin-top: 90px; }
 @media (max-width: 480px) { .chips-scroll, .ending-scroll { margin-inline: -16px; padding-inline: 16px; } }
+
+/* Phone notifications */
+.push-card { background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--aqua); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; max-width: 640px; }
+.push-nudge { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: 14px; background: var(--aqua-soft); border-radius: 10px; padding: 8px 12px; }
+.push-nudge .link-btn { font-weight: 700; color: var(--aqua-ink); }
+.push-setup { display: flex; flex-direction: column; gap: 12px; }
+.push-setup code, .push-setup pre { font-family: var(--font-mono, monospace); font-size: 12.5px; word-break: break-all; white-space: pre-wrap; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: block; }
+.push-setup ol { padding-left: 20px; display: flex; flex-direction: column; gap: 12px; }

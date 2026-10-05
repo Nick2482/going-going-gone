@@ -7,6 +7,10 @@ const nextConfig = {
   // full page addresses private when people click links to other sites.
   async headers() {
     return [{
+      // The notification helper must always be the latest version.
+      source: "/sw.js",
+      headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
+    }, {
       source: "/:path*",
       headers: [
         { key: "X-Frame-Options", value: "DENY" },
