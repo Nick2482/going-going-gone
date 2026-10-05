@@ -5,6 +5,7 @@ import { BrandMark, BrandWord } from "@/components/Logo";
 import { SearchIcon } from "@/components/Icons";
 import { GROUP_URL, ICO_REG } from "@/lib/site";
 import InstallPrompt from "@/components/InstallPrompt";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 // Variable font: the "opsz" axis gives the tall display cut automatically at headline sizes.
@@ -92,6 +93,7 @@ export default async function RootLayout({ children }) {
           </div>
         </footer>
         <InstallPrompt />
+        <Analytics />
       </body>
     </html>
   );

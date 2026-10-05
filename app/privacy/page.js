@@ -7,7 +7,7 @@ export default function Privacy() {
   return (
     <div className="wrap prose">
       <h1 className="page-title">Privacy notice</h1>
-      <p className="hint">Last updated: 2 October 2026</p>
+      <p className="hint">Last updated: 5 October 2026</p>
 
       <h2>Who we are</h2>
       <p>Going Going Gone is run by {OWNER} from Market Bosworth, Leicestershire, who is responsible for (the &ldquo;controller&rdquo; of) the personal data described here.{ICO_REG ? <> Registered with the Information Commission, number <span className="mono">{ICO_REG}</span>.</> : null} For anything to do with your data, email <span className="mono">{CONTACT}</span>. More about who runs the site is on the <Link href="/about">About</Link> page.</p>
@@ -20,6 +20,8 @@ export default function Privacy() {
         <li><strong>Reports</strong> you send about listings.</li>
         <li>A sign-in cookie that keeps you logged in. We don&apos;t use advertising or tracking cookies, except on the <Link href="/flights">Cheap flights</Link> page, and only if you agree there: our flights partner Travelpayouts may then set cookies so that bookings are credited to us (the commission goes to local causes).</li>
         <li>A small note in your browser remembering if you tapped &ldquo;Not now&rdquo; on the &ldquo;Add to your phone&rdquo; banner, so we don&apos;t keep asking. It never leaves your device.</li>
+        <li><strong>Phone notifications</strong>, if you switch them on: a delivery address for your device, so we can send you alerts. Turn them off in My account and it&apos;s deleted.</li>
+        <li><strong>Visitor numbers</strong>: we count page visits with Vercel Web Analytics, which uses no cookies and doesn&apos;t identify you or follow you to other sites. It just tells us roughly how many people visit and which pages they use.</li>
         <li>We never ask for or store passwords, or card or bank details.</li>
       </ul>
 
