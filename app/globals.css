@@ -609,3 +609,12 @@ textarea.qa-input { min-height: 64px; }
 .push-setup { display: flex; flex-direction: column; gap: 12px; }
 .push-setup code, .push-setup pre { font-family: var(--font-mono, monospace); font-size: 12.5px; word-break: break-all; white-space: pre-wrap; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: block; }
 .push-setup ol { padding-left: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+/* Hotels on the flights page */
+.flight-actions { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.flight-hotel { font-size: 13px; font-weight: 700; color: var(--aqua-ink); text-decoration: none; text-align: center; white-space: nowrap; }
+.flight-hotel:hover { text-decoration: underline; }
+@media (max-width: 600px) { .flight .flight-actions { grid-column: 1 / -1; } .flight-hotel { white-space: normal; } }
+.hotel-search { margin-top: 32px; background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--aqua); border-radius: var(--radius); padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; max-width: 900px; }
+.hotel-form { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: end; }
+@media (max-width: 700px) { .hotel-form { grid-template-columns: 1fr 1fr; } .hotel-form .field:first-of-type { grid-column: 1 / -1; } .hotel-form .btn { grid-column: 1 / -1; } }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AIRPORTS, airlineName, cheapestFrom, flightsConfigured, placeName } from "@/lib/flights";
+import { AIRPORTS, airlineName, cheapestFrom, flightsConfigured, hotelLink, placeName } from "@/lib/flights";
 import { gbp } from "@/lib/format";
 import PartnerScript from "@/components/PartnerScript";
 
@@ -53,9 +53,14 @@ export default async function FlightsPage({ searchParams }) {
                   </div>
                 </div>
                 <div className="flight-price"><small>Return from</small><span className="num">{gbp(f.price)}</span></div>
-                {f.link
-                  ? <a className="btn btn-brass" href={f.link} target="_blank" rel="sponsored noopener noreferrer">See flights</a>
-                  : <span className="btn btn-ghost" aria-disabled="true">Sample</span>}
+                <div className="flight-actions">
+                  {f.link
+                    ? <a className="btn btn-brass" href={f.link} target="_blank" rel="sponsored noopener noreferrer">See flights</a>
+                    : <span className="btn btn-ghost" aria-disabled="true">Sample</span>}
+                  <a className="flight-hotel" href={hotelLink(placeName(f.destination), f.departure_at, f.return_at)} target="_blank" rel="noopener noreferrer">
+                    <span aria-hidden="true">🏨</span> Find a hotel in {placeName(f.destination)}
+                  </a>
+                </div>
               </li>
             );
           })}
@@ -63,6 +68,30 @@ export default async function FlightsPage({ searchParams }) {
       ) : (
         <div className="empty">No deals found right now. Check back in a few hours.</div>
       )}
+
+      <section className="hotel-search" aria-labelledby="hotel-h">
+        <h2 id="hotel-h" className="block-title">🏨 Need somewhere to stay?</h2>
+        <form className="hotel-form" action="https://www.booking.com/searchresults.en-gb.html" method="get" target="_blank">
+          <input type="hidden" name="group_adults" value="2" />
+          <input type="hidden" name="no_rooms" value="1" />
+          <input type="hidden" name="lang" value="en-gb" />
+          <input type="hidden" name="selected_currency" value="GBP" />
+          <div className="field">
+            <label htmlFor="h-city">Where?</label>
+            <input id="h-city" className="input" name="ss" placeholder="e.g. Barcelona" required />
+          </div>
+          <div className="field">
+            <label htmlFor="h-in">Check in</label>
+            <input id="h-in" className="input" type="date" name="checkin" />
+          </div>
+          <div className="field">
+            <label htmlFor="h-out">Check out</label>
+            <input id="h-out" className="input" type="date" name="checkout" />
+          </div>
+          <button className="btn btn-brass" type="submit">Search hotels</button>
+        </form>
+        <p className="hint">Hotel searches open on Booking.com. We don&apos;t earn anything from hotel bookings at the moment.</p>
+      </section>
 
       <p className="hint" style={{ marginTop: 28, maxWidth: "70ch" }}>
         Prices are per person for a return trip, found by other travellers in the last 48 hours, and may have changed. Booking is with the airline or travel agent you choose on the next page, not with Going Going Gone.
