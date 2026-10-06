@@ -667,3 +667,9 @@ a.biz-pic:hover img { transform: scale(1.03); }
 .biz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
 .biz-strip .biz-trust { margin-top: 18px; font-size: 14px; }
 .biz-strip + .site-foot { margin-top: 0; }
+/* With the side panels showing, keep full-width bands inside the page column so nothing runs behind the panels. */
+@media (min-width: 1720px) {
+  .perks-strip { border-bottom: 0; padding-bottom: 6px; }
+  .ticker { background: transparent; border-bottom: 0; }
+  .ticker-inner { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-sm); margin-block: 8px 4px; max-width: 1160px; padding-inline: 18px; }
+}
