@@ -20,11 +20,15 @@ export default function RailPosition() {
       root.classList.add("rails-ready");
     };
     const queue = () => { if (!frame) frame = requestAnimationFrame(place); };
+    // Same height within each group: the side panels together, and the strip near the bottom.
+    // (Cards between the lots are left as they are.)
     const equalise = () => {
-      const cards = [...document.querySelectorAll(".biz-card")].filter((c) => c.offsetParent !== null);
-      cards.forEach((c) => { c.style.minHeight = ""; });
-      const tallest = Math.max(0, ...cards.map((c) => c.offsetHeight));
-      if (tallest) cards.forEach((c) => { c.style.minHeight = `${tallest}px`; });
+      for (const sel of [".biz-rail .biz-card", ".biz-strip .biz-card"]) {
+        const cards = [...document.querySelectorAll(sel)].filter((c) => c.getClientRects().length > 0);
+        cards.forEach((c) => { c.style.minHeight = ""; });
+        const tallest = Math.max(0, ...cards.map((c) => c.offsetHeight));
+        if (tallest) cards.forEach((c) => { c.style.minHeight = `${tallest}px`; });
+      }
     };
     let resizeTimer = 0;
     const onResize = () => { queue(); clearTimeout(resizeTimer); resizeTimer = setTimeout(equalise, 120); };

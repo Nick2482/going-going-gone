@@ -11,6 +11,7 @@ import { BID_FIELDS, NEW_LOT_FIELDS, bidEvent, listingEvent, mergeEvents } from 
 import { GROUP_NAME, GROUP_URL, GROUP_MEMBERS } from "@/lib/site";
 import { flightsConfigured } from "@/lib/flights";
 import SaveSearch from "@/components/SaveSearch";
+import { BusinessFeedCard } from "@/components/LocalBusinesses";
 
 const PAGE_SIZE = 48;
 const SORTS = {
@@ -81,8 +82,19 @@ export default async function Home({ searchParams }) {
 
   const causes = showHero ? supabase.rpc("charity_totals") : Promise.resolve({ data: [] });
 
-  const [{ data: lots, count, error }, { data: sold }, { data: endingLots }, { data: bidRows }, { data: newLots }, { data: causeRows }] =
-    await Promise.all([live, gone, ending, recentBids, recentLots, causes]);
+  const businessesQ = supabase.from("local_businesses").select("id, name, tagline, url, phone, logo_path, position, link_label").order("position").limit(12);
+  const [{ data: lots, count, error }, { data: sold }, { data: endingLots }, { data: bidRows }, { data: newLots }, { data: causeRows }, { data: bizRows }] =
+    await Promise.all([live, gone, ending, recentBids, recentLots, causes, businessesQ]);
+  // Local businesses shown between the lots on phones (every 6 lots), shuffled for fairness.
+  const feedBiz = [...(bizRows ?? [])].sort(() => Math.random() - 0.5);
+  const EVERY = 6;
+  const feed = [];
+  let bizUsed = 0;
+  (lots ?? []).forEach((lot, i) => {
+    feed.push({ kind: "lot", lot });
+    if ((i + 1) % EVERY === 0 && bizUsed < feedBiz.length) feed.push({ kind: "biz", b: feedBiz[bizUsed++] });
+  });
+  if ((lots ?? []).length && (lots ?? []).length < EVERY && feedBiz.length) feed.push({ kind: "biz", b: feedBiz[bizUsed++] });
   const raised = (causeRows ?? []).reduce((t, c) => t + Number(c.raised_pence || 0), 0);
   const charityRunning = (causeRows ?? []).reduce((t, c) => t + Number(c.running || 0), 0);
   const total = count ?? 0;
@@ -186,7 +198,9 @@ export default async function Home({ searchParams }) {
         {error ? <p className="error" style={{ marginBottom: 16 }}>Lots couldn&apos;t load right now. Refresh the page to try again.</p> : null}
 
         <div className="grid">
-          {lots?.length ? lots.map((lot) => <LotCard key={lot.id} lot={lot} />) : (
+          {lots?.length ? feed.map((f) => f.kind === "lot"
+            ? <LotCard key={f.lot.id} lot={f.lot} />
+            : <BusinessFeedCard key={`biz-${f.b.id}`} b={f.b} last={bizUsed === feedBiz.length && f.b.id === feedBiz[bizUsed - 1].id} />) : (
             <div className="empty">
               <strong>{filtered ? "No lots found" : "No lots open yet"}</strong>
               {filtered ? <>Try another search or category, or <Link href="/wanted">post a wanted ad</Link> so people know you&apos;re looking.</> : <>Be the first. <Link href="/sell">Sell something</Link>.</>}

@@ -674,3 +674,17 @@ a.biz-pic:hover img { transform: scale(1.03); }
   .ticker { background: transparent; border-bottom: 0; }
   .ticker-inner { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-sm); margin-block: 8px 4px; max-width: 1160px; padding-inline: 18px; }
 }
+
+/* Local businesses between the lots (phones and smaller screens) */
+.biz-infeed { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; }
+.biz-infeed .biz-card { border: 1px solid var(--line); }
+.biz-infeed .biz-kicker { margin-bottom: -2px; }
+@media (min-width: 600px) {
+  .biz-infeed .biz-card { flex-direction: row; }
+  .biz-infeed .biz-pic { flex: 0 0 42%; aspect-ratio: auto; min-height: 200px; }
+  .biz-infeed .biz-body { padding: 18px 20px; }
+}
+@media (min-width: 1720px) { .biz-infeed { display: none; } }
+/* When every business already appears between the lots, skip the strip at the bottom of the page. */
+body:has(.biz-infeed-complete) .biz-strip { display: none; }
+.grid:has(.biz-infeed) { grid-auto-flow: row dense; }

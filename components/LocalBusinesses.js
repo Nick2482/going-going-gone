@@ -12,7 +12,7 @@ function linkLabel(b) {
 
 const TRUST_LINE = "Every business featured here is one we use regularly ourselves and trust.";
 
-function Card({ b }) {
+function Card({ b, kicker = false }) {
   const pic = photoUrl(b.logo_path);
   const href = b.url ? `/go/${b.id}` : null;
   const tel = b.phone ? `tel:${b.phone.replace(/[^\d+]/g, "")}` : null;
@@ -24,6 +24,7 @@ function Card({ b }) {
           : <div className="biz-pic"><img src={pic} alt="" loading="lazy" /></div>
       ) : null}
       <div className="biz-body">
+        {kicker ? <span className="biz-kicker">Trusted locally</span> : null}
         <h3 className="biz-name">{href ? <a href={href} target="_blank" rel="noopener">{b.name}</a> : b.name}</h3>
         {b.tagline ? <p className="biz-desc">{b.tagline}</p> : null}
         <div className="biz-actions">
@@ -69,5 +70,14 @@ export function BusinessStrip({ businesses }) {
         <p className="biz-trust">{TRUST_LINE}</p>
       </div>
     </section>
+  );
+}
+
+// One business shown between the lots on phones and smaller screens, like adverts in a listings feed.
+export function BusinessFeedCard({ b, last = false }) {
+  return (
+    <ul className={`biz-infeed${last ? " biz-infeed-complete" : ""}`} aria-label="Local business we trust">
+      <Card b={b} kicker />
+    </ul>
   );
 }
