@@ -840,3 +840,8 @@ body:has(.biz-infeed-complete) .biz-strip { display: none; }
   .hero-photo { background-position: 47% 45%; }
   .hero-photo::after { background: linear-gradient(180deg, rgba(5, 18, 24, 0.55), rgba(5, 18, 24, 0.35) 45%, rgba(5, 18, 24, 0.62)); }
 }
+/* Show more of the lake and less sky: the treeline sits near the top of the banner. */
+.hero-photo { background-position: 50% 62%; }
+@media (max-width: 820px) { .hero-photo { background-position: 47% 52%; } }
+@media (min-width: 1600px) { .hero-photo { background-position: 50% 53%; } }
+@media (min-width: 2200px) { .hero-photo { background-position: 50% 49%; } }
