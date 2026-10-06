@@ -903,3 +903,81 @@ body:has(.biz-infeed-complete) .biz-strip { display: none; }
 .lot-room .panel-sold { border-color: rgba(121, 197, 200, 0.45); background: rgba(9, 33, 44, 0.65); }
 @media (max-width: 880px) { .lot-room .lot-page { padding-top: 14px; } }
 .hist .num { font-family: var(--serif); font-weight: 600 !important; font-size: 17px; }
+
+/* A navy "room" for pages that should feel like the lot page (selling). White form card on top. */
+.page-room { color: #dce9eb; padding-bottom: 64px;
+  background: radial-gradient(80% 45% at 50% 0%, var(--navy-2), var(--navy) 55%, #081f2b); }
+.page-room .narrow { padding-top: 48px; }
+.page-room .page-title { color: #fff; }
+.page-room .page-title::after { background: linear-gradient(90deg, var(--aqua) 0 33.333%, #fff 33.333% 66.666%, #ff3d52 66.666% 100%); }
+.page-room .page-lead { color: #c9dcdf; font-size: 16.5px; line-height: 1.6; margin-bottom: 26px; }
+.page-room .page-lead a { color: var(--aqua); }
+.page-room .form-card { color: var(--ink); border-color: transparent; box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.8); padding: 28px; }
+.page-room > .wrap > .hint, .page-room > .wrap > p:not(.page-lead) { color: #c9dcdf; }
+.page-room > .wrap > .hint a, .page-room > .wrap > p a { color: var(--aqua); }
+@media (max-width: 600px) { .page-room .narrow { padding-top: 32px; } .page-room .form-card { padding: 20px 16px; } }
+
+/* ======================================================================
+   Every page except home: the navy "room". Text on navy is light; anything
+   that sits on a white card keeps its dark text.
+   ====================================================================== */
+main.room { color: #dce9eb; padding-bottom: 72px;
+  background: radial-gradient(80% 420px at 40% 0%, var(--navy-2), var(--navy) 60%, #081f2b) top / 100% 100% no-repeat, #081f2b; }
+main.room .page-room, main.room .lot-room { background: none; padding-bottom: 0; }
+main.room + * { margin-top: 0; }
+.room .page-title, .room .member-name, .room .section-title, .room .toolbar h2, .room .block-title, .room h2, .room h3 { color: #fff; }
+.room .page-title::after { background: linear-gradient(90deg, var(--aqua) 0 33.333%, #fff 33.333% 66.666%, #ff3d52 66.666% 100%); }
+.room .page-lead, .room .prose p, .room .prose li, .room .desc { color: #c9dcdf; }
+.room .hint, .room .muted, .room .count, .room .crumbs { color: #a9c6c9; }
+.room a:where(:not(.btn, .lot, .chip, .tile, .biz-pic)) { color: var(--aqua); }
+.room .link-btn { color: #a9c6c9; }
+.room .error { color: #ffb3bd; }
+.room .success { color: #8be0b0; }
+.room strong { color: inherit; }
+.room hr, .room .panel-divide { border-color: rgba(255, 255, 255, 0.14); }
+
+/* White surfaces: dark text inside, soft deep shadow, no grey border. */
+.room :is(.panel:not(.panel-sold), .form-card, .hist, .about-intro, .admin-tile, .admin-item, .member-card, .feedback, .cause,
+  .sold-stats > div, .flight, .partner-ask, .hotel-search, .qa-item, .save-search, .alert-item, .relist-open, .app-step,
+  .wanted-card, .push-card, .lot, .biz-card, .empty, .charity-box, .charity-note, .notice, .confirm, .qa-ask, .qa-waiting,
+  .qa-signin, .push-nudge, .flights-good, .tile, table, .card) {
+  color: var(--ink);
+}
+.room :is(.panel:not(.panel-sold), .form-card, .hist, .about-intro, .admin-tile, .admin-item, .member-card, .feedback, .cause,
+  .sold-stats > div, .flight, .partner-ask, .hotel-search, .qa-item, .save-search, .alert-item, .relist-open, .app-step,
+  .wanted-card, .push-card, .lot, .biz-card, .charity-box, .qa-ask, .qa-signin, .push-nudge, .tile, table, .card) :is(.hint, .muted, .count) {
+  color: var(--muted);
+}
+.room :is(.panel:not(.panel-sold), .form-card, .hist, .about-intro, .admin-tile, .admin-item, .member-card, .feedback, .cause,
+  .sold-stats > div, .flight, .partner-ask, .hotel-search, .qa-item, .save-search, .alert-item, .relist-open, .app-step,
+  .wanted-card, .push-card, .lot, .biz-card, .charity-box, .charity-note, .qa-ask, .qa-signin, .push-nudge, .tile, table, .card)
+  :is(h2, h3, .block-title, .section-title) { color: var(--ink); }
+.room :is(.panel:not(.panel-sold), .form-card, .hist, .about-intro, .admin-tile, .admin-item, .member-card, .feedback, .cause,
+  .sold-stats > div, .flight, .partner-ask, .hotel-search, .qa-item, .save-search, .alert-item, .relist-open, .app-step,
+  .wanted-card, .push-card, .charity-box, .charity-note, .qa-ask, .qa-signin, .push-nudge, table, .card)
+  a:not(.btn) { color: var(--aqua-ink); }
+.room :is(.panel:not(.panel-sold), .form-card, .admin-item, .wanted-card, .alert-item, .push-card, .qa-item, .qa-ask) .link-btn { color: var(--muted); }
+.room :is(.panel:not(.panel-sold), .form-card, .admin-item, .wanted-card, .push-card, .member-card, .cause, .charity-box, .qa-ask, .card) .error { color: var(--sold); }
+.room :is(.panel, .form-card, .hist, .about-intro, .admin-tile, .admin-item, .member-card, .feedback, .cause, .sold-stats > div,
+  .flight, .partner-ask, .hotel-search, .qa-item, .alert-item, .app-step, .wanted-card, .push-card, .lot, .biz-card) {
+  border-color: transparent; box-shadow: 0 18px 38px -22px rgba(0, 0, 0, 0.8);
+}
+.room .empty { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.22); color: #b5cfd2; }
+.room .empty strong { color: #fff; }
+.room .panel-sold { border-color: rgba(121, 197, 200, 0.45); background: rgba(9, 33, 44, 0.65); }
+
+/* Chips and pager on navy. */
+.room .chip { background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.2); color: #d3e6e8; }
+.room .chip:hover { color: #fff; border-color: rgba(255, 255, 255, 0.4); }
+.room .chip[aria-current="true"] { background: #fff; border-color: #fff; color: var(--ink); }
+.room .chip-charity { color: #ff8a98; border-color: rgba(255, 138, 152, 0.45); }
+.room .chip-charity[aria-current="true"] { background: var(--sold); border-color: var(--sold); color: #fff; }
+.room .pager .hint { color: #b5cfd2; }
+
+/* Inputs that sit straight on navy (not inside a card) stay white so they're easy to see. */
+.room .input { color: var(--ink); }
+/* Paragraphs and lists inside white cards keep dark text, even inside long-form pages. */
+.room :is(.about-intro, .app-step, .panel:not(.panel-sold), .form-card, .card, .cause, .flight, .partner-ask, .hotel-search, .wanted-card, .push-card, .member-card, .feedback, .admin-item, .notice, .confirm, .charity-box, .charity-note, .qa-item, .qa-ask) :is(p, li) { color: var(--ink-2); }
+.room .about-intro .about-lead { color: var(--ink) !important; }
+/* Search results on the home page start straight on navy. */
+main > .lots-band:first-child { margin-top: 0; }

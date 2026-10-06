@@ -7,6 +7,7 @@ export default async function LoginPage({ searchParams }) {
   const sp = await searchParams;
   const next = safeNext(sp.next);
   return (
+    <div className="page-room">
     <div className="wrap narrow" style={{ maxWidth: 560 }}>
       <h1 className="page-title">Sign in</h1>
       <p className="page-lead">
@@ -16,6 +17,7 @@ export default async function LoginPage({ searchParams }) {
         {sp.error ? <p className="error" style={{ marginBottom: 16 }}>That sign-in link has expired or was already used. Ask for a new one below.</p> : null}
         <LoginForm next={next} />
       </div>
+    </div>
     </div>
   );
 }
