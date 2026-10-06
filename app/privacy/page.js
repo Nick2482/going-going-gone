@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { OWNER, CONTACT, ICO_REG } from "@/lib/site";
+import { OWNER, CONTACT, ICO_REG, ICO_URL } from "@/lib/site";
 
 export const metadata = { title: "Privacy notice" };
 
@@ -10,7 +10,7 @@ export default function Privacy() {
       <p className="hint">Last updated: 5 October 2026</p>
 
       <h2>Who we are</h2>
-      <p>Going Going Gone is run by {OWNER} from Market Bosworth, Leicestershire, who is responsible for (the &ldquo;controller&rdquo; of) the personal data described here.{ICO_REG ? <> Registered with the Information Commission, number <span className="mono">{ICO_REG}</span>.</> : null} For anything to do with your data, email <span className="mono">{CONTACT}</span>. More about who runs the site is on the <Link href="/about">About</Link> page.</p>
+      <p>Going Going Gone is run by {OWNER} from Market Bosworth, Leicestershire, who is responsible for (the &ldquo;controller&rdquo; of) the personal data described here.{ICO_REG ? <> Registered with the Information Commissioner&apos;s Office (ICO), registration number <a className="mono" href={ICO_URL} target="_blank" rel="noopener noreferrer">{ICO_REG}</a>: you can check it on the ICO&apos;s public register.</> : null} For anything to do with your data, email <span className="mono">{CONTACT}</span>. More about who runs the site is on the <Link href="/about">About</Link> page.</p>
 
       <h2>What we collect</h2>
       <ul>
@@ -35,7 +35,7 @@ export default function Privacy() {
       <p>While your account is open. You can delete your account at any time from <Link href="/account">My account</Link>. That deletes your sign-in, name, listings, photos and bids straight away. Everything is stored encrypted.</p>
 
       <h2>Your rights</h2>
-      <p>You can ask to see, correct or delete your data, or object to how we use it. Email <span className="mono">{CONTACT}</span>. You can also complain to the Information Commission, the UK data protection regulator (ico.org.uk).</p>
+      <p>You can ask to see, correct or delete your data, or object to how we use it. Email <span className="mono">{CONTACT}</span>. You can also complain to the Information Commissioner&apos;s Office (ICO), the UK data protection regulator (ico.org.uk).</p>
     </div>
   );
 }

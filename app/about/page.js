@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { OWNER, CONTACT, GROUP_NAME, GROUP_URL, GROUP_MEMBERS, ICO_REG } from "@/lib/site";
+import { OWNER, CONTACT, GROUP_NAME, GROUP_URL, GROUP_MEMBERS, ICO_REG, ICO_URL } from "@/lib/site";
 
 export const metadata = {
   title: "About",
@@ -28,7 +28,7 @@ export default function About() {
         <li><strong>It holds very little about you:</strong> your email address (to sign in, so there&apos;s no password to steal), the name you choose to show, and your area if you add it.</li>
         <li><strong>Your email stays private.</strong> It&apos;s only shown to the other person once an item has sold, so you can arrange collection.</li>
         <li><strong>It&apos;s on secure, established hosting.</strong> The data is held with Supabase and the site is hosted by Vercel. Everything is encrypted, both in storage and on its way to you.</li>
-        <li><strong>The law applies here too.</strong> I&apos;m responsible for your data under UK data protection law, just as a big company would be.{ICO_REG ? <> Registered with the Information Commission, number <span className="mono">{ICO_REG}</span>.</> : null}</li>
+        <li><strong>The law applies here too.</strong> I&apos;m responsible for your data under UK data protection law, just as a big company would be.{ICO_REG ? <> Registered with the Information Commissioner&apos;s Office (ICO), registration number <a className="mono" href={ICO_URL} target="_blank" rel="noopener noreferrer">{ICO_REG}</a>: you can check it on the ICO&apos;s public register.</> : null}</li>
         <li><strong>You&apos;re in control.</strong> You can delete your account, and everything linked to it, at any time from <Link href="/account">My account</Link>.</li>
       </ul>
 
