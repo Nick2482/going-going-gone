@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CATEGORIES, LOT_CARD_FIELDS, gbp } from "@/lib/format";
 import LotCard from "@/components/LotCard";
 import SortSelect from "@/components/SortSelect";
+import CategorySelect from "@/components/CategorySelect";
 import { BellIcon, ClockIcon, HeartIcon, HomeIcon, PlaneIcon, TagIcon } from "@/components/Icons";
 import EndingSoon from "@/components/EndingSoon";
 import ActivityTicker from "@/components/ActivityTicker";
@@ -55,16 +56,6 @@ export default async function Home({ searchParams }) {
   if (charity) live = live.not("charity_id", "is", null);
   if (q) live = live.ilike("title", `%${q.replace(/[%_\\]/g, "\\$&")}%`);
 
-  const gone = supabase
-    .from("lots")
-    .select(LOT_CARD_FIELDS)
-    .eq("status", "live")
-    .lte("ends_at", nowIso)
-    .gt("bid_count", 0)
-    .neq("reserve_status", "not_met")
-    .order("ends_at", { ascending: false })
-    .limit(8);
-
   const filtered = Boolean(cat || q || charity);
   const showHero = !filtered && page === 1;
 
@@ -83,8 +74,8 @@ export default async function Home({ searchParams }) {
   const causes = showHero ? supabase.rpc("charity_totals") : Promise.resolve({ data: [] });
 
   const businessesQ = supabase.from("local_businesses").select("id, name, tagline, url, phone, logo_path, position, link_label").order("position").limit(12);
-  const [{ data: lots, count, error }, { data: sold }, { data: endingLots }, { data: bidRows }, { data: newLots }, { data: causeRows }, { data: bizRows }] =
-    await Promise.all([live, gone, ending, recentBids, recentLots, causes, businessesQ]);
+  const [{ data: lots, count, error }, { data: endingLots }, { data: bidRows }, { data: newLots }, { data: causeRows }, { data: bizRows }] =
+    await Promise.all([live, ending, recentBids, recentLots, causes, businessesQ]);
   // Local businesses shown between the lots on phones (every 6 lots), shuffled for fairness.
   const feedBiz = [...(bizRows ?? [])].sort(() => Math.random() - 0.5);
   const EVERY = 6;
@@ -166,25 +157,26 @@ export default async function Home({ searchParams }) {
         </div>
       ) : null}
 
+      <section className="lots-band" aria-label="Lots">
       <div className="wrap" id="lots">
         <div className="toolbar">
           <h2>
             {q ? `Results for “${q}”` : cat || (charity ? "Charity lots" : "Open lots")}
             <span className="count">{total} {total === 1 ? "lot" : "lots"}</span>
           </h2>
-          <Suspense fallback={null}>
-            <SortSelect options={Object.fromEntries(Object.entries(SORTS).map(([k, s]) => [k, s.label]))} value={sortKey} />
-          </Suspense>
         </div>
 
-        <div className="chips-scroll" style={{ marginBottom: 20 }}>
-          <nav className="chips" aria-label="Categories">
-            <Link className="chip" href={hrefWith(params, { cat: "", charity: "", page: "" })} aria-current={!cat && !charity}>All</Link>
-            <Link className="chip chip-charity" href={hrefWith(params, { cat: "", charity: charity ? "" : "1", page: "" })} aria-current={Boolean(charity)}><HeartIcon size={12} /> For charity</Link>
-            {CATEGORIES.map((c) => (
-              <Link key={c} className="chip" href={hrefWith(params, { cat: c, page: "" })} aria-current={cat === c}>{c}</Link>
-            ))}
+        <div className="filters">
+          <nav className="seg" aria-label="Show">
+            <Link className="seg-btn" href={hrefWith(params, { cat: "", charity: "", page: "" }) + "#lots"} aria-current={!cat && !charity}>All lots</Link>
+            <Link className="seg-btn seg-charity" href={hrefWith(params, { charity: charity ? "" : "1", page: "" }) + "#lots"} aria-current={Boolean(charity)}><HeartIcon size={12} /> For charity</Link>
           </nav>
+          <div className="filters-right">
+            <Suspense fallback={null}>
+              <CategorySelect categories={CATEGORIES} value={cat} />
+              <SortSelect options={Object.fromEntries(Object.entries(SORTS).map(([k, s]) => [k, s.label]))} value={sortKey} />
+            </Suspense>
+          </div>
         </div>
 
         {q ? (
@@ -217,16 +209,9 @@ export default async function Home({ searchParams }) {
           </div>
         ) : null}
 
-        {sold?.length && !filtered ? (
-          <section className="section section-navy">
-            <div className="ending-head">
-              <h2 className="section-title" style={{ margin: 0 }}>Recently sold</h2>
-              <Link href="/sold" className="hint">See all sold prices</Link>
-            </div>
-            <div className="grid">{sold.map((lot) => <LotCard key={lot.id} lot={lot} />)}</div>
-          </section>
-        ) : null}
+        {!filtered ? <p className="lots-sold-link"><Link href="/sold">See what&apos;s sold recently, and for how much</Link></p> : null}
       </div>
+      </section>
     </>
   );
 }
