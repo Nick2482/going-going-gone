@@ -688,3 +688,72 @@ a.biz-pic:hover img { transform: scale(1.03); }
 /* When every business already appears between the lots, skip the strip at the bottom of the page. */
 body:has(.biz-infeed-complete) .biz-strip { display: none; }
 .grid:has(.biz-infeed) { grid-auto-flow: row dense; }
+
+/* ======================================================================
+   Polish pass: catalogue serif, quieter shadows, gallery photos, navy room.
+   ====================================================================== */
+:root {
+  --serif: var(--font-serif), "Bodoni Moda", Didot, "Bodoni 72", Georgia, serif;
+  --navy: #0b2a3a;
+  --navy-2: #0e3447;
+  --shadow-sm: 0 1px 1px rgba(9, 33, 44, 0.04), 0 2px 6px rgba(9, 33, 44, 0.04);
+  --shadow: 0 2px 4px rgba(9, 33, 44, 0.04), 0 18px 40px -12px rgba(9, 33, 44, 0.18);
+}
+
+/* Prices and lot numbers set like an auction catalogue. */
+.price, .big-price { font-family: var(--serif); font-weight: 600; letter-spacing: 0; font-variant-numeric: lining-nums tabular-nums; }
+.price { font-size: 22px; line-height: 1.05; }
+.big-price { font-size: 40px; line-height: 1; }
+@media (max-width: 520px) { .price { font-size: 19px; } }
+.lot-no, .lot-ref { font-family: var(--serif); font-weight: 500; letter-spacing: 0.02em; }
+.lot-no { font-size: 12.5px; background: rgba(255, 255, 255, 0.92); color: var(--ink); padding: 3px 9px 4px; border-radius: 999px; box-shadow: 0 1px 3px rgba(9, 33, 44, 0.12); }
+.lot-no em, .lot-ref em { font-style: italic; margin-right: 1px; }
+.lot-ref { font-size: 15px; color: var(--muted); }
+.lot-price small { letter-spacing: 0.01em; }
+
+/* Gallery photos: hairline frame and a slow, gentle zoom. */
+.lot { transition: box-shadow 0.35s ease, transform 0.35s ease, border-color 0.35s ease; }
+.lot:hover { transform: translateY(-3px); border-color: var(--line-2); }
+.lot-media { overflow: hidden; background: #e7eff0; }
+.lot-media::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 1px rgba(9, 33, 44, 0.06); pointer-events: none; }
+.lot-media img { transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.lot:hover .lot-media img { transform: scale(1.045); }
+
+/* Section headings get a quiet serif companion line. */
+.section { margin-top: 64px; }
+.ending-head .hint { font-family: var(--serif); font-style: italic; font-size: 16px; }
+
+/* Recently sold: a deep navy room, kept inside the page column. */
+.section-navy { background: radial-gradient(120% 140% at 0% 0%, var(--navy-2), var(--navy) 60%, #081f2b); color: #fff; border-radius: 18px; padding: 34px 32px 36px; }
+.section-navy .section-title { color: #fff; }
+.section-navy .ending-head { margin-bottom: 22px; }
+.section-navy .ending-head .hint { color: var(--aqua); }
+.section-navy .lot { color: var(--ink); border-color: transparent; box-shadow: 0 12px 30px -16px rgba(0, 0, 0, 0.6); }
+@media (max-width: 600px) { .section-navy { padding: 24px 16px 20px; border-radius: 14px; margin-inline: -4px; } }
+
+/* One tidy row instead of three stacked strips. */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-top: 28px; }
+.tile { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 14px; row-gap: 10px; align-items: center; padding: 16px 18px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); color: var(--ink); text-decoration: none; box-shadow: var(--shadow-sm); transition: border-color 0.25s, box-shadow 0.25s; }
+.tile:hover { border-color: var(--line-2); box-shadow: var(--shadow); }
+.tile-icon { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--aqua); flex: none; }
+.tile-icon-f { background: #1877f2; color: #fff; font-weight: 900; font-family: Arial, sans-serif; font-size: 20px; }
+.tile-charity .tile-icon { background: var(--sold-soft); color: var(--sold); }
+.tile-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tile-text strong { font-family: var(--serif); font-weight: 600; font-size: 19px; line-height: 1.15; }
+.tile-text span { font-size: 13.5px; color: var(--muted); }
+.tile-go { grid-column: 2; font-size: 13.5px; font-weight: 700; color: var(--aqua-ink); }
+.tile-charity .tile-go { color: var(--sold); }
+@media (max-width: 600px) { .tiles { gap: 10px; margin-top: 22px; } .tile { padding: 12px 14px; row-gap: 4px; column-gap: 12px; } .tile-icon { width: 34px; height: 34px; } .tile-text strong { font-size: 17px; } }
+.tile:hover .tile-go { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Line icons where emojis used to be. */
+.alert-hint svg { vertical-align: -3px; margin-right: 6px; color: var(--aqua-ink); }
+.save-search-bell { display: inline-grid; place-items: center; color: var(--aqua-ink); }
+.flights-good svg { color: var(--sold); vertical-align: -2px; margin-right: 4px; }
+.hotel-search svg, .flights a svg { vertical-align: -3px; }
+
+/* The sunset banner drifts very slowly. Off for anyone who prefers less motion. */
+@keyframes gg-drift { from { transform: scale(1.03) translate3d(0, 0, 0); } to { transform: scale(1.1) translate3d(-1.5%, -1%, 0); } }
+.hero-photo { will-change: transform; animation: gg-drift 38s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .hero-photo { animation: none; } .lot, .lot-media img { transition: none; } .lot:hover .lot-media img { transform: none; } }
+@media (max-width: 520px) { .lot-no { font-size: 11px; padding: 2px 7px 3px; right: 8px; top: 8px; } .lot-no em { display: none; } }

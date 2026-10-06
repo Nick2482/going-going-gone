@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AIRPORTS, airlineName, cheapestFrom, flightsConfigured, hotelLink, placeName } from "@/lib/flights";
 import { gbp } from "@/lib/format";
+import { BedIcon, HeartIcon } from "@/components/Icons";
 import PartnerScript from "@/components/PartnerScript";
 
 export const metadata = {
@@ -25,7 +26,7 @@ export default async function FlightsPage({ searchParams }) {
       <p className="page-lead">
         The cheapest return flights travellers have found from our local airports in the last 48 hours. Prices change quickly, so check before you book.
       </p>
-      <p className="flights-good"><span aria-hidden="true">❤</span> We earn a small commission if you book through these links, at no extra cost to you. <strong>Every penny goes to <Link href="/causes">local causes</Link>.</strong></p>
+      <p className="flights-good"><HeartIcon size={14} /> We earn a small commission if you book through these links, at no extra cost to you. <strong>Every penny goes to <Link href="/causes">local causes</Link>.</strong></p>
 
       <PartnerScript />
 
@@ -58,7 +59,7 @@ export default async function FlightsPage({ searchParams }) {
                     ? <a className="btn btn-brass" href={f.link} target="_blank" rel="sponsored noopener noreferrer">See flights</a>
                     : <span className="btn btn-ghost" aria-disabled="true">Sample</span>}
                   <a className="flight-hotel" href={hotelLink(placeName(f.destination), f.departure_at, f.return_at)} target="_blank" rel="noopener noreferrer">
-                    <span aria-hidden="true">🏨</span> Find a hotel in {placeName(f.destination)}
+                    <BedIcon size={16} /> Find a hotel in {placeName(f.destination)}
                   </a>
                 </div>
               </li>
@@ -70,7 +71,7 @@ export default async function FlightsPage({ searchParams }) {
       )}
 
       <section className="hotel-search" aria-labelledby="hotel-h">
-        <h2 id="hotel-h" className="block-title">🏨 Need somewhere to stay?</h2>
+        <h2 id="hotel-h" className="block-title">Need somewhere to stay?</h2>
         <form className="hotel-form" action="https://www.booking.com/searchresults.en-gb.html" method="get" target="_blank">
           <input type="hidden" name="group_adults" value="2" />
           <input type="hidden" name="no_rooms" value="1" />

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { BellIcon } from "@/components/Icons";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -34,7 +35,7 @@ export default function SaveSearch({ q = "", cat = "", charity = false, backTo =
 
   return (
     <div className="save-search" role="region" aria-label="Search alert">
-      <span className="save-search-bell" aria-hidden="true">🔔</span>
+      <span className="save-search-bell" aria-hidden="true"><BellIcon size={18} /></span>
       {state === "saved" ? (
         <span className="save-search-text"><strong>Alert saved.</strong> We&apos;ll email you when new {what} lots are listed. <Link href="/account#alerts">Manage alerts</Link></span>
       ) : (

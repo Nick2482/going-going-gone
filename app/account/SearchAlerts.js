@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { BellIcon } from "@/components/Icons";
 import { createClient } from "@/lib/supabase/client";
 import { gbp } from "@/lib/format";
 
@@ -39,7 +40,7 @@ export default function SearchAlerts({ initial, alertsOn }) {
         <ul className="alert-list">
           {alerts.map((a) => (
             <li key={a.id} className="alert-item">
-              <span aria-hidden="true">🔔</span>
+              <BellIcon size={17} />
               <Link href={alertHref(a)} className="alert-what">{alertLabel(a)}</Link>
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => remove(a.id)}>Remove</button>
             </li>

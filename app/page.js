@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CATEGORIES, LOT_CARD_FIELDS, gbp } from "@/lib/format";
 import LotCard from "@/components/LotCard";
 import SortSelect from "@/components/SortSelect";
-import { ClockIcon, HeartIcon, HomeIcon, TagIcon } from "@/components/Icons";
+import { BellIcon, ClockIcon, HeartIcon, HomeIcon, PlaneIcon, TagIcon } from "@/components/Icons";
 import EndingSoon from "@/components/EndingSoon";
 import ActivityTicker from "@/components/ActivityTicker";
 import { BID_FIELDS, NEW_LOT_FIELDS, bidEvent, listingEvent, mergeEvents } from "@/lib/activity";
@@ -137,31 +137,32 @@ export default async function Home({ searchParams }) {
         <div className="wrap"><EndingSoon lots={endingSoon} /></div>
       ) : null}
 
-      {showHero && (raised > 0 || charityRunning > 0) ? (
-        <div className="wrap">
-          <Link href="/causes" className="charity-banner">
-            <HeartIcon size={22} />
-            <span>
-              {raised > 0 ? <><strong>{gbp(raised)} raised for local causes</strong> through Going Going Gone auctions. </> : <strong>Charity auctions are running now. </strong>}
-              {charityRunning > 0 ? <>{charityRunning} charity lot{charityRunning === 1 ? " is" : "s are"} open for bids.</> : null}
-            </span>
-            <span className="charity-banner-go">See the causes</span>
-          </Link>
-        </div>
-      ) : null}
-
       {showHero ? (
         <div className="wrap">
-          <a href={GROUP_URL} target="_blank" rel="noopener noreferrer" className="group-strip">
-            <span className="group-strip-f" aria-hidden="true">f</span>
-            <span>Part of <strong>{GROUP_NAME}</strong>, {GROUP_MEMBERS} local members on Facebook.</span>
-            <span className="group-strip-go">Join the group</span>
-          </a>
-          {flightsConfigured() ? <Link href="/flights" className="flights-strip">
-            <span className="flights-strip-icon" aria-hidden="true">✈</span>
-            <span><strong>Cheap flights</strong> from East Midlands, Birmingham and Luton. Any commission goes to local causes.</span>
-            <span className="group-strip-go">See deals</span>
-          </Link> : null}
+          <div className="tiles">
+            <a href={GROUP_URL} target="_blank" rel="noopener noreferrer" className="tile">
+              <span className="tile-icon tile-icon-f" aria-hidden="true">f</span>
+              <span className="tile-text"><strong>{GROUP_MEMBERS} neighbours</strong><span>Part of {GROUP_NAME} on Facebook</span></span>
+              <span className="tile-go">Join the group</span>
+            </a>
+            {raised > 0 || charityRunning > 0 ? (
+              <Link href="/causes" className="tile tile-charity">
+                <span className="tile-icon" aria-hidden="true"><HeartIcon size={18} /></span>
+                <span className="tile-text">
+                  <strong>{raised > 0 ? `${gbp(raised)} raised` : "Charity auctions"}</strong>
+                  <span>{charityRunning > 0 ? `${charityRunning} charity lot${charityRunning === 1 ? " is" : "s are"} open for bids` : "For local causes, through these auctions"}</span>
+                </span>
+                <span className="tile-go">See the causes</span>
+              </Link>
+            ) : null}
+            {flightsConfigured() ? (
+              <Link href="/flights" className="tile">
+                <span className="tile-icon" aria-hidden="true"><PlaneIcon size={20} /></span>
+                <span className="tile-text"><strong>Cheap flights</strong><span>From East Midlands, Birmingham and Luton</span></span>
+                <span className="tile-go">See deals</span>
+              </Link>
+            ) : null}
+          </div>
         </div>
       ) : null}
 
@@ -191,7 +192,7 @@ export default async function Home({ searchParams }) {
         ) : null}
 
         {!filtered ? (
-          <p className="alert-hint"><span aria-hidden="true">🔔</span> Looking for something in particular? Search or pick a category, then tap <strong>Email me new matches</strong> and we&apos;ll tell you when one is listed.</p>
+          <p className="alert-hint"><BellIcon size={17} /> Looking for something in particular? Search or pick a category, then tap <strong>Email me new matches</strong> and we&apos;ll tell you when one is listed.</p>
         ) : null}
         {filtered ? <SaveSearch key={`${q}|${cat}|${charity}`} q={q} cat={cat} charity={Boolean(charity)} backTo={hrefWith(params, { page: "" }) + "#lots"} /> : null}
 
@@ -217,7 +218,7 @@ export default async function Home({ searchParams }) {
         ) : null}
 
         {sold?.length && !filtered ? (
-          <section className="section">
+          <section className="section section-navy">
             <div className="ending-head">
               <h2 className="section-title" style={{ margin: 0 }}>Recently sold</h2>
               <Link href="/sold" className="hint">See all sold prices</Link>

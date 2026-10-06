@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Big_Shoulders, Public_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Big_Shoulders, Public_Sans, IBM_Plex_Mono, Bodoni_Moda } from "next/font/google";
 import { createClient, getUserId } from "@/lib/supabase/server";
 import { BrandMark, BrandWord } from "@/components/Logo";
 import { SearchIcon } from "@/components/Icons";
@@ -13,6 +13,8 @@ import "./globals.css";
 // Variable font: the "opsz" axis gives the tall display cut automatically at headline sizes.
 const display = Big_Shoulders({ subsets: ["latin"], axes: ["opsz"], variable: "--font-display" });
 const body = Public_Sans({ subsets: ["latin"], variable: "--font-body" });
+// A refined catalogue serif for prices, lot numbers and small headings.
+const serif = Bodoni_Moda({ subsets: ["latin"], axes: ["opsz"], style: ["normal", "italic"], variable: "--font-serif" });
 const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-mono" });
 
 export const metadata = {
@@ -35,7 +37,7 @@ export default async function RootLayout({ children }) {
   const businesses = [...(bizRows ?? [])].sort(() => Math.random() - 0.5);
 
   return (
-    <html lang="en-GB" className={`${display.variable} ${body.variable} ${mono.variable}`}>
+    <html lang="en-GB" className={`${display.variable} ${body.variable} ${mono.variable} ${serif.variable}`}>
       <body>
         <header className="site-head">
           <div className="wrap">

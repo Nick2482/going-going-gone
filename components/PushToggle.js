@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { BellIcon } from "@/components/Icons";
 import { createClient } from "@/lib/supabase/client";
 
 function keyBytes(b64) {
@@ -104,7 +105,7 @@ export default function PushToggle({ compact = false }) {
     if (state !== "off" && !(state === "on" && msg)) return null;
     return (
       <div className="push-nudge">
-        <span aria-hidden="true">🔔</span>
+        <BellIcon size={17} />
         {state === "on" ? <span>{msg}</span> : (
           <>
             <span>Get a buzz on this device if you&apos;re outbid.</span>

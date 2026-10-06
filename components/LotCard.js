@@ -20,7 +20,7 @@ export default function LotCard({ lot, badge }) {
           ? <img src={cover} alt="" loading="lazy" />
           : <div className="lot-noimg" aria-hidden="true"><PhotoIcon /></div>}
         <StagePill endsAt={lot.ends_at} bidCount={lot.bid_count} reserveStatus={lot.reserve_status} />
-        <span className="lot-no">LOT {lotNumber(lot.lot_no)}</span>
+        <span className="lot-no"><em>Lot</em> {lotNumber(lot.lot_no)}</span>
       </div>
       <div className="lot-body">
         <span className="lot-cat">{lot.category}</span>

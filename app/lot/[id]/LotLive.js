@@ -469,7 +469,7 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             : null}
           {leading ? <span className="pill p-win">You&apos;re the highest bidder</span> : null}
           {!ended && iBid && !leading ? <span className="pill p-out">You&apos;ve been outbid</span> : null}
-          <span className="hint" style={{ marginLeft: "auto" }}>LOT {lotNumber(lot.lot_no)}</span>
+          <span className="lot-ref" style={{ marginLeft: "auto" }}><em>Lot</em> {lotNumber(lot.lot_no)}</span>
         </div>
 
         <h1 className="lot-h1">{lot.title}</h1>

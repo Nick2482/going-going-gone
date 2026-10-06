@@ -22,3 +22,12 @@ export function PhotoIcon({ size = 40 }) {
 export function HeartIcon({ size = 14 }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.4C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.8 1.2 5.4 3.1 1.6-1.9 3.3-3.1 5.4-3.1 3.6 0 5.7 3.7 4.2 7.1C19.5 16.4 12 21 12 21Z" /></svg>;
 }
+export function BellIcon({ size = 18 }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" {...base} aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15Z" /><path d="M10 20.5a2 2 0 0 0 4 0" /></svg>;
+}
+export function PlaneIcon({ size = 22 }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" {...base} aria-hidden="true"><path d="M10.5 13.5 3 11l1.5-1.5 7.5 1L16.5 6a2.1 2.1 0 0 1 3 3L15 13.5l1 7.5-1.5 1.5-2.5-7.5" /><path d="m7 17-3 .5L5.5 19 7 20.5l1.5-3" /></svg>;
+}
+export function BedIcon({ size = 18 }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" {...base} aria-hidden="true"><path d="M3 19V6" /><path d="M3 15h18v4" /><path d="M21 15v-3a3 3 0 0 0-3-3h-7v6" /><circle cx="7" cy="11" r="2" /></svg>;
+}
