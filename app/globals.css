@@ -845,3 +845,61 @@ body:has(.biz-infeed-complete) .biz-strip { display: none; }
 @media (max-width: 820px) { .hero-photo { background-position: 47% 52%; } }
 @media (min-width: 1600px) { .hero-photo { background-position: 50% 53%; } }
 @media (min-width: 2200px) { .hero-photo { background-position: 50% 49%; } }
+
+/* ======================================================================
+   Site-wide consistency: the catalogue serif for every heading, and the
+   lot page as a navy showroom to match the lots on the home page.
+   ====================================================================== */
+
+/* Headings: the serif from the banner, in sentence case, everywhere. */
+.page-title, .toolbar h2, .section-title, .member-name, .biz-strip-title, .listed-title, .empty strong {
+  font-family: var(--serif); font-weight: 500; text-transform: none; letter-spacing: -0.012em; font-variation-settings: "opsz" 72;
+}
+.page-title { font-size: clamp(40px, 5.6vw, 60px); line-height: 1.02; margin-bottom: 14px; }
+.page-title::after { content: ""; display: block; width: 72px; height: 4px; margin-top: 14px; border-radius: 2px; background: linear-gradient(90deg, var(--aqua) 0 33.333%, var(--ink) 33.333% 66.666%, var(--brass) 66.666% 100%); }
+.toolbar h2 { font-size: 36px; line-height: 1.05; }
+.section-title, .biz-strip-title { font-size: clamp(28px, 3.6vw, 36px); line-height: 1.08; }
+.member-name { font-size: clamp(32px, 4.6vw, 46px); line-height: 1.05; }
+.listed-title { font-size: 28px; }
+.empty strong { font-size: 30px; }
+.biz-name { font-family: var(--serif); font-weight: 600; text-transform: none; letter-spacing: -0.005em; font-size: 22px; line-height: 1.12; }
+.block-title { font-family: var(--serif); font-weight: 600; font-size: 22px; letter-spacing: -0.005em; }
+.flight-route strong { font-family: var(--serif); font-weight: 600; text-transform: none; letter-spacing: 0; font-size: 24px; }
+
+/* Numbers in the stats boxes match the prices. */
+.admin-tile-n, .member-stats dd, .causes-total-n, .cause-stats dd, .sold-stats dd, .flight-price span {
+  font-family: var(--serif); font-weight: 600; font-variant-numeric: lining-nums tabular-nums;
+}
+.sold-stamp { font-family: var(--serif); font-weight: 700; font-style: italic; text-transform: none; letter-spacing: 0; }
+
+/* The lot page: a deep navy showroom with the photo and white panels on it. */
+.lot-room { color: #dce9eb; padding-bottom: 64px;
+  background: radial-gradient(90% 50% at 30% 0%, var(--navy-2), var(--navy) 55%, #081f2b); }
+.lot-room .crumbs { color: #9cc3c6; padding-top: 24px; }
+.lot-room .crumbs a { color: #dce9eb; }
+.lot-room .lot-page { padding-top: 22px; }
+.lot-room .lot-h1 { font-family: var(--serif); font-weight: 500; color: #fff; font-size: clamp(30px, 3.8vw, 44px); line-height: 1.08; letter-spacing: -0.012em; }
+.lot-room .lot-ref { color: #9cc3c6; }
+.lot-room .meta { color: #b5cfd2; }
+.lot-room .hint { color: #a9c6c9; }
+.lot-room .block-title { color: #fff; }
+.lot-room .desc { color: #e4eef0; font-size: 16.5px; line-height: 1.65; }
+.lot-room a:not(.btn):not(.lot) { color: var(--aqua); }
+.lot-room .link-btn { color: #a9c6c9; }
+.lot-room .watch-count { color: #fff; }
+.lot-room .error { color: #ffb3bd; }
+.lot-room .qa-sent { color: var(--aqua); }
+.lot-room .g-frame, .lot-room .g-main { border-radius: 14px; }
+.lot-room .gallery .g-frame { box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.8); }
+.lot-room .g-thumb { box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.7); }
+.lot-room .addph { color: #dce9eb; border-color: rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.05); }
+/* White cards keep dark text. */
+.lot-room :is(.panel:not(.panel-sold), .hist, .qa-item, .qa-ask, .qa-waiting, .qa-signin, .confirm, .push-card, .push-nudge, .listed-banner, .notice, .lot) { color: var(--ink); }
+.lot-room :is(.panel:not(.panel-sold), .hist, .qa-item, .qa-ask, .qa-waiting, .qa-signin, .confirm, .push-card, .push-nudge, .lot) .hint { color: var(--muted); }
+.lot-room :is(.panel:not(.panel-sold), .hist, .qa-item, .qa-ask, .qa-signin, .push-card, .push-nudge, .lot) a:not(.btn) { color: var(--aqua-ink); }
+.lot-room :is(.panel:not(.panel-sold), .qa-item, .qa-ask, .push-nudge) .link-btn { color: var(--muted); }
+.lot-room .panel, .lot-room .hist, .lot-room .qa-item { border-color: transparent; box-shadow: 0 16px 34px -20px rgba(0, 0, 0, 0.75); }
+/* The "sold" panel is navy already, so give it a fine aqua edge to stand off the background. */
+.lot-room .panel-sold { border-color: rgba(121, 197, 200, 0.45); background: rgba(9, 33, 44, 0.65); }
+@media (max-width: 880px) { .lot-room .lot-page { padding-top: 14px; } }
+.hist .num { font-family: var(--serif); font-weight: 600 !important; font-size: 17px; }

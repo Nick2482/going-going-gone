@@ -75,6 +75,7 @@ export default async function LotPage({ params, searchParams }) {
   ]);
 
   return (
+    <div className="lot-room">
     <div className="wrap">
       <nav className="crumbs" aria-label="Breadcrumb">
         <Link href="/">All lots</Link><span>›</span>
@@ -107,6 +108,7 @@ export default async function LotPage({ params, searchParams }) {
         watching={Boolean(myWatch)}
         initialQuestions={questions ?? []}
       />
+    </div>
     </div>
   );
 }
