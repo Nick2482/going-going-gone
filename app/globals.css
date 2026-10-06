@@ -827,3 +827,7 @@ body:has(.biz-infeed-complete) .biz-strip { display: none; }
   .biz-rail { max-height: var(--rail-max, calc(100vh - var(--rail-top, 92px) - 16px)); }
   .rails-tight .biz-rail { opacity: 0; pointer-events: none; }
 }
+
+/* A slim stripe in the logo's three colours marks where the footer begins. */
+.site-foot { position: relative; }
+.site-foot::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: linear-gradient(90deg, var(--aqua) 0 33.333%, #ffffff 33.333% 66.666%, #ff3d52 66.666% 100%); }
