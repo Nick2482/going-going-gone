@@ -6,6 +6,7 @@ import { SearchIcon } from "@/components/Icons";
 import { GROUP_URL, ICO_REG, ICO_URL } from "@/lib/site";
 import InstallPrompt from "@/components/InstallPrompt";
 import { BusinessRails, BusinessStrip } from "@/components/LocalBusinesses";
+import RailPosition from "@/components/RailPosition";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -61,6 +62,7 @@ export default async function RootLayout({ children }) {
         </header>
 
         <BusinessRails businesses={businesses} />
+        {businesses.length ? <RailPosition /> : null}
         <main>{children}</main>
         <BusinessStrip businesses={businesses} />
 
