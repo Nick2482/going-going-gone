@@ -7,6 +7,8 @@ import AdminButton from "./AdminActions";
 import CauseForm from "./CauseForm";
 import Roundup from "./Roundup";
 import PushSetup from "./PushSetup";
+import BusinessForm from "./BusinessForm";
+import { photoUrl } from "@/lib/format";
 
 export const metadata = { title: "Admin", robots: { index: false } };
 
@@ -28,7 +30,7 @@ export default async function AdminPage({ searchParams }) {
 
   const nowIso = new Date().toISOString();
   const RU = "id, title, current_price_pence, bid_count, ends_at, charity_percent";
-  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }, { data: ruEnding }, { data: ruFresh }, { data: questions }, { data: wanted }, { data: push }] = await Promise.all([
+  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }, { data: ruEnding }, { data: ruFresh }, { data: questions }, { data: wanted }, { data: push }, { data: businesses }] = await Promise.all([
     supabase.rpc("admin_stats"),
     supabase.rpc("admin_open_reports"),
     supabase.rpc("admin_members", { p_search: q }),
@@ -40,6 +42,7 @@ export default async function AdminPage({ searchParams }) {
     supabase.rpc("admin_recent_questions"),
     supabase.rpc("admin_recent_wanted"),
     supabase.rpc("admin_push_status"),
+    supabase.rpc("admin_businesses"),
   ]);
   const pushStatus = {
     keysSaved: Boolean(push?.keys_saved),
@@ -72,7 +75,7 @@ export default async function AdminPage({ searchParams }) {
       </div>
 
       <nav className="admin-jump" aria-label="Admin sections">
-        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#questions">Questions</a><a href="#wanted">Wanted ads</a><a href="#causes">Local causes</a><a href="#roundup">Facebook round-up</a><a href="#push">Phone notifications</a>
+        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#questions">Questions</a><a href="#wanted">Wanted ads</a><a href="#businesses">Local businesses</a><a href="#causes">Local causes</a><a href="#roundup">Facebook round-up</a><a href="#push">Phone notifications</a>
       </nav>
 
       <section className="section" id="reports">
@@ -236,6 +239,31 @@ export default async function AdminPage({ searchParams }) {
             ))}
           </ul>
         ) : <div className="empty">No wanted ads yet.</div>}
+      </section>
+
+      <section className="section" id="businesses">
+        <h2 className="section-title">Local businesses</h2>
+        <p className="hint" style={{ marginBottom: 12 }}>Shown down the sides of the site on big screens, and in a strip near the bottom on phones. The order is shuffled on each visit so everyone gets a turn at the top. Clicks are counted so you can tell each business how many visitors you&apos;ve sent them.</p>
+        <div style={{ marginBottom: 12 }}><BusinessForm userId={userId} nextPosition={(businesses?.length ?? 0) + 1} /></div>
+        {businesses?.length ? (
+          <ul className="admin-list">
+            {businesses.map((b) => (
+              <li key={b.id} className="admin-item">
+                <div className="admin-item-main">
+                  <div className="row" style={{ gap: 10 }}>
+                    {b.logo_path ? <img src={photoUrl(b.logo_path)} alt="" style={{ width: 80, aspectRatio: "16 / 10", objectFit: "cover", borderRadius: 6 }} /> : null}
+                    <strong>{b.name}</strong>
+                    {b.active ? null : <span className="pill p-unsold">Hidden</span>}
+                    <span className="pill p-open">{b.clicks} click{b.clicks === 1 ? "" : "s"}</span>
+                  </div>
+                  <div className="hint">{[b.url, b.phone].filter(Boolean).join(" · ") || "No website or phone yet"}</div>
+                  {b.tagline ? <div className="hint" style={{ maxWidth: "70ch" }}>{b.tagline}</div> : null}
+                </div>
+                <div className="admin-actions"><BusinessForm biz={b} userId={userId} /></div>
+              </li>
+            ))}
+          </ul>
+        ) : <div className="empty">No businesses yet. Add the first one above.</div>}
       </section>
 
       <section className="section" id="causes">

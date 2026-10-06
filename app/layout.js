@@ -3,8 +3,9 @@ import { Big_Shoulders, Public_Sans, IBM_Plex_Mono } from "next/font/google";
 import { createClient, getUserId } from "@/lib/supabase/server";
 import { BrandMark, BrandWord } from "@/components/Logo";
 import { SearchIcon } from "@/components/Icons";
-import { GROUP_URL, ICO_REG } from "@/lib/site";
+import { GROUP_URL, ICO_REG, ICO_URL } from "@/lib/site";
 import InstallPrompt from "@/components/InstallPrompt";
+import { BusinessRails, BusinessStrip } from "@/components/LocalBusinesses";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -24,7 +25,13 @@ export const viewport = { themeColor: "#09212c" };
 export default async function RootLayout({ children }) {
   const supabase = await createClient();
   const userId = await getUserId(supabase);
-  const isAdmin = userId ? (await supabase.rpc("is_admin")).data === true : false;
+  const [{ data: adminFlag }, { data: bizRows }] = await Promise.all([
+    userId ? supabase.rpc("is_admin") : Promise.resolve({ data: false }),
+    supabase.from("local_businesses").select("id, name, tagline, url, phone, logo_path, position, link_label").order("position").limit(12),
+  ]);
+  const isAdmin = adminFlag === true;
+  // Shuffle so every business gets its turn at the top.
+  const businesses = [...(bizRows ?? [])].sort(() => Math.random() - 0.5);
 
   return (
     <html lang="en-GB" className={`${display.variable} ${body.variable} ${mono.variable}`}>
@@ -53,7 +60,9 @@ export default async function RootLayout({ children }) {
           </div>
         </header>
 
+        <BusinessRails businesses={businesses} />
         <main>{children}</main>
+        <BusinessStrip businesses={businesses} />
 
         <footer className="site-foot">
           <div className="wrap">
@@ -89,7 +98,7 @@ export default async function RootLayout({ children }) {
             </div>
           </div>
           <div className="foot-base">
-            <div className="wrap">© {new Date().getFullYear()} Going Going Gone · Run by Nick Hutton, Market Bosworth, Leicestershire{ICO_REG ? <> · Registered with the Information Commission: <Link href="/privacy">{ICO_REG}</Link></> : null}</div>
+            <div className="wrap">© {new Date().getFullYear()} Going Going Gone · Run by Nick Hutton, Market Bosworth, Leicestershire{ICO_REG ? <> · Registered with the ICO (Information Commissioner&apos;s Office): <a href={ICO_URL} target="_blank" rel="noopener noreferrer">{ICO_REG}</a></> : null}</div>
           </div>
         </footer>
         <InstallPrompt />
