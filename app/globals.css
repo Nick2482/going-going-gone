@@ -832,9 +832,11 @@ body:has(.biz-infeed-complete) .biz-strip { display: none; }
 .site-foot { position: relative; }
 .site-foot::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: linear-gradient(90deg, var(--aqua) 0 33.333%, #ffffff 33.333% 66.666%, #ff3d52 66.666% 100%); }
 
-/* Banner photo: sunset over Bosworth Water Park. Framed on the horizon line. */
+/* Banner photo: Bosworth Water Park at sunset, in black and white. Framed on the horizon line,
+   with a soft shade on the left so the title and buttons read clearly. */
 .hero-photo { background-position: 50% 40%; }
-@media (max-width: 820px) { .hero-photo { background-position: 47% 45%; } }
-/* This photo is already dusky, so the shading only needs to be light. */
-.hero-photo::after { background: linear-gradient(90deg, rgba(9, 33, 44, 0.72) 0%, rgba(9, 33, 44, 0.5) 34%, rgba(9, 33, 44, 0.12) 58%, rgba(9, 33, 44, 0) 72%, rgba(9, 33, 44, 0.18) 100%); }
-@media (max-width: 820px) { .hero-photo::after { background: linear-gradient(180deg, rgba(9, 33, 44, 0.55), rgba(9, 33, 44, 0.32) 45%, rgba(9, 33, 44, 0.6)); } }
+.hero-photo::after { background: linear-gradient(90deg, rgba(5, 18, 24, 0.7) 0%, rgba(5, 18, 24, 0.5) 34%, rgba(5, 18, 24, 0.12) 58%, rgba(5, 18, 24, 0) 72%, rgba(5, 18, 24, 0.25) 100%); }
+@media (max-width: 820px) {
+  .hero-photo { background-position: 47% 45%; }
+  .hero-photo::after { background: linear-gradient(180deg, rgba(5, 18, 24, 0.55), rgba(5, 18, 24, 0.35) 45%, rgba(5, 18, 24, 0.62)); }
+}
