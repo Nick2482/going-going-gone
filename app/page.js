@@ -5,8 +5,7 @@ import { CATEGORIES, LOT_CARD_FIELDS, gbp } from "@/lib/format";
 import LotCard from "@/components/LotCard";
 import SortSelect from "@/components/SortSelect";
 import CategorySelect from "@/components/CategorySelect";
-import { BellIcon, ClockIcon, HeartIcon, HomeIcon, PlaneIcon, TagIcon } from "@/components/Icons";
-import EndingSoon from "@/components/EndingSoon";
+import { BellIcon, HeartIcon, PlaneIcon } from "@/components/Icons";
 import ActivityTicker from "@/components/ActivityTicker";
 import { BID_FIELDS, NEW_LOT_FIELDS, bidEvent, listingEvent, mergeEvents } from "@/lib/activity";
 import { GROUP_NAME, GROUP_URL, GROUP_MEMBERS } from "@/lib/site";
@@ -59,11 +58,7 @@ export default async function Home({ searchParams }) {
   const filtered = Boolean(cat || q || charity);
   const showHero = !filtered && page === 1;
 
-  // Homepage extras: the next lots to close, and recent activity for the live ticker.
-  const ending = showHero
-    ? supabase.from("lots").select(LOT_CARD_FIELDS).eq("status", "live").gt("ends_at", nowIso)
-        .order("ends_at", { ascending: true }).limit(8)
-    : Promise.resolve({ data: [] });
+  // Homepage extras: recent activity for the live ticker.
   const recentBids = showHero
     ? supabase.from("bids").select(BID_FIELDS).order("created_at", { ascending: false }).limit(10)
     : Promise.resolve({ data: [] });
@@ -74,8 +69,8 @@ export default async function Home({ searchParams }) {
   const causes = showHero ? supabase.rpc("charity_totals") : Promise.resolve({ data: [] });
 
   const businessesQ = supabase.from("local_businesses").select("id, name, tagline, url, phone, logo_path, position, link_label").order("position").limit(12);
-  const [{ data: lots, count, error }, { data: endingLots }, { data: bidRows }, { data: newLots }, { data: causeRows }, { data: bizRows }] =
-    await Promise.all([live, ending, recentBids, recentLots, causes, businessesQ]);
+  const [{ data: lots, count, error }, { data: bidRows }, { data: newLots }, { data: causeRows }, { data: bizRows }] =
+    await Promise.all([live, recentBids, recentLots, causes, businessesQ]);
   // Local businesses shown between the lots on phones (every 6 lots), shuffled for fairness.
   const feedBiz = [...(bizRows ?? [])].sort(() => Math.random() - 0.5);
   const EVERY = 6;
@@ -90,8 +85,6 @@ export default async function Home({ searchParams }) {
   const charityRunning = (causeRows ?? []).reduce((t, c) => t + Number(c.running || 0), 0);
   const total = count ?? 0;
   const events = mergeEvents((bidRows ?? []).map(bidEvent), (newLots ?? []).map(listingEvent));
-  // Only show the strip when there are enough lots for it to be worth it.
-  const endingSoon = (endingLots ?? []).length >= 3 ? endingLots.slice(0, 6) : [];
 
   return (
     <>
@@ -108,25 +101,17 @@ export default async function Home({ searchParams }) {
               </div>
               <p className="hero-by">Run by Nick, who runs Market Bosworth Classifieds (7,000 members) · <Link href="/about">About us</Link></p>
             </div>
+            <ul className="hero-perks" aria-label="Why Going Going Gone">
+              <li><strong>Free to list, free to bid</strong><span>No fees for buyers or sellers</span></li>
+              <li><strong>Listed in two minutes</strong><span>Add photos, set a price, done</span></li>
+              <li><strong>Collect locally</strong><span>Neighbours, so no postage</span></li>
+            </ul>
           </div>
-        </section>
-      ) : null}
-
-      {showHero ? (
-        <section className="perks-strip" aria-label="Why Going Going Gone">
-          <ul className="wrap perks">
-            <li className="perk-aqua"><TagIcon /><div><strong>Free to list, free to bid</strong><span>No fees for buyers or sellers.</span></div></li>
-            <li className="perk-white"><ClockIcon /><div><strong>Listed in two minutes</strong><span>Add photos, set a price, done.</span></div></li>
-            <li className="perk-red"><HomeIcon /><div><strong>Collect locally</strong><span>Neighbours, so no postage.</span></div></li>
-          </ul>
         </section>
       ) : null}
 
       {showHero ? <ActivityTicker initial={events} /> : null}
 
-      {showHero && endingSoon.length ? (
-        <div className="wrap"><EndingSoon lots={endingSoon} /></div>
-      ) : null}
 
       {showHero ? (
         <div className="wrap">

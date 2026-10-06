@@ -1,15 +1,36 @@
-// The Going Going Gone mark: a Monaco-red gavel on a Riva-navy tile.
+// The Going Going Gone mark: a mahogany auctioneer's gavel with brass bands, on a Riva-navy tile.
 export function BrandMark({ className = "brand-mark" }) {
   return (
     <svg className={className} viewBox="0 0 40 40" aria-hidden="true">
-      <rect width="40" height="40" rx="9" fill="#09212c" />
-      <g transform="rotate(-38 20 18)">
-        <rect x="11" y="9" width="18" height="8.5" rx="2" fill="#e8213a" />
-        <rect x="9.5" y="10.5" width="2.2" height="5.5" rx="1" fill="#a80e1f" />
-        <rect x="28.3" y="10.5" width="2.2" height="5.5" rx="1" fill="#a80e1f" />
-        <rect x="18.6" y="17" width="2.8" height="15" rx="1.4" fill="#ffffff" />
+      <defs>
+      <linearGradient id="ggWoodH" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stopColor="#5a2412"/><stop offset="0.28" stopColor="#b5603a"/><stop offset="0.45" stopColor="#d98a5c"/><stop offset="0.7" stopColor="#8a3a1c"/><stop offset="1" stopColor="#4a1a0c"/>
+      </linearGradient>
+      <linearGradient id="ggWoodV" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stopColor="#4a1a0c"/><stop offset="0.45" stopColor="#c47248"/><stop offset="1" stopColor="#5a2412"/>
+      </linearGradient>
+      <linearGradient id="ggBrass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stopColor="#8a6a1e"/><stop offset="0.4" stopColor="#f3d77a"/><stop offset="0.65" stopColor="#c99a34"/><stop offset="1" stopColor="#6e5014"/>
+      </linearGradient>
+      <linearGradient id="ggBlock" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stopColor="#a5532f"/><stop offset="1" stopColor="#4a1a0c"/>
+      </linearGradient>
+      </defs>
+      <rect width="40" height="40" rx="9" fill="#09212c"/>
+      <path d="M8.5 31.2v2.3c0 1.7 5.1 3 11.5 3s11.5-1.3 11.5-3v-2.3z" fill="url(#ggBlock)"/>
+      <ellipse cx="20" cy="31.2" rx="11.5" ry="3" fill="#c97a4e"/>
+      <ellipse cx="20" cy="31.2" rx="8.6" ry="2.1" fill="none" stroke="#e2a274" strokeWidth="0.5" opacity="0.7"/>
+      <g transform="translate(20 16.5) scale(1.1) rotate(-32) translate(-20 -17)">
+      <rect x="18.9" y="17.5" width="2.2" height="14.5" rx="1.1" fill="url(#ggWoodV)"/>
+      <ellipse cx="20" cy="32" rx="1.6" ry="1.2" fill="#6e2a12"/>
+      <rect x="18.4" y="16.8" width="3.2" height="1.6" rx="0.6" fill="url(#ggBrass)"/>
+      <rect x="11" y="8.5" width="18" height="8.6" rx="2.6" fill="url(#ggWoodH)"/>
+      <rect x="9.2" y="7.8" width="3.2" height="10" rx="1.4" fill="url(#ggWoodH)"/>
+      <rect x="27.6" y="7.8" width="3.2" height="10" rx="1.4" fill="url(#ggWoodH)"/>
+      <rect x="12.6" y="8.2" width="1.3" height="9.2" fill="url(#ggBrass)"/>
+      <rect x="26.1" y="8.2" width="1.3" height="9.2" fill="url(#ggBrass)"/>
+      <rect x="13.5" y="10" width="13" height="0.8" rx="0.4" fill="#fff" opacity="0.18"/>
       </g>
-      <rect x="8" y="31" width="14" height="3" rx="1.5" fill="#79c5c8" />
     </svg>
   );
 }

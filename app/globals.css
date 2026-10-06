@@ -791,3 +791,35 @@ body:has(.biz-infeed-complete) .biz-strip { display: none; }
   .filters-right .sort { flex-direction: column; align-items: stretch; gap: 4px; }
   .lots-band .sort select { min-width: 0; width: 100%; }
 }
+
+/* Hero: catalogue-serif title, and the three promises set straight onto the sky. */
+.hero h1 { font-family: var(--serif); font-weight: 500; text-transform: none; font-size: clamp(50px, 7.4vw, 100px); line-height: 0.92; letter-spacing: -0.015em; column-gap: 0.22em; font-variation-settings: "opsz" 96; }
+.hero h1 span:nth-child(3) { font-style: italic; }
+.hero-sub { margin-top: 20px; }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 640px) minmax(0, 1fr); column-gap: 40px; align-items: end; }
+.hero-perks { list-style: none; margin: 0; padding: 0; justify-self: end; align-self: end; width: min(100%, 300px); display: flex; flex-direction: column; }
+.hero-perks li { padding: 13px 0 13px 18px; border-left: 1px solid rgba(255, 255, 255, 0.55); display: flex; flex-direction: column; gap: 3px; text-shadow: 0 1px 12px rgba(9, 33, 44, 0.75), 0 0 2px rgba(9, 33, 44, 0.4); }
+.hero-perks strong { font-family: var(--serif); font-weight: 500; font-size: 21px; line-height: 1.15; color: #fff; }
+.hero-perks span { font-size: 14px; font-weight: 500; color: #eaf4f5; }
+@media (max-width: 1020px) {
+  .hero .wrap { grid-template-columns: 1fr; }
+  .hero-perks { justify-self: start; width: 100%; margin-top: 28px; flex-direction: row; flex-wrap: wrap; gap: 14px 0; }
+  .hero-perks li { flex: 1 1 180px; padding-block: 2px; }
+}
+@media (max-width: 520px) {
+  .hero-perks { flex-direction: column; gap: 12px; margin-top: 24px; }
+  .hero-perks li { flex: none; padding-left: 14px; }
+  .hero-perks strong { font-size: 18px; }
+  .hero-perks span { font-size: 13.5px; }
+}
+/* Keep the title on one line on wide screens, and give the promises a soft shade so they read against the bright sky. */
+@media (min-width: 1100px) { .hero h1 { flex-wrap: nowrap; white-space: nowrap; font-size: clamp(64px, 6.4vw, 92px); width: max-content; } }
+.hero-perks { position: relative; isolation: isolate; }
+.hero-perks::before { content: ""; position: absolute; inset: -40px -60px -40px -50px; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgba(9, 33, 44, 0.62), rgba(9, 33, 44, 0.35) 55%, rgba(9, 33, 44, 0) 100%); filter: blur(6px); }
+@media (max-width: 1020px) { .hero-perks::before { display: none; } }
+
+/* The name beside the gavel, in the same serif as the banner title. */
+.brand-word { font-family: var(--serif); font-weight: 500; text-transform: none; font-size: 27px; letter-spacing: -0.01em; gap: 0.24em; line-height: 1; padding-bottom: 2px; font-variation-settings: "opsz" 48; }
+.brand-word span:nth-child(3) { font-style: italic; }
+.brand-mark { width: 40px; height: 40px; }
+@media (max-width: 420px) { .brand-word { font-size: 22px; } .brand-mark { width: 34px; height: 34px; } }
