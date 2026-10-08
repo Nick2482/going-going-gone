@@ -28,7 +28,7 @@ export default function RelistLot({ lot, photos, reserve, userId }) {
   const hadBids = lot.bid_count > 0;
   const tip = hadBids
     ? `Bidding reached ${gbp(lot.current_price_pence)}, so a reserve at or below that would have sold.`
-    : "No bids this time. A lower starting price often gets the bidding going.";
+    : "No bids this time. A lower starting price with no reserve often gets the bidding going.";
 
   async function relist(e) {
     e.preventDefault();

@@ -172,6 +172,10 @@ export default function SellForm({ userId, defaultArea, causes = [] }) {
         </div>
 
         <h2 className="form-section full">Price and timing</h2>
+        <div className="sell-tip full">
+          <strong>Start low to get the bidding going</strong>
+          <p>Lots that start at a few pounds with no reserve get the most bids. Once people start bidding they compete, and the price climbs, often past what you&apos;d have asked. Lots without a reserve also get a &ldquo;No reserve&rdquo; badge, which bidders look out for.</p>
+        </div>
 
         <div className="field">
           <label htmlFor="start">Starting bid</label>
@@ -179,7 +183,9 @@ export default function SellForm({ userId, defaultArea, causes = [] }) {
             <span>£</span>
             <input id="start" inputMode="decimal" placeholder="10.00" value={start} onChange={(e) => setStart(e.target.value)} />
           </div>
-          {Number.isFinite(pence) && pence > 0 ? <span className="hint">Bidding opens at {gbp(pence)}.</span> : null}
+          {Number.isFinite(pence) && pence >= 3000
+            ? <span className="hint">Bidding opens at {gbp(pence)}. A lower start usually brings in more bidders, and more bidders push the price up.</span>
+            : Number.isFinite(pence) && pence > 0 ? <span className="hint">Bidding opens at {gbp(pence)}.</span> : null}
         </div>
 
         <div className="field">
@@ -190,8 +196,8 @@ export default function SellForm({ userId, defaultArea, causes = [] }) {
           </div>
           <span className="hint">
             {reserve.trim() && Number.isFinite(reservePence)
-              ? `It won't sell unless bidding reaches ${gbp(reservePence)}. Bidders only see "Reserve not met".`
-              : "The lowest price you'll accept. It's kept private."}
+              ? `It won't sell unless bidding reaches ${gbp(reservePence)}. Bidders only see "Reserve not met", and some skip lots with a reserve.`
+              : "Leave empty for a \u201cNo reserve\u201d badge. Or set the lowest price you'll accept; it's kept private."}
           </span>
         </div>
 

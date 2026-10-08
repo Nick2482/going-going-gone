@@ -994,3 +994,10 @@ main > .lots-band:first-child { margin-top: 0; }
 /* The tile on the home page that points here. */
 .tile-help .tile-icon { background: var(--aqua-soft); color: var(--aqua-ink); }
 .help-note { margin: 4px 0 0; font-size: 14px; background: var(--aqua-soft); border-radius: 8px; padding: 8px 10px; }
+
+/* "No reserve": the badge bidders look for. Warm and confident, not grey. */
+.p-noreserve { background: #fff4d6; color: #7a5300; border: 1px solid #f0d58a; }
+/* The selling tip above the price fields. */
+.sell-tip { border-left: 4px solid var(--aqua); background: var(--aqua-soft); border-radius: 10px; padding: 12px 14px; }
+.sell-tip strong { display: block; font-family: var(--serif); font-weight: 600; font-size: 18px; margin-bottom: 4px; color: var(--ink); }
+.sell-tip p { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--ink-2); }

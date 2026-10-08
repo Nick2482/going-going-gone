@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { charityLine, gbp, lotNumber, MAX_PHOTOS, nextMinimum, photoUrl, RESERVE_LABEL, toPence, when } from "@/lib/format";
+import { charityLine, gbp, lotNumber, MAX_PHOTOS, nextMinimum, photoUrl, RESERVE_LABEL, reserveClass, toPence, when } from "@/lib/format";
 import { compressPhoto, uploadLotPhotos } from "@/lib/photos";
 import { StagePill, TimeLeft } from "@/components/Clock";
 import { HeartIcon, PhotoIcon, PinIcon } from "@/components/Icons";
@@ -465,7 +465,7 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             ? <span className="pill p-unsold">Withdrawn</span>
             : <StagePill endsAt={lot.ends_at} bidCount={lot.bid_count} reserveStatus={lot.reserve_status} />}
           {!ended && RESERVE_LABEL[lot.reserve_status]
-            ? <span className={`pill ${lot.reserve_status === "met" ? "p-reserve-met" : "p-reserve"}`}>{RESERVE_LABEL[lot.reserve_status]}</span>
+            ? <span className={`pill ${reserveClass(lot.reserve_status)}`}>{RESERVE_LABEL[lot.reserve_status]}</span>
             : null}
           {leading ? <span className="pill p-win">You&apos;re the highest bidder</span> : null}
           {!ended && iBid && !leading ? <span className="pill p-out">You&apos;ve been outbid</span> : null}

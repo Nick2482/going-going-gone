@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { gbp, lotNumber, photoUrl, RESERVE_LABEL } from "@/lib/format";
+import { gbp, lotNumber, photoUrl, RESERVE_LABEL, reserveClass } from "@/lib/format";
 import { StagePill, TimeLeft } from "./Clock";
 import { HeartIcon, PhotoIcon, PinIcon } from "./Icons";
 
@@ -31,7 +31,7 @@ export default function LotCard({ lot, badge }) {
             {lot.charity_percent ? <span className="pill charity-pill"><HeartIcon size={11} /> {lot.charity_percent === 100 ? "All to charity" : `${lot.charity_percent}% to charity`}</span> : null}
             {buyNow ? <span className="pill" style={{ background: "#09212c", color: "#fff" }}>Buy it now {gbp(buyNow)}</span> : null}
             {lot.bought_now ? <span className="pill p-unsold">Bought with Buy it now</span> : null}
-            {reserve ? <span className={`pill ${lot.reserve_status === "met" ? "p-reserve-met" : "p-reserve"}`}>{reserve}</span> : null}
+            {reserve ? <span className={`pill ${reserveClass(lot.reserve_status)}`}>{reserve}</span> : null}
             {badge}
           </div>
         ) : null}
