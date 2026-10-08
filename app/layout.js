@@ -85,6 +85,7 @@ export default async function RootLayout({ children }) {
                 <li><Link href="/sell">Sell something</Link></li>
                 <li><Link href="/wanted">Wanted ads</Link></li>
                 <li><Link href="/sold">Sold prices</Link></li>
+                <li><Link href="/list-for-me">We&apos;ll list it for you</Link></li>
                 <li><Link href="/flights">Cheap flights</Link></li>
                 <li><Link href="/get-the-app">Get the app</Link></li>
                 <li><a href={GROUP_URL} target="_blank" rel="noopener noreferrer">Join our Facebook group</a></li>

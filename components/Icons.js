@@ -31,3 +31,6 @@ export function PlaneIcon({ size = 22 }) {
 export function BedIcon({ size = 18 }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" {...base} aria-hidden="true"><path d="M3 19V6" /><path d="M3 15h18v4" /><path d="M21 15v-3a3 3 0 0 0-3-3h-7v6" /><circle cx="7" cy="11" r="2" /></svg>;
 }
+export function CameraIcon({ size = 20 }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" {...base} aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" /><circle cx="12" cy="13" r="3.5" /></svg>;
+}

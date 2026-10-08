@@ -5,7 +5,7 @@ import { CATEGORIES, LOT_CARD_FIELDS, gbp } from "@/lib/format";
 import LotCard from "@/components/LotCard";
 import SortSelect from "@/components/SortSelect";
 import CategorySelect from "@/components/CategorySelect";
-import { BellIcon, HeartIcon, PlaneIcon } from "@/components/Icons";
+import { BellIcon, CameraIcon, HeartIcon, PlaneIcon } from "@/components/Icons";
 import ActivityTicker from "@/components/ActivityTicker";
 import { BID_FIELDS, NEW_LOT_FIELDS, bidEvent, listingEvent, mergeEvents } from "@/lib/activity";
 import { GROUP_NAME, GROUP_URL, GROUP_MEMBERS } from "@/lib/site";
@@ -131,6 +131,11 @@ export default async function Home({ searchParams }) {
                 <span className="tile-go">See the causes</span>
               </Link>
             ) : null}
+            <Link href="/list-for-me" className="tile tile-help">
+              <span className="tile-icon" aria-hidden="true"><CameraIcon size={20} /></span>
+              <span className="tile-text"><strong>We&apos;ll list it for you</strong><span>We pop round, take the photos and do the rest</span></span>
+              <span className="tile-go">Ask for help</span>
+            </Link>
             {flightsConfigured() ? (
               <Link href="/flights" className="tile">
                 <span className="tile-icon" aria-hidden="true"><PlaneIcon size={20} /></span>

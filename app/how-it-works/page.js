@@ -9,6 +9,9 @@ export default function HowItWorks() {
       <h2>Selling</h2>
       <p>Sign in with your email, tap <strong>Sell something</strong>, add photos and a description, and set a starting price and how long bidding runs (1 to 10 days). You can&apos;t bid on your own lot. If nobody has bid yet, you can withdraw the listing.</p>
 
+      <h2>We&apos;ll list it for you</h2>
+      <p>Not confident with photos or forms? <Link href="/list-for-me">Ask us to list it for you</Link>. Tell us what you&apos;d like to sell and we&apos;ll be in touch to pop round, take the photos and agree a starting price. We look after the listing, and when it sells we put the buyer in touch with you. It&apos;s free.</p>
+
       <h2>Bidding</h2>
       <p><strong>Every bid is a maximum.</strong> Enter the most you&apos;d be happy to pay, and the site bids for you automatically, one step at a time, only as much as needed to keep you in the lead. Nobody else can see your maximum.</p>
       <p>For example, if the price is £20 and you enter £50, you lead at £21. If someone else then bids £30, your automatic bid answers at £31 straight away. If they bid more than £50, they take the lead and we email you. If two people enter the same maximum, the one who bid first wins.</p>

@@ -981,3 +981,16 @@ main.room + * { margin-top: 0; }
 .room .about-intro .about-lead { color: var(--ink) !important; }
 /* Search results on the home page start straight on navy. */
 main > .lots-band:first-child { margin-top: 0; }
+
+/* "We'll list it for you" page. The steps really are a sequence, so they're numbered. */
+.help-steps { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.help-steps li { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; border-radius: var(--radius); background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); }
+.help-step-n { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-weight: 600; font-size: 18px; background: #fff; color: var(--ink); }
+.help-steps strong { display: block; font-family: var(--serif); font-weight: 600; font-size: 19px; line-height: 1.2; color: #fff; margin-bottom: 4px; }
+.help-steps p { margin: 0; font-size: 14.5px; line-height: 1.5; color: #c9dcdf; }
+@media (max-width: 640px) { .help-steps { grid-template-columns: 1fr; } }
+.help-done strong { display: block; font-family: var(--serif); font-weight: 600; font-size: 24px; margin-bottom: 6px; }
+.help-done p { margin: 0; }
+/* The tile on the home page that points here. */
+.tile-help .tile-icon { background: var(--aqua-soft); color: var(--aqua-ink); }
+.help-note { margin: 4px 0 0; font-size: 14px; background: var(--aqua-soft); border-radius: 8px; padding: 8px 10px; }

@@ -8,6 +8,7 @@ import CauseForm from "./CauseForm";
 import Roundup from "./Roundup";
 import PushSetup from "./PushSetup";
 import BusinessForm from "./BusinessForm";
+import HelpRequest from "./HelpRequest";
 import { photoUrl } from "@/lib/format";
 
 export const metadata = { title: "Admin", robots: { index: false } };
@@ -30,7 +31,7 @@ export default async function AdminPage({ searchParams }) {
 
   const nowIso = new Date().toISOString();
   const RU = "id, title, current_price_pence, bid_count, ends_at, charity_percent";
-  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }, { data: ruEnding }, { data: ruFresh }, { data: questions }, { data: wanted }, { data: push }, { data: businesses }] = await Promise.all([
+  const [{ data: stats }, { data: reports }, { data: members }, { data: lots }, { data: ratings }, { data: causes }, { data: ruEnding }, { data: ruFresh }, { data: questions }, { data: wanted }, { data: push }, { data: businesses }, { data: helpRequests }] = await Promise.all([
     supabase.rpc("admin_stats"),
     supabase.rpc("admin_open_reports"),
     supabase.rpc("admin_members", { p_search: q }),
@@ -43,6 +44,7 @@ export default async function AdminPage({ searchParams }) {
     supabase.rpc("admin_recent_wanted"),
     supabase.rpc("admin_push_status"),
     supabase.rpc("admin_businesses"),
+    supabase.rpc("admin_listing_help"),
   ]);
   const pushStatus = {
     keysSaved: Boolean(push?.keys_saved),
@@ -50,6 +52,7 @@ export default async function AdminPage({ searchParams }) {
     people: Number(push?.people ?? 0),
   };
   const s = stats || {};
+  const openHelp = (helpRequests ?? []).filter((r) => r.status === "new").length;
 
   const tiles = [
     { n: s.members ?? 0, label: "Members", sub: `${s.new_members ?? 0} new this week` },
@@ -57,6 +60,7 @@ export default async function AdminPage({ searchParams }) {
     { n: s.bids_week ?? 0, label: "Bids this week" },
     { n: s.sold ?? 0, label: "Sold", sub: `${gbp(s.sold_value ?? 0)} in total` },
     { n: s.open_reports ?? 0, label: "Open reports", alert: (s.open_reports ?? 0) > 0 },
+    { n: openHelp, label: "Listing help", sub: "requests waiting", alert: openHelp > 0 },
   ];
 
   return (
@@ -75,7 +79,7 @@ export default async function AdminPage({ searchParams }) {
       </div>
 
       <nav className="admin-jump" aria-label="Admin sections">
-        <a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#questions">Questions</a><a href="#wanted">Wanted ads</a><a href="#businesses">Local businesses</a><a href="#causes">Local causes</a><a href="#roundup">Facebook round-up</a><a href="#push">Phone notifications</a>
+        <a href="#listing-help">Listing help</a><a href="#reports">Reports</a><a href="#members">Members</a><a href="#lots">Latest lots</a><a href="#feedback">Feedback</a><a href="#questions">Questions</a><a href="#wanted">Wanted ads</a><a href="#businesses">Local businesses</a><a href="#causes">Local causes</a><a href="#roundup">Facebook round-up</a><a href="#push">Phone notifications</a>
       </nav>
 
       <section className="section" id="reports">
@@ -212,6 +216,14 @@ export default async function AdminPage({ searchParams }) {
             ))}
           </ul>
         ) : <div className="empty">No questions yet.</div>}
+      </section>
+
+      <section className="section" id="listing-help">
+        <h2 className="section-title">Listing help requests</h2>
+        <p className="hint" style={{ marginBottom: 12 }}>People who asked you to list things for them, from the <Link href="/list-for-me">We&apos;ll list it for you</Link> page. Only admins can see these. Finished requests are deleted automatically after six months.</p>
+        {helpRequests?.length ? (
+          <ul className="admin-list">{helpRequests.map((r) => <HelpRequest key={r.id} r={r} />)}</ul>
+        ) : <div className="empty">No requests yet.</div>}
       </section>
 
       <section className="section" id="wanted">
