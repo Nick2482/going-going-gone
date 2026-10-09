@@ -6,8 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 import { charityLine, gbp, lotNumber, MAX_PHOTOS, nextMinimum, photoUrl, RESERVE_LABEL, reserveClass, toPence, when } from "@/lib/format";
 import { compressPhoto, uploadLotPhotos } from "@/lib/photos";
 import { StagePill, TimeLeft } from "@/components/Clock";
-import { HeartIcon, PhotoIcon, PinIcon } from "@/components/Icons";
+import { HeartIcon, PhotoIcon, PinIcon, PlayIcon } from "@/components/Icons";
 import ShareButtons from "@/components/ShareButtons";
+import VideoPicker from "@/components/VideoPicker";
+import { uploadLotVideo } from "@/lib/video";
 import GroupShare from "@/components/GroupShare";
 import PhotoViewer from "@/components/PhotoViewer";
 import WatchButton from "@/components/WatchButton";
@@ -34,6 +36,9 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   const [reserve, setReserve] = useState(initialReserve);
   const [photoIdx, setPhotoIdx] = useState(0);
   const [viewer, setViewer] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
+  const [videoMsg, setVideoMsg] = useState("");
+  const [videoSaving, setVideoSaving] = useState(false);
   const [myMax, setMyMax] = useState(null);
   const swipe = useRef(null);
   const [now, setNow] = useState(() => Date.now());
@@ -260,6 +265,34 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
     setReportText("");
   }
 
+  // Seller adds a video from the lot page (it's shrunk on the phone first, by VideoPicker).
+  async function addVideo(v) {
+    if (!v) return;
+    setVideoMsg("");
+    setVideoSaving(true);
+    try {
+      const path = await uploadLotVideo(supabase, { userId, lotId: lot.id, video: v });
+      setLot((prev) => ({ ...prev, video_path: path }));
+      setShowVideo(true);
+      router.refresh();
+    } catch (err) {
+      setVideoMsg(err.message || "The video didn't save. Please try again.");
+    }
+    setVideoSaving(false);
+  }
+
+  async function removeVideo() {
+    if (!lot.video_path || !window.confirm("Remove the video from this lot?")) return;
+    setVideoMsg("");
+    const old = lot.video_path;
+    const { error } = await supabase.from("lots").update({ video_path: null }).eq("id", lot.id);
+    if (error) return setVideoMsg(cleanError(error, "The video couldn't be removed. Please try again."));
+    await supabase.storage.from("lot-photos").remove([old]);
+    setLot((prev) => ({ ...prev, video_path: null }));
+    setShowVideo(false);
+    router.refresh();
+  }
+
   const current = photos[Math.min(photoIdx, Math.max(0, photos.length - 1))];
   const mainSrc = current ? photoUrl(current.path) : photoUrl(lot.cover_path);
   const canEditPhotos = isSeller && !ended && lot.status === "live";
@@ -385,7 +418,11 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
     <div className="lot-page">
       <div className="stack" style={{ gap: 28 }}>
         <div className="gallery">
-          {mainSrc
+          {showVideo && lot.video_path
+            ? <div className="g-frame">
+                <video className="g-main g-video" src={photoUrl(lot.video_path)} poster={mainSrc || undefined} controls playsInline autoPlay preload="metadata" />
+              </div>
+            : mainSrc
             ? <div className="g-frame"
                 onTouchStart={(e) => { swipe.current = e.touches.length === 1 ? e.touches[0].clientX : null; }}
                 onTouchEnd={(e) => {
@@ -404,16 +441,25 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
                 <div className="g-empty" aria-hidden="true"><PhotoIcon size={56} /></div>
                 {sold ? <span className="sold-stamp" aria-hidden="true">Sold</span> : null}
               </div>}
-          {(photos.length > 1 || canEditPhotos) ? (
+          {(photos.length > 1 || canEditPhotos || lot.video_path) ? (
             <div className="g-strip">
               {photos.map((p, k) => (
-                <span key={p.id} className="g-thumb" aria-current={k === photoIdx}>
-                  <button type="button" onClick={() => setPhotoIdx(k)} style={{ all: "unset", cursor: "pointer", display: "block", width: "100%", height: "100%" }} aria-label={`Show photo ${k + 1}`}>
+                <span key={p.id} className="g-thumb" aria-current={!showVideo && k === photoIdx}>
+                  <button type="button" onClick={() => { setShowVideo(false); setPhotoIdx(k); }} style={{ all: "unset", cursor: "pointer", display: "block", width: "100%", height: "100%" }} aria-label={`Show photo ${k + 1}`}>
                     <img src={photoUrl(p.path)} alt="" />
                   </button>
                   {canEditPhotos && lot.bid_count === 0 ? <button type="button" className="g-del" onClick={() => removePhoto(k)} aria-label={`Remove photo ${k + 1}`}>×</button> : null}
                 </span>
               ))}
+              {lot.video_path ? (
+                <span className="g-thumb g-thumb-video" aria-current={showVideo}>
+                  <button type="button" onClick={() => setShowVideo(true)} style={{ all: "unset", cursor: "pointer", display: "block", width: "100%", height: "100%" }} aria-label="Play the video">
+                    {photoUrl(lot.cover_path) ? <img src={photoUrl(lot.cover_path)} alt="" /> : null}
+                    <span className="g-play"><PlayIcon size={22} /><span>Video</span></span>
+                  </button>
+                  {canEditPhotos && lot.bid_count === 0 ? <button type="button" className="g-del" onClick={removeVideo} aria-label="Remove the video">×</button> : null}
+                </span>
+              ) : null}
               {canEditPhotos && photos.length < MAX_PHOTOS ? (
                 <label className="addph">
                   {uploading ? "Adding…" : <>+ Add<br />photo</>}
@@ -423,6 +469,12 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
             </div>
           ) : null}
           {photoErr ? <p className="error">{photoErr}</p> : null}
+          {canEditPhotos && !lot.video_path ? (
+            <div className="lot-video-add">
+              {videoSaving ? <p className="hint">Uploading your video…</p> : <VideoPicker value={null} onChange={addVideo} disabled={videoSaving} />}
+            </div>
+          ) : null}
+          {videoMsg ? <p className="error" role="alert">{videoMsg}</p> : null}
           {viewer && mainSrc ? (
             <PhotoViewer
               srcs={photos.length ? photos.map((p) => photoUrl(p.path)) : [mainSrc]}

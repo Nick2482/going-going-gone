@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { CATEGORIES, DURATIONS, MAX_PHOTOS, gbp, toPence } from "@/lib/format";
 import { compressPhoto, uploadLotPhotos } from "@/lib/photos";
+import { uploadLotVideo } from "@/lib/video";
+import VideoPicker from "@/components/VideoPicker";
 
 export default function SellForm({ userId, defaultArea, causes = [] }) {
   const supabase = createClient();
@@ -21,6 +23,8 @@ export default function SellForm({ userId, defaultArea, causes = [] }) {
   const [causeId, setCauseId] = useState("");
   const [percent, setPercent] = useState(100);
   const [photos, setPhotos] = useState([]); // { blob, preview }
+  const [video, setVideo] = useState(null); // a prepared, shrunk video, or null
+  const [videoBusy, setVideoBusy] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState("");
@@ -80,6 +84,7 @@ export default function SellForm({ userId, defaultArea, causes = [] }) {
     }
     if (giving && !causeId) return setError("Choose which local cause you'd like to support, or untick the charity box.");
     if (!agree) return setError("Please confirm the item is yours to sell and allowed on the site.");
+    if (videoBusy) return setError("Your video is still being prepared. It'll be ready in a moment.");
 
     setSaving("Listing your item…");
     const endsAt = new Date(Date.now() + Number(days) * 86400e3).toISOString();
@@ -113,9 +118,18 @@ export default function SellForm({ userId, defaultArea, causes = [] }) {
     } catch {
       // The lot is live; the seller can add photos from the lot page.
     }
+    let videoFailed = false;
+    if (video) {
+      try {
+        setSaving("Uploading your video…");
+        await uploadLotVideo(supabase, { userId, lotId: lot.id, video });
+      } catch {
+        videoFailed = true; // The lot is live; the seller can add the video from the lot page.
+      }
+    }
     // Remember the area for next time.
     if (location.trim()) await supabase.from("profiles").update({ area: location.trim() }).eq("id", userId);
-    router.push(`/lot/${lot.id}?new=1${reserveFailed ? "&reserve=failed" : ""}`);
+    router.push(`/lot/${lot.id}?new=1${reserveFailed ? "&reserve=failed" : ""}${videoFailed ? "&video=failed" : ""}`);
     router.refresh();
   }
 
@@ -150,6 +164,11 @@ export default function SellForm({ userId, defaultArea, causes = [] }) {
             ) : null}
           </div>
           {photos.length > 1 ? <span className="hint">Tap a photo to make it the cover.</span> : null}
+        </div>
+
+        <div className="field full">
+          <VideoPicker value={video} onChange={setVideo} onBusy={setVideoBusy} disabled={Boolean(saving)} />
+          {!video ? <span className="hint">A quick walk round the item helps buyers. Great for furniture, bikes, cars and anything that moves or makes a sound.</span> : null}
         </div>
 
         <div className="field">

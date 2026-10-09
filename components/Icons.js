@@ -34,3 +34,6 @@ export function BedIcon({ size = 18 }) {
 export function CameraIcon({ size = 20 }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" {...base} aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" /><circle cx="12" cy="13" r="3.5" /></svg>;
 }
+export function PlayIcon({ size = 18 }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" {...base} aria-hidden="true"><circle cx="12" cy="12" r="9.5" /><path d="M10 8.5v7l5.5-3.5Z" fill="currentColor" stroke="none" /></svg>;
+}

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { gbp, lotNumber, photoUrl, RESERVE_LABEL, reserveClass } from "@/lib/format";
 import { StagePill, TimeLeft } from "./Clock";
-import { HeartIcon, PhotoIcon, PinIcon } from "./Icons";
+import { HeartIcon, PhotoIcon, PinIcon, PlayIcon } from "./Icons";
 
 // One lot in a grid. `badge` is an optional extra pill such as "Highest bidder".
 export default function LotCard({ lot, badge }) {
@@ -21,6 +21,7 @@ export default function LotCard({ lot, badge }) {
           : <div className="lot-noimg" aria-hidden="true"><PhotoIcon /></div>}
         <StagePill endsAt={lot.ends_at} bidCount={lot.bid_count} reserveStatus={lot.reserve_status} />
         <span className="lot-no"><em>Lot</em> {lotNumber(lot.lot_no)}</span>
+        {lot.video_path ? <span className="lot-video-badge"><PlayIcon size={14} /> Video</span> : null}
       </div>
       <div className="lot-body">
         <span className="lot-cat">{lot.category}</span>

@@ -93,6 +93,18 @@ export default function RelistLot({ lot, photos, reserve, userId }) {
     cover = cover || first;
     if (cover) await supabase.from("lots").update({ cover_path: cover }).eq("id", fresh.id);
 
+    // Bring the video along too, if there was one.
+    if (lot.video_path) {
+      setBusy("Copying the video…");
+      const ext = lot.video_path.endsWith(".webm") ? "webm" : "mp4";
+      const to = `${userId}/${fresh.id}/video-${crypto.randomUUID()}.${ext}`;
+      const { error: vErr } = await supabase.storage.from("lot-photos").copy(lot.video_path, to);
+      if (!vErr) {
+        const { error: vRow } = await supabase.from("lots").update({ video_path: to }).eq("id", fresh.id);
+        if (vRow) await supabase.storage.from("lot-photos").remove([to]);
+      }
+    }
+
     const qs = ["new=1", reserveFailed ? "reserve=failed" : "", causeDropped ? "cause=dropped" : ""].filter(Boolean).join("&");
     router.push(`/lot/${fresh.id}?${qs}`);
     router.refresh();
@@ -110,7 +122,7 @@ export default function RelistLot({ lot, photos, reserve, userId }) {
   return (
     <form className="relist relist-open" id="relist" onSubmit={relist} noValidate>
       <div className="relist-title">Relist “{lot.title}”</div>
-      <p className="hint" style={{ margin: 0 }}>Same title, description and photos{lot.charity_id ? ", and the same local cause" : ""}. {tip}</p>
+      <p className="hint" style={{ margin: 0 }}>Same title, description, photos{lot.video_path ? ", video" : ""}{lot.charity_id ? ", and the same local cause" : ""}. {tip}</p>
       <div className="relist-grid">
         <div className="field">
           <label htmlFor="rl-start">Starting bid</label>

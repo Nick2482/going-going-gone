@@ -94,6 +94,9 @@ export default async function LotPage({ params, searchParams }) {
       {sp?.cause === "dropped" && isSeller ? (
         <p className="notice" style={{ marginTop: 16 }}>Relisted. The local cause you chose before is no longer on our list, so this listing doesn&apos;t have one.</p>
       ) : null}
+      {sp?.video === "failed" && isSeller && !lot.video_path ? (
+        <p className="notice" style={{ marginTop: 16 }}>Your item is listed, but the video didn&apos;t upload. You can add it again below the photos.</p>
+      ) : null}
       {sp?.reserve === "failed" && isSeller && !reserveRes?.data ? (
         <p className="notice" style={{ marginTop: 16 }}>Your item is listed, but the reserve didn&apos;t save. Add it again below before anyone bids.</p>
       ) : null}

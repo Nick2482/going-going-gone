@@ -1001,3 +1001,30 @@ main > .lots-band:first-child { margin-top: 0; }
 .sell-tip { border-left: 4px solid var(--aqua); background: var(--aqua-soft); border-radius: 10px; padding: 12px 14px; }
 .sell-tip strong { display: block; font-family: var(--serif); font-weight: 600; font-size: 18px; margin-bottom: 4px; color: var(--ink); }
 .sell-tip p { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--ink-2); }
+
+/* ---------- Short videos on lots ---------- */
+.video-pick { display: flex; flex-direction: column; gap: 6px; }
+.video-pick-add { position: relative; display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; padding: 10px 14px; border: 1px dashed var(--line-2); border-radius: 10px; background: var(--card); color: var(--ink); cursor: pointer; font-size: 14.5px; }
+.video-pick-add:hover { border-color: var(--brass); }
+.video-pick-add svg { color: var(--sold); flex: none; }
+.video-pick-add.is-disabled { opacity: 0.6; cursor: default; }
+.video-pick-add input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.video-pick-busy { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 10px; background: var(--aqua-soft); color: var(--ink); font-weight: 600; font-size: 14.5px; max-width: 420px; }
+.video-pick-busy .hint { font-weight: 400; color: var(--muted); }
+.video-pick-bar { height: 6px; border-radius: 3px; background: rgba(9, 33, 44, 0.12); overflow: hidden; }
+.video-pick-bar span { display: block; height: 100%; background: var(--aqua-ink); transition: width 0.3s; }
+.video-pick-preview { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.video-pick-preview video { width: 100%; max-width: 360px; max-height: 260px; border-radius: 10px; background: #000; }
+
+/* On the lot page: the video plays in the main frame, and has its own tile in the strip. */
+.g-video { width: 100%; display: block; background: #000; aspect-ratio: 4 / 3; object-fit: contain; }
+.g-thumb-video { position: relative; background: var(--ink); }
+.g-thumb-video img { opacity: 0.55; }
+.g-play { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); }
+.lot-video-add { margin-top: 2px; }
+.lot-room .lot-video-add .video-pick-add { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.3); color: #fff; }
+.lot-room .lot-video-add .video-pick-add .optional { color: #a9c6c9; }
+.lot-room .lot-video-add .video-pick-add svg { color: #ff8a98; }
+
+/* On lot cards: a small badge so buyers can spot lots with a video. */
+.lot-video-badge { position: absolute; left: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 6px; border-radius: 999px; background: rgba(9, 33, 44, 0.82); color: #fff; font-size: 11.5px; font-weight: 700; }
