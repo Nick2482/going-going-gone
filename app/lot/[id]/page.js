@@ -110,6 +110,7 @@ export default async function LotPage({ params, searchParams }) {
         watchCount={Number(watchCount) || 0}
         watching={Boolean(myWatch)}
         initialQuestions={questions ?? []}
+        initialBid={/^\d{1,9}$/.test(sp?.bid || "") ? Number(sp.bid) : null}
       />
     </div>
     </div>

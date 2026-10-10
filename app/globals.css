@@ -1028,3 +1028,9 @@ main > .lots-band:first-child { margin-top: 0; }
 
 /* On lot cards: a small badge so buyers can spot lots with a video. */
 .lot-video-badge { position: absolute; left: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 6px; border-radius: 999px; background: rgba(9, 33, 44, 0.82); color: #fff; font-size: 11.5px; font-weight: 700; }
+
+/* Messages inside the white bid panel keep their normal colours on the navy pages. */
+.room .panel:not(.panel-sold) .success { color: var(--win); }
+.notice-inline { font-size: 14px; font-weight: 600; color: var(--aqua-ink); background: var(--aqua-soft); border-radius: 8px; padding: 8px 10px; }
+/* Signing in to bid, right inside the bid panel. */
+.quick-bid .panel-note { line-height: 1.5; background: var(--aqua-soft); color: var(--ink); }

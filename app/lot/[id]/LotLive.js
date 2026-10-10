@@ -9,6 +9,7 @@ import { StagePill, TimeLeft } from "@/components/Clock";
 import { HeartIcon, PhotoIcon, PinIcon, PlayIcon } from "@/components/Icons";
 import ShareButtons from "@/components/ShareButtons";
 import VideoPicker from "@/components/VideoPicker";
+import QuickBid from "@/components/QuickBid";
 import { uploadLotVideo } from "@/lib/video";
 import GroupShare from "@/components/GroupShare";
 import PhotoViewer from "@/components/PhotoViewer";
@@ -27,7 +28,7 @@ function cleanError(error, fallback) {
   return fallback;
 }
 
-export default function LotLive({ initialLot, initialPhotos, initialBids, initialReserve, userId, sellerSummary, watchCount = 0, watching = false, initialQuestions = [] }) {
+export default function LotLive({ initialLot, initialPhotos, initialBids, initialReserve, userId, sellerSummary, watchCount = 0, watching = false, initialQuestions = [], initialBid = null }) {
   const supabase = createClient();
   const router = useRouter();
   const [lot, setLot] = useState(initialLot);
@@ -43,8 +44,9 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
   const swipe = useRef(null);
   const [now, setNow] = useState(() => Date.now());
 
-  const [amount, setAmount] = useState("");
-  const [bidMsg, setBidMsg] = useState({ kind: "", text: "" });
+  // Arriving from the sign-in email link with a bid in mind: fill it in, ready to confirm.
+  const [amount, setAmount] = useState(initialBid && userId ? (initialBid / 100).toFixed(2) : "");
+  const [bidMsg, setBidMsg] = useState(initialBid && userId ? { kind: "notice-inline", text: "You're signed in. Check your bid below and press Place bid." } : { kind: "", text: "" });
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState(null);
   const [photoErr, setPhotoErr] = useState("");
@@ -142,6 +144,28 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
       setBidMsg({ kind: "error", text: `Another bidder's maximum is higher, so their automatic bid has beaten yours. The price is now ${gbp(data?.current_price_pence ?? pence)}. Try a higher maximum.` });
     }
     refreshBids();
+  }
+
+  // A first-time bidder signed in and bid in one go (see QuickBid): show the result here.
+  function afterQuickBid({ kind, data, pence, uid, error }) {
+    if (error) {
+      if (kind === "bid") setAmount((pence / 100).toFixed(2));
+      setBidMsg({ kind: "error", text: `You're signed in, but: ${error}` });
+      router.refresh();
+      return;
+    }
+    if (data) setLot((prev) => ({ ...prev, ...data }));
+    if (kind === "buy") {
+      setNow(Date.now());
+    } else if (data?.high_bidder_id === uid) {
+      setMyMax(pence);
+      const stillBelow = data.reserve_status === "not_met";
+      setBidMsg({ kind: "success", text: `Welcome! You're the highest bidder at ${gbp(data.current_price_pence)}. We'll bid for you automatically, up to your maximum of ${gbp(pence)}.${stillBelow ? " The reserve hasn't been met yet." : ""}` });
+    } else {
+      setBidMsg({ kind: "error", text: `You're signed in, but another bidder's maximum is higher, so their automatic bid has beaten yours. The price is now ${gbp(data?.current_price_pence ?? pence)}. Try a higher maximum.` });
+    }
+    refreshBids();
+    router.refresh();
   }
 
   async function buyItNow() {
@@ -367,15 +391,11 @@ export default function LotLive({ initialLot, initialPhotos, initialBids, initia
     );
   } else if (!userId) {
     action = (
-      <>
-        {canBuyNow ? <p>Bid, or <strong>Buy it now for {gbp(lot.buy_now_pence)}</strong>. Sign in first. All you need is an email address.</p>
-          : <p>Sign in to bid. All you need is an email address.</p>}
-        <Link className="btn btn-brass btn-lg btn-block" href={`/login?next=/lot/${lot.id}`}>{canBuyNow ? "Sign in to bid or buy" : "Sign in to bid"}</Link>
-      </>
+      <QuickBid lotId={lot.id} minimum={minimum} canBuyNow={canBuyNow} buyNowPence={lot.buy_now_pence} onDone={afterQuickBid} />
     );
   } else {
     action = (
-      <form className="stack" style={{ gap: 10 }} onSubmit={placeBid} noValidate>
+      <form className="stack" style={{ gap: 10 }} onSubmit={placeBid} noValidate id="bid">
         {canBuyNow ? (
           confirm === "buy" ? (
             <div className="panel-note stack" style={{ gap: 10 }}>
